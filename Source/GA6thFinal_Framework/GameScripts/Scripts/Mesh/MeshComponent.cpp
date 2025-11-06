@@ -85,29 +85,32 @@ void MeshComponent::DrawMaterialsList()
     static UINT     lastSelected    = 0;
     IMeshRenderer*& lastRenderer    = GetLastSelectMeshRenderer();
 
-    const auto& model        = Renderer->GetModel();
-    const auto& customDepths = Renderer->GetCustomDepths();
-    auto&       materials    = Renderer->GetMaterials();
-    const auto& meshes       = model->GetMeshes();
-    UINT        count        = (UINT)model->GetMeshCount();
-
-    for (UINT i = 0; i < count; i++)
+    const auto& model = Renderer->GetModel();
+    if (model)
     {
-        ImGui::PushID(i);
-        bool isOpened = ImGui::TreeNodeEx(meshes[i]->GetName().data());
-        
-        if (ImGui::IsItemClicked())
-        {
-            HandleMeshSelection(i, lastRenderer, lastCustomDepth, lastSelected);
-        }
-        
-        if (isOpened)
-        {
-            DrawMaterialProperties(i, materials[i], customDepths[i]);
-            ImGui::TreePop();
-        }
+        const auto& customDepths = Renderer->GetCustomDepths();
+        auto&       materials    = Renderer->GetMaterials();
+        const auto& meshes       = model->GetMeshes();
+        UINT        count        = (UINT)model->GetMeshCount();
 
-        ImGui::PopID();
+        for (UINT i = 0; i < count; i++)
+        {
+            ImGui::PushID(i);
+            bool isOpened = ImGui::TreeNodeEx(meshes[i]->GetName().data());
+
+            if (ImGui::IsItemClicked())
+            {
+                HandleMeshSelection(i, lastRenderer, lastCustomDepth, lastSelected);
+            }
+
+            if (isOpened)
+            {
+                DrawMaterialProperties(i, materials[i], customDepths[i]);
+                ImGui::TreePop();
+            }
+
+            ImGui::PopID();
+        }
     }
 }
 
@@ -288,14 +291,11 @@ void MeshComponent::InitMaterial()
     const auto& model     = Renderer->GetModel();
     auto&       materials = Renderer->GetMaterials();
     size_t      meshCount = model->GetMeshCount();
-
-    if (ReflectFields->CustomDepth.size() < meshCount)
-    {
-        ReflectFields->ShadingModel.resize(meshCount, Material::ShadingModelType::DEFAULTLIT);
-        ReflectFields->BlendMode.resize(meshCount, 0);
-        ReflectFields->IsTwoSided.resize(meshCount, false);
-        ReflectFields->CustomDepth.resize(meshCount, PostProcess::BLOOM);
-    }
+    
+    ReflectFields->ShadingModel.resize(meshCount, Material::ShadingModelType::DEFAULTLIT);
+    ReflectFields->BlendMode.resize(meshCount, 0);
+    ReflectFields->IsTwoSided.resize(meshCount, false);
+    ReflectFields->CustomDepth.resize(meshCount, PostProcess::BLOOM);    
 
     for (size_t i = 0; i < meshCount; i++)
     {

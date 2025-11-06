@@ -12,11 +12,16 @@ public:
 public:
     void Submit() override;
 
-public:
-    REFLECT_PROPERTY()
+private:
+    void TransitionToCreditsScene();
 
+public:
+    REFLECT_PROPERTY(NextScene)
+    GETTER_ONLY(std::string, NextScene) { return File::Guid(ReflectFields->NextSceneGuid).ToPath().string(); }
+    PROPERTY(NextScene)
 protected:
     REFLECT_FIELDS_BEGIN(MainMenuNavigationBase)
+    std::string NextSceneGuid;
     REFLECT_FIELDS_END(Credits)
 };
 

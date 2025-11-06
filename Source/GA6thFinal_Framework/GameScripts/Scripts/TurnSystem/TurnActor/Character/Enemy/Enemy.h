@@ -9,6 +9,9 @@
 class ParticleComponent;
 class EnemyStatsComponent;
 class FSMState;
+class TurnAction;
+class ProclamationHUD;
+class UmCineMotion;
 
 class Enemy : public CharacterBase
 {
@@ -30,6 +33,7 @@ public:
     GETTER(EnemyType, Type) { return ReflectFields->Type; }
     PROPERTY(Type)
 
+
     GETTER_ONLY(Monster::SpawnPoint, SpawnPoint) { return _spawnPoint; }
     PROPERTY(SpawnPoint)
 
@@ -38,13 +42,18 @@ public:
     virtual ~Enemy();
 
 protected:
+    using ActionNameDataPair = std::pair<std::string, std::string>;
     REFLECT_FIELDS_BEGIN(CharacterBase)
     EnemyType Type = EnemyType::MONSTER_A;
+    std::vector<ActionNameDataPair> Actions;
     REFLECT_FIELDS_END(Enemy)
+
+    std::vector<std::unique_ptr<TurnAction>> _actions;
 
 private:
     Monster::SpawnPoint  _spawnPoint = Monster::SpawnPoint::Invalid;
-    Monster::Controller  _controller;
+    Monster::Controller  _controller; // 몬스터 AI, 액션 컨트롤러
+    Monster::SpawnParam  _spawnParam; // 몬스터 스폰 정보(ID, 초기 토큰)
     EnemyStatsComponent* _enemyStats = nullptr;
 
 protected:
@@ -62,6 +71,7 @@ protected:
     int _randomSpeed = 0;
 
 public:
+    void ClearState() override;
     /*Enemy의 턴을 종료합니다.*/
     void EndTurn() override;
     /*Enemy를 Dead 상태로 만듭니다.*/
@@ -71,6 +81,10 @@ public:
     /*Enemy에게 피격을 가합니다.*/
     void TakeDamage(int damage, bool playAnim = true) override;
     void TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim = true);
+    void ShowDamage(int damage, std::span<const std::string> sources) override;
+    void ShowCriticalDamage(int damage, std::span<const std::string> sources);
+    void Heal(int amount) override;
+    void ShowHeal(int healAmount, std::span<const std::string> sources) override;
 
     inline Monster::Controller&     GetController() { return _controller; }
     inline FiniteStateMachine&      GetFSM() { return *_finiteStateMachine; }
@@ -90,14 +104,18 @@ public:
     void SetMonsterHUD(GameObject* HUD);
 
 private:
-    GameObject* _monsterHUD = nullptr;
+    std::unordered_map<int, GameObject*> _tokenHUDTable;
+    GameObject*                          _monsterHUD       = nullptr;
+    ProclamationHUD*                     _proclamationHUD  = nullptr;
+    bool                                 _isCriticalDamage = false;
 
 protected:
     void Awake() override;
-    void Update() override;
+    void Start() override;
     void PlayTurn() override;
     void ImGuiDrawPropertysEvent() override;
-
+    void SerializedReflectEvent() override;
+    void DeserializedReflectEvent() override;
 
 private:
     void OnCombatStart() override;
@@ -110,5 +128,16 @@ private:
     void OnKill(CharacterBase* destination) override;
     void OnTokenAdded(int tokenID) override;
     void OnTokenRemoved(int tokenID) override;
+    void OnTokenEnter(int tokenID) override;
+    void OnTokenExit(int tokenID) override;
     void OnNotifiedAnimationEvent(const Timeline::EventContext* context) override;
+
+private:
+    void RegisterTokenHUD(int tokenID);
+    void UnregisterTokenHUD(int tokenID);
+    void SetupProclamationHUD();
+
+private:
+    void ShowActionEditor();
+
 };

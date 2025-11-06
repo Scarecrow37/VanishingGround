@@ -11,8 +11,10 @@ public:
 
     enum class TriggerType
     {
-        QTE_END,           // QTE 종료시
-        WEAPON_KILL_ENEMY, // 적 처치시
+        QTE_END,            // QTE 종료시
+        WEAPON_KILL_ENEMY,  // 적 처치시
+        PLAYER_TURN_END,    // 플레이어 턴 종료시
+        ATTACK,             // 공격시
     };
 
     inline static constexpr const char8_t* GetTriggerToolTip(TriggerType type) 
@@ -23,6 +25,10 @@ public:
             return u8"QTE 종료시";
         case ApplyDamage::TriggerType::WEAPON_KILL_ENEMY:
             return u8"무기 공격으로적 처치시";
+        case ApplyDamage::TriggerType::PLAYER_TURN_END:
+            return u8"플레이어 턴 종료시";
+        case ApplyDamage::TriggerType::ATTACK:
+            return u8"공격시";
         default:
             return u8"NULL";
         }
@@ -55,6 +61,9 @@ protected:
 
     void OnPlayerQTEResult(Player& player, const QTE::OverallResult& result) override;
     void OnEnemyDeadByWeapon(Enemy& enemy, WeaponElement& weapon) override;
+    void OnTurnEnd(CharacterBase& destination) override;
+    void OnPlayerBattleCalculateDamageModifier(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
+                                               Enemy& target, EnemyStats& targetStats) override;
 
 private:
     std::string _actionInfo;

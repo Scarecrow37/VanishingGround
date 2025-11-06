@@ -12,7 +12,7 @@ enum class FocusCallType : unsigned char
 
 constexpr unsigned int MAX_NAVIGATION_LOOP_COUNT = 100;
 
-class UIRoot : public UIBaseComponent
+class UIRoot : public UIBaseComponent, public InputReceiver
 {
     USING_PROPERTY(UIRoot)
 
@@ -27,8 +27,6 @@ public:
     UIRoot();
 
 public:
-    void Update() override;
-
     void SortViewOrder() const;
     void SetInitialFocus(const UINavigationComponent* uiComponent);
     void RequestChangeFocusComponent(UINavigationComponent* nextFocusComponent);
@@ -45,14 +43,19 @@ public:
 protected:
     void ImGuiDrawPropertysEvent() override;
     void Reset() override;
+    void Added() override;
     void Start() override;
 
 private:
     bool ChangeFocusComponent(UINavigationComponent* nextFocusComponent, FocusCallType callType);
-    void UpdateNavigation();
+    void UpdateNavigation(const Input::Controller& controller);
+    void ShowTooltips(const Input::Controller& controller);
+    void HideTooltips(const Input::Controller& controller);
     void UpdateNavigationMap();
     void UpdateNavigationMap(Transform& exceptTransform);
     void ChangeNavigationID(NavigationID from, NavigationID to);
+
+    void UpdateNavigation(const Input::Controller::ButtonState& buttonState);
 
     NavigationID           GetSpareID();
     UINavigationComponent* FindNavigationComponentInTransform(NavigationID id) const;

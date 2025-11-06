@@ -41,6 +41,12 @@ public:
     /// <summary>객체가 토큰이 제거되었을 때 호출됩니다.</summary>  
     virtual void OnTokenRemoved(int tokenID) = 0;
 
+    /// <summary>객체가 토큰이 제거되었을 때 호출됩니다.</summary>
+    virtual void OnTokenEnter(int tokenID) = 0;
+
+    /// <summary>객체가 토큰이 제거되었을 때 호출됩니다.</summary>
+    virtual void OnTokenExit(int tokenID) = 0;
+
     /// <summary>객체의 QTE가 시작할 때 호출됩니다.</summary>
     virtual void OnQTEStart() = 0;
 

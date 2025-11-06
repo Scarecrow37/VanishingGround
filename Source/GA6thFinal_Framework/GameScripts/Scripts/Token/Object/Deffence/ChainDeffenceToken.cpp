@@ -1,10 +1,12 @@
 ﻿#include "pchScripts.h"
 #include "ChainDeffenceToken.h"
-#include "TurnSystem/TurnActor/Character/CharacterBase.h"
+#include "TurnSystem/TurnActor/Character/Player/Player.h"
+#include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
 #include "Stats/Enemy/EnemyStats.h"
 #include "Stats/Player/PlayerStats.h"
 #include "Stats/Weapon/WeaponStats.h"
 #include "Token/TokenInventory.h"
+#include "ContentMath/ContentMath.h"
 
 namespace TokenObject
 {
@@ -33,12 +35,10 @@ namespace TokenObject
         const int deffenceChainCount = GetDeffenceChainCount();
         if (targetChainCount == deffenceChainCount)
         {
-            const int   param     = GetTokenParam(0);
-            const float factor    = 1.0f - (static_cast<float>(param) / 100.0f);
-            const float newDamage = static_cast<float>(damage) * factor;
-
-            damage = static_cast<int>(std::ceilf(newDamage));
+            const int param = GetTokenParam(0);
+            damage = ContentMath::CeilPercentage(damage, 100 - param);
         }
+        UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(targetData.Source));
     }
 
     void ChainDeffence::OnPostEnemyHitCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData,
@@ -49,12 +49,10 @@ namespace TokenObject
         const int deffenceChainCount = GetDeffenceChainCount();
         if (targetChainCount == deffenceChainCount)
         {
-            const int   param       = GetTokenParam(0);
-            const float factor      = 1.0f - (static_cast<float>(param) / 100.0f);
-            const float newDamage   = static_cast<float>(damage) * factor;
-
-            damage = static_cast<int>(std::ceilf(newDamage));
+            const int param = GetTokenParam(0);
+            damage = ContentMath::CeilPercentage(damage, 100 - param);
         }
+        UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(targetData.Source));
     }
 
 } // namespace TokenObject

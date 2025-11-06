@@ -10,6 +10,8 @@
 
 #include "Token/Object/Stun/StunToken.h"
 
+#include "ContentMath/ContentMath.h"
+
 REFLECT_FUNCTION(CharacterBase)
 
 int CharacterBase::GetHP()
@@ -60,6 +62,13 @@ int CharacterBase::GetMaxChainRoundCount()
     if (nullptr != stats)
     {
         maxChainCount = stats->MaxChainRoundCount;
+        if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+        {
+            mode->ApplyActions([this, &maxChainCount](TurnAction& action) 
+            {
+                action.OnCharacterMaxChainRoundCountUse(*this, maxChainCount);
+            });
+        }    
     }
     return maxChainCount;
 }
@@ -82,11 +91,6 @@ CharacterBase::CharacterBase() :
 
 CharacterBase::~CharacterBase() = default;
 
-void CharacterBase::Added() 
-{
-    _tokenInventory.Initialize();
-}
-
 void CharacterBase::Awake()
 {
     Base::Awake();
@@ -97,6 +101,11 @@ void CharacterBase::Awake()
 
     FindComponent();
     InitAnimationCallback();
+}
+
+void CharacterBase::Start() 
+{
+    Base::Start();
 }
 
 bool CharacterBase::FindComponent()
@@ -120,6 +129,7 @@ bool CharacterBase::FindComponent()
         {
             std::string msg = std::format("{}{}", model.ToString(), (const char*)u8"의 컴포넌트에 AnimationComponent가 없습니다.");
             UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+
         }
 
         if (nullptr == _particleComponent)
@@ -145,7 +155,7 @@ void CharacterBase::InitAnimationCallback()
 void CharacterBase::ClearState() 
 {
     Base::ClearState();
-    _tokenInventory.Clear();
+    _tokenInventory.Initialize();
     if (CharacterStats* stats = GetCharacterStats())
     {
         _tokenInventory.AddTokenStackFromID(TokenObject::StunResistance::ID, stats->StunResistance);    
@@ -164,7 +174,17 @@ void CharacterBase::Revive()
     if (CharacterStats* stats = GetCharacterStats())
     {
         stats->CurrentHP = stats->MaxHP;
-        stats->CurrentChainCount = stats->MaxChainRoundCount;
+        stats->CurrentChainCount = 0;
+        int maxChainRoundCount = stats->MaxChainRoundCount;
+        if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+        {
+            mode->ApplyActions([this, &maxChainRoundCount](TurnAction& action) 
+            {
+                action.OnCharacterMaxChainRoundCountUse(*this, maxChainRoundCount);
+            });
+        }
+        //부활 한 뒤에는 연격 지속시간 보정
+        stats->CurrentChainRoundCount = maxChainRoundCount + 1;
     }
 }
 
@@ -186,32 +206,26 @@ void CharacterBase::Heal(int amount)
 
         std::string msg = std::format("{}{}{}{}",
             gameObject->ToString(),
-            (const char*)u8"체력이",
+            (const char*)u8"체력이 ",
             amount,
-            (const char*)u8"회복"
+            (const char*)u8" 회복"
         );
         UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
     }
 }
 
-void CharacterBase::Heal(float factor) 
+void CharacterBase::HealByPercentage(int percentage) 
 {
     if (CharacterStats* stats = GetCharacterStats())
     {
-        const float maxHP      = static_cast<float>(stats->MaxHP);
-        const int   healAmount = static_cast<int>(maxHP * factor);
+        const int maxHP = stats->MaxHP;
+        const int healAmount = ContentMath::CeilPercentage(maxHP, percentage);
         Heal(healAmount);
     }
 }
 
 void CharacterBase::TakeDamage(int damage, bool playAnim) 
 {
-    // 데미지가 0 이하일 경우 무시
-    if (damage <= 0)
-    {
-        return;
-    }
-
     CharacterStats* stats = GetCharacterStats();
     if (stats)
     {
@@ -220,8 +234,7 @@ void CharacterBase::TakeDamage(int damage, bool playAnim)
         GameObject& owner = gameObject;
         std::string msg   = std::format("{}{} {}{}", owner.ToString(), (const char*)u8"이(가)", damage,
                                         (const char*)u8"의 피해를 입었습니다.");
-        UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
-
+        UmLogger.Message(LogLevel::LEVEL_TRACE, msg);
         OnHit();
     }
     if (false == IsDead())
@@ -277,12 +290,20 @@ int CharacterBase::DecrementChainRoundCount()
     CharacterStats* stats = GetCharacterStats();
     if (stats)
     {
-        stats->CurrentChainRoundCount = std::clamp((int)stats->CurrentChainRoundCount - 1, 0, (int)stats->MaxChainRoundCount);
+        stats->CurrentChainRoundCount -= 1;
         int chainRoundCount = stats->CurrentChainRoundCount;
         if (chainRoundCount == 0)
         {
             stats->CurrentChainCount = 0;
-            stats->CurrentChainRoundCount = stats->MaxChainRoundCount;
+            int maxChainRoundCount = stats->MaxChainRoundCount;
+            if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+            {
+                mode->ApplyActions([this, &maxChainRoundCount](TurnAction& action) 
+                {
+                    action.OnCharacterMaxChainRoundCountUse(*this, maxChainRoundCount);
+                });
+            }
+            stats->CurrentChainRoundCount = maxChainRoundCount;
         }     
         return stats->CurrentChainRoundCount;
     }
@@ -292,6 +313,7 @@ int CharacterBase::DecrementChainRoundCount()
 
 void CharacterBase::OnCombatStart() 
 {
+    Base::OnCombatStart();
     _tokenInventory.NotifyCombatStart();
 }
 
@@ -319,12 +341,21 @@ void CharacterBase::OnTurnStart()
 {
     Base::OnTurnStart();
     _tokenInventory.NotifyTurnStart();
+    UmAudio.Play("-421000");
+    if (_particleComponent)
+    {
+        _particleComponent->PlayEffect("turn");
+    }
 }
 
 void CharacterBase::OnTurnEnd() 
 {
     Base::OnTurnEnd();
     _tokenInventory.NotifyTurnEnd();
+    if (_particleComponent)
+    {
+        _particleComponent->StopEffect("turn");
+    }
 }
 
 void CharacterBase::OnHit() 
@@ -351,6 +382,18 @@ void CharacterBase::OnTokenRemoved(int tokenID)
     _tokenInventory.NotifyTokenRemoved(tokenID);
 }
 
+void CharacterBase::OnTokenEnter(int tokenID) 
+{
+    Base::OnTokenEnter(tokenID);
+    _tokenInventory.NotifyTokenEnter(tokenID);
+}
+
+void CharacterBase::OnTokenExit(int tokenID) 
+{
+    Base::OnTokenExit(tokenID);
+    _tokenInventory.NotifyTokenExit(tokenID);
+}
+
 void CharacterBase::OnQTEStart() 
 {
     Base::OnQTEStart();
@@ -371,11 +414,8 @@ void CharacterBase::ImGuiDrawPropertysEvent()
 {
     Base::ImGuiDrawPropertysEvent();
     ImGui::Separator();
-    if (ImGui::TreeNodeEx("Token##enemy component", ImGuiTreeNodeFlags_DefaultOpen))
-    {
-        ImGui::PushID(&_tokenInventory);
-        _tokenInventory.DrawImGuiDebugData();
-        ImGui::PopID();
-        ImGui::TreePop();
-    }
+    ImGuiHelper::AlignedText("Token Inventory", ImGuiHelper::LEFT, 0.8f);
+    ImGui::PushID(&_tokenInventory);
+    _tokenInventory.DrawImGuiDebugData();
+    ImGui::PopID();
 }

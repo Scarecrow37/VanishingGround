@@ -91,6 +91,10 @@ void TurnActor::OnTokenAdded(int tokenID) {}
 
 void TurnActor::OnTokenRemoved(int tokenID) {}
 
+void TurnActor::OnTokenEnter(int tokenID) {}
+
+void TurnActor::OnTokenExit(int tokenID) {}
+
 void TurnActor::OnQTEStart() {}
 
 void TurnActor::OnQTEEnd() {}

@@ -17,6 +17,8 @@
 #include "Preferences/PreferencesManager.h"
 #include "Inventory/UI/InventoryUIManager.h"
 
+#include "DifficultyManager/DifficultyEnum.h"
+
 UMREAL_COMPONENT(MapManager)
 
 MapManager::MapManager()
@@ -98,6 +100,32 @@ void MapManager::SetFocusStage(Stage* stage)
     }
 }
 
+bool MapManager::TrySelectStage(Stage* stage)
+{
+    // 동일한 메인 레벨 스테이지들 비활성화
+    if (stage && stage->IsEnable())
+    {
+        // 현재 클리어된 스테이지보다 1단계 높은 스테이지만 선택 가능
+        if (stage->MainLevel == _lastClearedStageData.MainLevel+ 1)
+        {
+            SetSelectStage(stage);
+            return true;
+        }
+    }
+    return false;
+}
+
+void MapManager::SetSelectStage(Stage* stage) 
+{
+    if (stage)
+    {
+        stage->OnSelected();
+        _selectedStage = stage;
+        _lastClearedStageData.MainLevel = stage->MainLevel;
+        _lastClearedStageData.SubLevel  = stage->SubLevel;
+    }
+}
+
 void MapManager::Awake()
 {    
     if (_singletonObject.TrySingleTon(true))
@@ -169,7 +197,7 @@ void MapManager::Update()
                 }
                 if (ImGui::Button(stageName.c_str()))
                 {
-                    stage->Submit();
+                    SetSelectStage(stage);
                 }
             }
         }
@@ -179,6 +207,11 @@ void MapManager::Update()
             OpenPreferencesWindow();
         }
     });
+}
+
+void MapManager::OnEnable() 
+{
+    UpdateStageFocus();
 }
 
 void MapManager::OnLoadScene(Scene& loadScene, LoadSceneMode mode)
@@ -207,26 +240,32 @@ void MapManager::OnLoadScene(Scene& loadScene, LoadSceneMode mode)
 
 void MapManager::ImGuiDrawPropertysEvent()
 {    
+    ImGui::Separator();
+    ImGuiHelper::AlignedText("Stage Info", ImGuiHelper::LEFT, 0.8f);
+    ImGui::Text("Cleared Stage Data: %i, %i", _lastClearedStageData.MainLevel, _lastClearedStageData.SubLevel);
+    ImGui::Text("Current Stage: ");
+    if (_selectedStage)
+    {
+        ImGui::BeginDisabled();
+        _selectedStage->ImGuiDrawPropertys();
+        ImGui::EndDisabled();
+    }
+
+    ImGui::Separator();
     if (ImGui::Button("Add Stage"))
     {
         DefaultSetting();        
 
         auto stages = GameObject::Find("Stages").lock();
-
         auto stage = NewGameObject("Stage");
-        stage->transform->SetParent(stages->transform);
-
-        auto& stageComponent = stage->AddComponent<Stage>();
-
-        std::string key = "Stage" + std::to_string(stages->transform->ChildCount);
-        stageComponent.RegisterStage(key, 
-                                     UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[STAGE_ENABLE]),
-                                     UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[STAGE_DISABLE]));
-
-        stage->AddComponent<ImageElement>();
-        stage->AddComponent<StageView>().Watch(key);
-
-        _childCount++;
+        if (stage)
+        {
+            stage->transform->SetParent(stages->transform);
+            stage->AddComponent<Stage>();
+            stage->AddComponent<ImageElement>();
+            stage->AddComponent<StageView>();
+            RegisterStage(*stage.get());
+        }
     }
 
     if (ImGui::Button("Update Data"))
@@ -300,28 +339,13 @@ void MapManager::SetupStage()
 
     if (stages)
     {
-        _childCount = stages->transform->GetChildCount();
-
-        for (int i = 0; i < _childCount; i++) 
+        const int childCount = stages->transform->GetChildCount();
+        for (int i = 0; i < childCount; i++) 
         {
             auto child = stages->transform->GetChild(i);
             if (child)
             {
-                std::string key   = "Stage" + std::to_string(i + 1);
-                auto        stage = child->gameObject->GetComponent<Stage>();
-                if (stage)
-                {
-                    _stages.push_back(stage);
-                    stage->UpdateData(key, 
-                                      UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[STAGE_ENABLE]),
-                                      UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[STAGE_DISABLE]));
-                }
-
-                auto stageView = child->gameObject->GetComponent<StageView>();
-                if (stageView)
-                {
-                    stageView->Watch(key);
-                }
+                RegisterStage(child->gameObject);
             }
         }
     }
@@ -332,7 +356,76 @@ void MapManager::SetupStage()
     }    
 }
 
-void MapManager::PreferencesKeyDown(const Input::Controller&) 
+void MapManager::RegisterStage(GameObject& object)
+{
+    if (Stage* stage = object.GetComponent<Stage>())
+    {
+        const int mainLevel = stage->MainLevel;
+        const int subLevel  = stage->SubLevel;
+        _stages.push_back(stage);
+        _stageDataTable[mainLevel][subLevel] = stage;
+
+        std::string key = std::string(object.ToString());
+        stage->UpdateData(key, UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[STAGE_ENABLE]),
+                          UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[STAGE_DISABLE]));
+
+        if (StageView* stageView = object.GetComponent<StageView>())
+        {
+            stageView->Watch(key);
+        }
+    }
+}
+
+void MapManager::UpdateStageFocus()
+{
+    for (auto& [mainLevel, stageMap] : _stageDataTable)
+    {
+        for (auto& [subLevel, stage] : stageMap)
+        {
+            if (stage)
+            {
+                bool canSubmit = CanSubmitStage(stage);
+                stage->SetEnable(canSubmit);
+
+                const int  stageMapSize      = static_cast<int>(stageMap.size());
+                const int  nextFocusSubLevel = std::clamp(_lastClearedStageData.SubLevel, 1, stageMapSize);
+                const bool canNextFocus      = stage->SubLevel == nextFocusSubLevel;
+                if (canSubmit && canNextFocus)
+                {
+                    stage->Focus();
+                }
+            }
+        }
+    }
+}
+
+bool MapManager::CanSubmitStage(Stage* stage)
+{
+    if (stage)
+    {
+        return _lastClearedStageData.MainLevel + 1 == stage->MainLevel;
+    }
+    return false;
+}
+
+Stage* MapManager::GetCurrentSelectedStage()
+{
+    return _selectedStage;
+}
+
+Monster::SpawnID MapManager::GetCurrentSpawnID()
+{
+    if (_selectedStage)
+    {
+        const int mainLevel   = _selectedStage->MainLevel;
+        const int subLevel    = _selectedStage->SubLevel;
+        const int battleCount = _selectedStage->BattleCount;
+        return Monster::GetSpawnID(mainLevel, subLevel, battleCount);
+    }
+    return 0;
+}
+
+void MapManager::PreferencesKeyDown(const Input::Controller&)
 {
     OpenPreferencesWindow();
 }
@@ -361,6 +454,7 @@ void MapManager::OpenPreferencesWindow()
                     _openPreferences = true;
                 }
             });
+            UmAudio.Play("-901005");
         }
     }
 }
@@ -384,6 +478,7 @@ void MapManager::OpenInventoryWindow()
                     _openInventory = true;
                 }
             });
+            UmAudio.Play("-901005");
         }
     }
 }

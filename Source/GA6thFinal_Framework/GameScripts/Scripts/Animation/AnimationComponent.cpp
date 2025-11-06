@@ -12,13 +12,6 @@ void AnimationComponent::Added()
     SetAnimator(GetComponent<SkeletalMeshRenderer>());
 }
 
-void AnimationComponent::Start()
-{
-    ChangeMainAnimation(ReflectFields->MainAnimationKey);
-    ChangeMainAnimationFlags(ReflectFields->MainAnimationFlags);
-    _currentAnimationData = &_mainAnimationData;
-}
-
 void AnimationComponent::Update() 
 {
     //// 애니메이터가 해당 객체만 사용 중이라면 reset합니다.
@@ -425,6 +418,7 @@ void AnimationComponent::UpdateAnimation(AnimationData& animData)
         {
             _animator->SetPause(animData.HasFlag(ANIMATION_FLAG_PAUSE));
             _animator->SetLoop(animData.HasFlag(ANIMATION_FLAG_USE_LOOP));
+            _animator->SetAnimationEndCallback(animData._onEndCallback);
             _animator->SetAnimationSpeed(animFrameScale);
             animData._elapsedFrame = _animator->GetCurrentAnimationPlayTime();
             isDirty = true;
@@ -445,8 +439,8 @@ void AnimationComponent::UpdateAnimation(AnimationData& animData)
             auto eventTrack = _eventTrack.GetEventTrack(animData._animationName);
             if (eventTrack)
             {
-                ReflectFields->DisableAnimationNotify ? eventTrack->AddFlags(Timeline::EVENT_TRCK_FLAGS_NOTIFY_DISABLED)
-                                                      : eventTrack->RemoveFlags(Timeline::EVENT_TRCK_FLAGS_NOTIFY_DISABLED);
+                ReflectFields->DisableAnimationNotify ? eventTrack->AddFlags(Timeline::EVENT_TRACK_FLAGS_NOTIFY_DISABLED)
+                                                      : eventTrack->RemoveFlags(Timeline::EVENT_TRACK_FLAGS_NOTIFY_DISABLED);
                 eventTrack->SetPreNotifyCallback(_preEventCallback);
                 eventTrack->SetPostNotifyCallback(_postEventCallback);
                 eventTrack->SetCurrentFrame(animData._elapsedFrame);
@@ -475,7 +469,7 @@ bool AnimationComponent::SetAnimationEx(AnimationData& animData)
         if (false == _isBuildingOverrideAnimation)
         {
             const char* animName = animData._animationName.c_str();
-            bool        canBlend = animData.HasFlag(ANIMATION_FLAG_USE_LOOP);
+            const bool  canBlend = animData.HasFlag(ANIMATION_FLAG_USE_BLEND);
             result = _animator->ChangeAnimation(animName, canBlend);
             if (result)
             {
@@ -505,7 +499,6 @@ bool AnimationComponent::SetAnimationEx(AnimationData& animData)
                     animData._elapsedFrame = 0.0f;
                 }
                 _animator->SetAnimationTime(animData._elapsedFrame);
-                _animator->SetAnimationEndCallback(animData._onEndCallback);
                 _lastAnimationData = &animData;
             }
         }
@@ -593,7 +586,7 @@ void AnimationComponent::GetAnimationNameEx(std::string_view key, std::string& s
     }
 }
 
-void AnimationComponent::SetNextAnimationFlags(AnimationFlags nextAnimFlag)
+void AnimationComponent::SetNextAnimationFlags(int nextAnimFlag)
 {
     _nextAnimationFlag.first  = true;
     _nextAnimationFlag.second = nextAnimFlag;
@@ -770,6 +763,13 @@ bool AnimationComponent::ChangeMainAnimation(std::string_view animKey, bool rese
     return ChangeAnimationEx(_mainAnimationData, animKey);
 }
 
+void AnimationComponent::ChangeDefaultAnimation()
+{
+    ChangeMainAnimationFlags(ReflectFields->MainAnimationFlags);
+    ChangeMainAnimation(ReflectFields->MainAnimationKey);
+    _currentAnimationData = &_mainAnimationData;
+}
+
 void AnimationComponent::ChangeCurrentAnimationFrame(float frame) 
 {
     ChangeAnimationFrameEx(GetLastAnimationDataEx(), frame);
@@ -872,6 +872,10 @@ void AnimationComponent::PlayCurrentAnimation()
 {
     AnimationData& animData = GetTopAnimationDataEx();
     animData.RemoveFlag(ANIMATION_FLAG_PAUSE);
+    if (_animator)
+    {
+        _animator->SetPause(false);
+    }
     ChangeAnimationFrameEx(animData, 0.0f);
 }
 
@@ -885,6 +889,10 @@ void AnimationComponent::StopCurrentAnimation()
 {
     AnimationData& animData = GetTopAnimationDataEx();
     animData.AddFlag(ANIMATION_FLAG_PAUSE);
+    if (_animator)
+    {
+        _animator->SetPause(true);
+    }
     ChangeAnimationFrameEx(animData, 0.0f);
 }
 
@@ -902,7 +910,7 @@ void AnimationComponent::SetAnimator(SkeletalMeshRenderer* renderer)
     }
 }
 
-void AnimationComponent::SetAnimator(GraphicsPointer<IAnimator> animator)
+void AnimationComponent::SetAnimator(IAnimator* animator)
 {
     if (_animator != animator)
     {

@@ -4,6 +4,7 @@
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
 #include "Stats/Enemy/EnemyStats.h"
 #include "Stats/Player/PlayerStats.h"
+#include "ContentMath/ContentMath.h"
 
 namespace TokenObject
 {
@@ -13,24 +14,20 @@ namespace TokenObject
 
     void Armor::OnPostPlayerHitCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData, int& damage) 
     {
-        const int   tokenID            = GetTokenID();
-        const int   param              = GetTokenParam(0);
-        const float factor             = 1.0f - (static_cast<float>(param) / 100.0f);
-        const float newDamage          = static_cast<float>(damage) * factor;
-        damage                         = static_cast<int>(std::ceilf(newDamage));
-        
+        const int   tokenID = GetTokenID();
+        const int   param   = GetTokenParam(0);
+        damage              = ContentMath::CeilPercentage(damage, 100 -param);
         TokenInventory& tokenInventory = targetData.Source.GetTokenInventory();
         tokenInventory.RemoveTokenStackFromID(tokenID);
+        UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(targetData.Source));
     }
     void Armor::OnPostEnemyHitCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData, int& damage) 
     {
-        const int   tokenID            = GetTokenID();
-        const int   param              = GetTokenParam(0);
-        const float factor             = 1.0f - (static_cast<float>(param) / 100.0f);
-        const float newDamage          = static_cast<float>(damage) * factor;
-        damage                         = static_cast<int>(std::ceilf(newDamage));
-
+        const int   tokenID = GetTokenID();
+        const int   param   = GetTokenParam(0);
+        damage              = ContentMath::CeilPercentage(damage, 100 -param);
         TokenInventory& tokenInventory = targetData.Source.GetTokenInventory();
         tokenInventory.RemoveTokenStackFromID(tokenID);
+        UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(targetData.Source));
     }
 } // namespace TokenObject

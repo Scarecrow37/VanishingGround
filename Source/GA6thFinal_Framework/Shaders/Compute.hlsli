@@ -7,7 +7,7 @@ struct ParticleInput
     float3   Velocity;
     float    Mass;
     int      EmitterIndex;
-    float3   Paddings;
+    float3   SpriteRotation;
     float4x4 InitialMatrix;
 };
 
@@ -101,33 +101,77 @@ float4x4 CreateScaleMatrix(float4 scale)
     0, 0, 0, 1);
 }
 
-
-
-// ============================================================
-// Catmull–Rom (float 스칼라) 기본 폴리노미얼~이다
-// p0,p1,p2,p3는 연속 제어점, t ∈ [0,1]은 구간 [p1,p2]의 로컬 파라미터~이다
-// ============================================================
-inline float CatmullRom(float t, float p0, float p1, float p2, float p3)
+// --- 기본 축 회전 ---
+float3x3 RotX(float rx)
 {
-    float t2 = t * t;
-    float t3 = t2 * t;
-    float a0 = -0.5f * p0 + 1.5f * p1 - 1.5f * p2 + 0.5f * p3;
-    float a1 = p0 - 2.5f * p1 + 2.0f * p2 - 0.5f * p3;
-    float a2 = -0.5f * p0 + 0.5f * p2;
-    float a3 = p1;
-    return a0 * t3 + a1 * t2 + a2 * t + a3;
+    float s = sin(rx), c = cos(rx);
+    return float3x3(1, 0, 0, 0, c, -s, 0, s, c);
+}
+float3x3 RotY(float ry)
+{
+    float s = sin(ry), c = cos(ry);
+    return float3x3(c, 0, s, 0, 1, 0, -s, 0, c);
+}
+float3x3 RotZ(float rz)
+{
+    float s = sin(rz), c = cos(rz);
+    return float3x3(c, -s, 0, s, c, 0, 0, 0, 1);
+}
+float3x3 CreateFromEulerXYZ(float3 eulerXYZ)
+{
+    float pitch = eulerXYZ.x; // X
+    float yaw = eulerXYZ.y; // Y
+    float roll = eulerXYZ.z; // Z
+
+    return mul(RotY(yaw), mul(RotX(pitch), RotZ(roll)));
 }
 
-// ============================================================
-// (float3) Catmull–Rom: Vector3 버전 (C++의 Vector3::CatmullRom 대응)~이다
-// ============================================================
-inline float3 CatmullRom(float u, float3 p0, float3 p1, float3 p2, float3 p3)
+// 4x4가 필요할 때
+float4x4 To4x4(float3x3 R)
 {
-    return float3(
-        CatmullRom(u, p0.x, p1.x, p2.x, p3.x),
-        CatmullRom(u, p0.y, p1.y, p2.y, p3.y),
-        CatmullRom(u, p0.z, p1.z, p2.z, p3.z)
+    return float4x4(
+        R[0][0], R[0][1], R[0][2], 0,
+        R[1][0], R[1][1], R[1][2], 0,
+        R[2][0], R[2][1], R[2][2], 0,
+        0, 0, 0, 1
     );
 }
 
+float4x4 CreateRotationMatrix(float3 eulerXYZ)
+{
+    return To4x4(CreateFromEulerXYZ(eulerXYZ));
+}
 
+float3 ExtractScale(float4x4 oriented)
+{
+    float3 axisX = oriented[0].xyz;
+    float3 axisY = oriented[1].xyz;
+    float3 axisZ = oriented[2].xyz;
+
+    float3 scale = float3(length(axisX), length(axisY), length(axisZ));
+
+    float3 safeScale = max(scale, float3(1e-6f, 1e-6f, 1e-6f));
+    float3x3 rotation = float3x3(
+          axisX / safeScale.x,
+          axisY / safeScale.y,
+          axisZ / safeScale.z
+      );
+    if (determinant(rotation) < 0.0f)
+    {
+        scale.x *= -1.0f; // 필요하다면 다른 축을 선택해도 됨
+    }
+    return scale;
+}
+
+float4x4 ExtractScaleMatrix(float4x4 oriented, float wComponent = 1.0f)
+{
+    float3 scale = ExtractScale(oriented);
+    return CreateScaleMatrix(float4(scale, wComponent));
+}
+
+static const float4x4 IdentityMatrix = 
+float4x4(
+1, 0, 0, 0, 
+0, 1, 0, 0, 
+0, 0, 1, 0, 
+0, 0, 0, 1);

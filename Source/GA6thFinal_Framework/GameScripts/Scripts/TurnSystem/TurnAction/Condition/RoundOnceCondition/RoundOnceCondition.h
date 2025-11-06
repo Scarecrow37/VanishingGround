@@ -12,7 +12,7 @@ public:
 
     bool Evaluate() override;
     void DrawImguiEditor() override;
-    const std::string& GetConditionInfo() const override;
+    const std::string& GetConditionInfo() override;
     
     void OnEvaluateConditions(bool result) override;
 
@@ -36,5 +36,7 @@ public:
 
 private:
     RoundOnceAction _roundOnceAction;
+
+    bool CheckEvaluate(CharacterBase* character) override;
 };
 

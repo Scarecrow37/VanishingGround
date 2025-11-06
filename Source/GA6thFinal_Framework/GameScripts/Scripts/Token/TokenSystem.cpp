@@ -19,21 +19,33 @@ void TokenSystem::Added()
 {
     Base::Added();
 
-    // 엑셀 데이터를 로드
-    if (ExcelDataSystem* dataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
+    if (false == UmCore->IsPlay())
     {
-        _tokenDataTable.clear();
-        LoadTokenDataFromExcelData(dataSystem);
+        InitData();
     }
-    RegisterAllTokenInstance();
-    SortByOrder();
 }
 
 void TokenSystem::Awake() 
 {
     Base::Awake();
     _singletonComponent.TrySingleTon();
-    _singletonObject.TrySingleTon(true);
+    if(_singletonObject.TrySingleTon(true))
+    {
+        InitData();
+    }
+}
+
+void TokenSystem::Update() 
+{
+    Debugger dbg;
+    dbg([this]() 
+    { 
+        float delayTime = ReflectFields->TokenDamageDelayTime;
+        if (ImGui::DragFloat("Token Damage Delay Time", &delayTime, 0.1f))
+        {
+            ReflectFields->TokenDamageDelayTime = delayTime;
+        }
+    });
 }
 
 void TokenSystem::OnDestroy() 
@@ -171,6 +183,21 @@ void TokenSystem::LoadTokenDataFromExcelData(ExcelDataSystem* dataSystem)
                 {
                     StringHelper::StringToInt(excelData, tokenData.ID);
                 }
+                excelData = dataBase->FindData(rowIndex, TokenExcelData::Key::ICON_ID);
+                if (excelData != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    StringHelper::StringToInt(excelData, tokenData.IconID);
+                }
+                excelData = dataBase->FindData(rowIndex, TokenExcelData::Key::INFO_ID);
+                if (excelData != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    StringHelper::StringToInt(excelData, tokenData.InfoID);
+                }
+                excelData = dataBase->FindData(rowIndex, TokenExcelData::Key::IMAGE_ID);
+                if (excelData != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    StringHelper::StringToInt(excelData, tokenData.ImageID);
+                }
                 excelData = dataBase->FindData(rowIndex, TokenExcelData::Key::NAME);
                 if (excelData != ExcelDataBase::FIND_STR_FAIL)
                 {
@@ -209,6 +236,18 @@ void TokenSystem::LoadTokenDataFromExcelData(ExcelDataSystem* dataSystem)
     }
     bool isValid = _tokenDataTable.size() == _registeredFactoryTable.size();
     assert(isValid && "토큰 엑셀 데이터 시트와 토큰 인스턴스 개수가 다릅니다.");
+}
+
+void TokenSystem::InitData() 
+{
+    // 엑셀 데이터를 로드
+    if (ExcelDataSystem* dataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
+    {
+        _tokenDataTable.clear();
+        LoadTokenDataFromExcelData(dataSystem);
+    }
+    RegisterAllTokenInstance();
+    SortByOrder();
 }
 
 void TokenSystem::Clear()

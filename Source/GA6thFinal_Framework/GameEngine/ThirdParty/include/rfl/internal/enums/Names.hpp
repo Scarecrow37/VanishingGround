@@ -1,4 +1,4 @@
-#ifndef RFL_INTERNAL_ENUMS_NAMES_HPP_
+﻿#ifndef RFL_INTERNAL_ENUMS_NAMES_HPP_
 #define RFL_INTERNAL_ENUMS_NAMES_HPP_
 
 #include <algorithm>
@@ -28,7 +28,7 @@ namespace rfl {
 // To change the default maximum range for all enum types, redefine the macro
 // RFL_ENUM_RANGE_MAX.
 #if !defined(RFL_ENUM_RANGE_MAX)
-#define RFL_ENUM_RANGE_MAX 127
+#define RFL_ENUM_RANGE_MAX 64
 #endif
 
 namespace config {

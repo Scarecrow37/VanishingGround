@@ -70,6 +70,8 @@ public:
 	void MakeParent(const char* parent, const char* child) override;
 
 private:
+    void     InitializeFinalBoneMap();
+    void     TraverseBoneMap(const Bone& bone);
 	void UpdateAnimationTransform(Bone& skeletion, const XMMATRIX& parentTransform, std::vector<Controller>& controllers, std::vector<Matrix>& transforms);
 	XMVECTOR InterpolationVector3(const std::vector<std::pair<float, Vector3>>& v, const float t);
 	XMVECTOR InterpolationVector4(const std::vector<std::pair<float, Vector4>>& v, const float t);
@@ -108,8 +110,8 @@ private:
 	unsigned int							_maxSplit{ 0 };	
 	bool                                    _isBlending{false};
     bool                                    _isInitialize{false};
-    bool                                    _isPause{false};
-    bool                                    _isLoop{true};
+    bool                                    _isPause{true};
+    bool                                    _isLoop{false};
 
     std::function<void()>                   _onAnimationEndCallback{nullptr};
 };

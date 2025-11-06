@@ -2,8 +2,6 @@
 #include "ViewModels/Hp/CharacterHPViewModel.h"
 
 class TextElement;
-class ImageElement;
-
 class MonsterHpTextView : public Component
 {
     USING_PROPERTY(MonsterHpTextView)
@@ -27,18 +25,20 @@ protected:
     REFLECT_FIELDS_END(MonsterHpTextView)
 
 private:
-    TextElement* _hpTextElement;
+    TextElement*                 _hpTextElement;
     CharacterHPViewModel::Handle _watchHandle;
-    std::string                  _key;
+    std::string                  _key;    
 };
 
+class ReduceGage;
+class ImageElement;
 class MonsterHpImageView : public Component
 {
     USING_PROPERTY(MonsterHpImageView)
 
 public:
     MonsterHpImageView();
-    void OnDestroy() override;
+    ~MonsterHpImageView() override;
 
 public:
     void Watch(const std::string& key);
@@ -46,16 +46,19 @@ public:
 
 protected:
     void Awake() override;
+    void OnDestroy() override;
 
 private:
-    void FindTextElement();
+    void FindElements();
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     REFLECT_FIELDS_END(MonsterHpImageView)
 
 private:
-    ImageElement*                _hpImageElement;
-    CharacterHPViewModel::Handle _watchHandle;
+    ImageElement*                _reduceHpImageElement{nullptr};
+    ImageElement*                _hpImageElement{nullptr};
+    ReduceGage*                  _reduceGage{nullptr};
+    CharacterHPViewModel::Handle _handle;
     std::string                  _key;
 };

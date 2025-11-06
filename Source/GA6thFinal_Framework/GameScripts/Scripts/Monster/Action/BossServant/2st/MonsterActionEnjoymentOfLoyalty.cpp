@@ -1,29 +1,22 @@
 ﻿#include "pchScripts.h"
 #include "MonsterActionEnjoymentOfLoyalty.h"
-#include "TurnSystem/TurnActor/Character/CharacterBase.h"
+#include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
 
 REGISTER_MONSTER_ACTION(Monster::Action::EnjoymentOfLoyalty)
 namespace Monster
 {
     namespace Action
     {
-        EnjoymentOfLoyalty::EnjoymentOfLoyalty() : Base("Attack1") {}
+        EnjoymentOfLoyalty::EnjoymentOfLoyalty() : BossServantAction("", 2.0f) {}
         EnjoymentOfLoyalty::~EnjoymentOfLoyalty() = default;
-        void EnjoymentOfLoyalty::OnActionEnter() {}
-        void EnjoymentOfLoyalty::OnActionUpdate() {}
-        void EnjoymentOfLoyalty::OnActionExit() {}
-        void EnjoymentOfLoyalty::OnActionReset() {}
-        void EnjoymentOfLoyalty::OnNotifiedAnimationEvent(const Timeline::EventContext* context) 
+        void EnjoymentOfLoyalty::OnActionEnter() 
         {
-            const std::string& label = context->GetLabel();
-            if ("Behavior" == label)
-            {
-                Behavior();
-            }
+            Behavior();
         }
         /*
         바른의 T_Param(1), T_Param(2), T_Param(3), 중 하나를 제거한다.
         바른이 갖고 있는 토큰 중에서 하나를 선정해 시전한다.
+        자신에게 T_Param(4)를 S_Param(1)~S_Param(2) 만큼 부여한다.
         */
         void EnjoymentOfLoyalty::Behavior() 
         {
@@ -34,7 +27,7 @@ namespace Monster
                 std::vector<int> availableTokenID;
 
                 // i 는 1부터 시작
-                for (size_t i = 1; i <= tokenParamCount; ++i)
+                for (size_t i = 1; i <= 3; ++i)
                 {
                     TokenParam tokenParam = GetTokenParam(i);
                     if (tokenInventory.HasTokenFromID(tokenParam.TokenID))
@@ -44,7 +37,7 @@ namespace Monster
                 }
                 if (false == availableTokenID.empty())
                 {
-                    int randomIndex = Random::Range(0, (int)availableTokenID.size() - 1);
+                    size_t randomIndex = Random::Index(availableTokenID.size());
                     tokenInventory.RemoveTokenStackFromID(availableTokenID[randomIndex]);
                 }
             }

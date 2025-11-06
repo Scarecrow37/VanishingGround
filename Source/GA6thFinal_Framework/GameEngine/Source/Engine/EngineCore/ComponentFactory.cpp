@@ -51,7 +51,6 @@ bool EComponentFactory::InitalizeComponentFactory()
         //Input Receiver Clear
         ESceneManager::Engine::GetInputSystem().CleanupInputReceivers();
 
-
         //모든 컴포넌트 자원 회수
         for (auto& [key, wptr] : _componentInstanceVec)
         {
@@ -63,6 +62,9 @@ bool EComponentFactory::InitalizeComponentFactory()
             }
         }
         _componentInstanceVec.clear();
+
+        //weak_ptr clear
+        UmSceneManager.ClearExpiredMeshComponents();
 
         // Script Dll에서 생성된 Graphics 자원 회수
         UmGraphics.ClearGraphicsResource();
@@ -184,8 +186,6 @@ bool EComponentFactory::InitalizeComponentFactory()
             newComponent = std::move(missing);
         }
         ResetComponent(gameObject, newComponent);       // 엔진에서 사용하기 위해 초기화
-        newComponent->_initFlags.SetAwake();            // 초기화 플래그 설정
-        newComponent->_initFlags.SetStart();            // 초기화 플래그 설정
         gameObject->_components[index] = newComponent;  
         if (isFind == true)
         {
@@ -199,22 +199,28 @@ bool EComponentFactory::InitalizeComponentFactory()
                 newComponent->DeserializedReflectFields(reflectData); // 데이터 복구
                 if (gameObject->IsValid())
                 {
+                    newComponent->_initFlags.SetAwake(); // 초기화 플래그 설정
+                    newComponent->_initFlags.SetStart(); // 초기화 플래그 설정
                     newComponent->Reset();
                 }
             }          
             newComponent->UpdateEnableInHierarchy();
         }     
     }
-
-    //존재 안하는거는 전부 제거
+   
+    //존재 안하는거는 전부 제거 및 Added 호출
     for (auto& [gameObject, key, index, reflectData] : addList)
     {
         std::erase_if(gameObject->_components, [](auto& sptr)
+        {
+            bool isErase = sptr == nullptr;
+            if (false == isErase)
             {
-                return sptr == nullptr;
-            });
+                sptr->Added();
+            }
+            return isErase;
+        });
     }
-
     return true;
 }
 
@@ -235,6 +241,12 @@ void EComponentFactory::UninitalizeComponentFactory()
             }
         }
         _componentInstanceVec.clear();
+
+        // weak_ptr clear
+        UmSceneManager.ClearExpiredMeshComponents();
+
+        // Input Receiver Clear
+        ESceneManager::Engine::GetInputSystem().CleanupInputReceivers();
 
         // 오디오 Clear
         UmAudio.ClearVoicePool();

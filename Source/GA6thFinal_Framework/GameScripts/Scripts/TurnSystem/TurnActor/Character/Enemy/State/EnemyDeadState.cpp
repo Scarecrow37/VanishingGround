@@ -1,10 +1,9 @@
 ﻿#include "pchScripts.h"
 #include "EnemyDeadState.h"
-
 #include "UI/Views/MonsterHp/MonsterHpView.h"
-
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include <Animation/AnimationComponent.h>
+#include <Particle/ParticleComponent.h>
 
 REGISTER_CLASS(FSMStateFactory, EnemyDeadState)
 
@@ -48,6 +47,10 @@ void EnemyDeadState::OnEnter()
             }
         });
         animator->EndBuildOverrideAnimation();
+    }
+    if (ParticleComponent* particle = enemy.GetParticleComponent())
+    {
+        particle->StopAll();
     }
 }
 

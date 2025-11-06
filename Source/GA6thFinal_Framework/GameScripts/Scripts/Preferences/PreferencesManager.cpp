@@ -2,6 +2,7 @@
 #include "PreferencesManager.h"
 #include "PrefrencesWindow.h"
 #include "Map/MapManager.h"
+#include "SceneTransition/SceneTransitionComponent.h"
 
 UMREAL_COMPONENT(PreferencesManager)
 
@@ -135,7 +136,14 @@ void PreferencesManager::LateUpdate()
         File::Guid sceneGuid      = ReflectFields->MainMenuSceneStr;
         if (File::Path path = sceneGuid.ToPath(); false == path.IsNull())
         {
-            UmSceneManager.LoadScene(path.string());
+            if (SceneTransitionComponent* transition = SingletonComponent<SceneTransitionComponent>::GetInstance())
+            {
+                transition->SceneTransitionFade("in", "out", [path]() { UmSceneManager.LoadScene(path.string()); });
+            }
+            else
+            {
+                UmSceneManager.LoadScene(path.string());
+            }       
         }  
     }
 }

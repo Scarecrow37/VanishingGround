@@ -42,9 +42,8 @@ void TransparentRimLight::Initialize()
     pss.PrimitiveTopology                     = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
     pss.RTVFormats                            = {{DXGI_FORMAT_R32G32B32A32_FLOAT, // Result
                                                   DXGI_FORMAT_R32G32B32A32_FLOAT, // Normal
-                                                  DXGI_FORMAT_R32_FLOAT,          // Depth
                                                   DXGI_FORMAT_R32_UINT},          // CustomDepth
-                                                 4};
+                                                 3};
 
     _fxStatic.SetPipelineStateStream(pss);
     _pipelineState[0] = Global::pipelineStateManager->GetPipelineState(pss);

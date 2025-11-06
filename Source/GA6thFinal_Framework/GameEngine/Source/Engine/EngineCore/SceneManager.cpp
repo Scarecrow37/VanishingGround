@@ -134,6 +134,11 @@ void ESceneManager::Engine::SceneFinalUpdate()
 
 void ESceneManager::SceneUpdate()
 {
+    if (ResourceLoadWait())
+    {
+        return;
+    }
+
     ObjectsInputUpdate();                                // Input System 콜백은 항상 업데이트 주기보다 먼저 실행됨.
     while (ETimeSystem::Engine::TimeSystemFixedUpdate()) // Fixed Update는 한 프레임에 여러번 호출 가능함
     {
@@ -143,8 +148,8 @@ void ESceneManager::SceneUpdate()
     ObjectsLateUpdate();                                 // 두번째 로직 업데이트
 
     //로직 업데이트 이후 요청된 라이프 사이클들은 아래에서 반드시 실행 (이번 프레임에 바로 처리되야함)
-    ObjectsAddRuntime();                                
-    SceneResourceManager::Engine::Update(ResourceManager);
+    ObjectsAddRuntime();              
+    ResourceManagerUpdate();
     ObjectsOnEnable();
     ObjectsOnDisable();
     ObjectsAwake();
@@ -812,7 +817,7 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
         }
     }
     onloadSceneTargets.clear();
-    _nextSceneGuid = scene->_guid;
+    _nextSceneGuids.push_back(scene->_guid);
 }
 
 void ESceneManager::UnloadScene(std::string_view sceneName) 
@@ -923,7 +928,20 @@ void ESceneManager::ObjectsStart()
     });
 }
 
-void ESceneManager::ObjectsInputUpdate() 
+bool ESceneManager::ResourceLoadWait()
+{
+    if (_checkResourceLoad && false == ResourceManager.CheckAllResourceLoad())
+    {
+        return true;
+    }
+    else
+    {
+        _checkResourceLoad = false;       
+        return false;
+    }
+}
+
+void ESceneManager::ObjectsInputUpdate()
 {
     if (_isPlay)
     {
@@ -1028,27 +1046,33 @@ void ESceneManager::ObjectsMatrixUpdate()
 
 void ESceneManager::ObjectsAddLoadScene() 
 {
-    if (false == _nextSceneGuid.empty())
+    if (false == _nextSceneGuids.empty())
     {
-        auto sceneIter = _scenesMap.find(_nextSceneGuid);
-        if (sceneIter != _scenesMap.end())
+        //안전하게 임시 변수로 이동 후 작업
+        std::vector<File::Guid> nextScenes = std::move(_nextSceneGuids);
+        _nextSceneGuids.clear();
+        for (auto& sceneGuid : nextScenes)
         {
-            Scene* scene = &sceneIter->second;
-            try
+            auto sceneIter = _scenesMap.find(sceneGuid);
+            if (sceneIter != _scenesMap.end())
             {
-                DeserializeToGuid(_nextSceneGuid);
-                scene->_isLoaded = true;
-                scene->_isDirty  = false;
-                _lodedSceneList.push_back(scene);
-            }
-            catch (const YAML::Exception& ex)
-            {
-                std::string sceneName = scene->Name;
-                std::string msg       = std::format("{}{}{}", sceneName, (const char*)u8" 로드 실패. ", ex.what());
-                UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+                Scene* scene = &sceneIter->second;
+                try
+                {
+                    DeserializeToGuid(sceneGuid);
+                    scene->_isLoaded = true;
+                    scene->_isDirty  = false;
+                    _lodedSceneList.push_back(scene);
+                }
+                catch (const YAML::Exception& ex)
+                {
+                    std::string sceneName = scene->Name;
+                    std::string msg       = std::format("{}{}{}", sceneName, (const char*)u8" 로드 실패. ", ex.what());
+                    UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+                }
             }
         }
-        _nextSceneGuid.clear();
+        _waitResourceLoad = true;
     }
 
     if (nullptr != _nextSceneSkybox)
@@ -1140,9 +1164,8 @@ void ESceneManager::ObjectsDestroy()
 {
     //컴포넌트 삭제
     auto& [destroyComponentSet, destroyComponentQueue] = _destroyComponentsQueue;
-    //OnDestroy 호출 도중 원본 큐 변형 방지를 위한 지연삭제
+    // OnDestroy 호출 도중 원본 큐 변형 방지를 위한 지연삭제
     _destroyComponentsTemp = destroyComponentQueue;
-    destroyComponentSet.clear();
     destroyComponentQueue.clear();
     for (auto& destroyComponent : _destroyComponentsTemp)
     {
@@ -1159,12 +1182,16 @@ void ESceneManager::ObjectsDestroy()
             return destroyComponent == component.get();
         });
     }
-
+    destroyComponentSet.clear();
+    for (auto& component : destroyComponentQueue)
+    {
+        destroyComponentSet.insert(component);
+    }
+    
     //오브젝트 삭제
     auto& [destroyObjectSet, destroyObjectQueue] = _destroyObjectsQueue;
     // OnDestroy 호출 도중 원본 큐 변형 방지를 위한 복사 후 삭제
     _destroyObjectTemp = destroyObjectQueue;
-    destroyObjectSet.clear();
     destroyObjectQueue.clear();
     for (auto& destroyObject : _destroyObjectTemp)
     {
@@ -1203,6 +1230,11 @@ void ESceneManager::ObjectsDestroy()
             }
         }
     }
+    destroyObjectSet.clear();
+    for (auto& object : destroyObjectQueue)
+    {
+        destroyObjectSet.insert(object);
+    }
 
     //배열 정리
     while (_runtimeObjects.empty() == false && _runtimeObjects.back() == nullptr)
@@ -1211,13 +1243,19 @@ void ESceneManager::ObjectsDestroy()
     }
 
     //큐 초기화
-    _destroyComponentsTemp.clear();
-    _destroyObjectTemp.clear();
+    if (_destroyComponentsTemp.empty() || _destroyObjectTemp.empty())
+    {
+        UmComponentFactory.CleanupExpiredComponents();
+        _destroyComponentsTemp.clear();
+        _destroyObjectTemp.clear();
+    }
 }
 
 void ESceneManager::ObjectsAddRuntime()
 {
     //오브젝트 추가
+    static std::unordered_set<Transform*> updateMatrixSet;
+    updateMatrixSet.clear();
     for (auto& gameObject : _addGameObjectsQueue)
     {
         int id = gameObject->_instanceID;
@@ -1235,6 +1273,13 @@ void ESceneManager::ObjectsAddRuntime()
             _runtimeObjects.resize(id + 1);
         }
         _runtimeObjects[id] = gameObject;
+
+        Transform* root = (nullptr != gameObject->_transform._root) ? gameObject->_transform._root : &gameObject->_transform;
+        auto [iter, insertResult] = updateMatrixSet.insert(gameObject->_transform.Root);
+        if (insertResult)
+        {
+            root->UpdateMatrix();     
+        }
         GameObject::Engine::UpdateActiveInHierarchy(gameObject.get());     
     }
     _addGameObjectsQueue.clear();
@@ -1267,6 +1312,16 @@ void ESceneManager::ObjectsAddRuntime()
         component->Added();
     }
     addQueue.clear();
+}
+
+void ESceneManager::ResourceManagerUpdate() 
+{
+    SceneResourceManager::Engine::Update(ResourceManager);
+    if (_waitResourceLoad)
+    {
+        _checkResourceLoad = _waitResourceLoad;
+        _waitResourceLoad  = false;
+    }       
 }
 
 bool ESceneManager::IsRuntimeActive(std::shared_ptr<GameObject>& obj)
@@ -1453,13 +1508,15 @@ void ESceneManager::AddDestroyObjectQueue(GameObject* gameObject)
     if (gameObject && gameObject->IsValid())
     {
         auto& [set, vec] = engineCore->SceneManager._destroyObjectsQueue;
-        Transform::ForeachDFS(gameObject->_transform, [this, &set, &vec](Transform* pTransform) {
+        auto& componentDestroySet = engineCore->SceneManager._destroyComponentsQueue.first;
+        Transform::ForeachDFS(gameObject->_transform, [this, &set, &vec, &componentDestroySet](Transform* pTransform) {
             auto [iter, result] = set.insert(&pTransform->gameObject);
             if (result)
             {
                 vec.push_back(&pTransform->gameObject);
                 for (auto& component : pTransform->_gameObject._components)
                 {
+                    componentDestroySet.insert(component.get());
                     NotInitDestroyComponentEraseToWaitVec(component.get());
                 }
             }
@@ -1616,12 +1673,16 @@ bool ESceneManager::SetSkyIBL(const File::Path& path)
 
 const std::vector<std::weak_ptr<MeshComponent>>& ESceneManager::GetMeshComponents()
 {
+    ClearExpiredMeshComponents();
+    return _runtimeMeshComponents;
+}
+
+void ESceneManager::ClearExpiredMeshComponents() 
+{
     std::erase_if(_runtimeMeshComponents, [](const std::weak_ptr<MeshComponent>& weakMesh) 
     { 
         return weakMesh.expired();
     });
-
-    return _runtimeMeshComponents;
 }
 
 bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, std::string_view outPath, bool isOverride, bool isEmptyScene)
@@ -2017,6 +2078,64 @@ void ESceneManager::SceneResourceManager::Engine::Update(SceneResourceManager& m
     }
 }
 
+template <typename T>
+bool CheckReadyResource(T& resource)
+{
+    for (auto& [path, resource] : resource.RenderResource)
+    {
+        if (false == resource->IsValid())
+            return false;
+    }
+    return true;
+}
+
+template <>
+bool CheckReadyResource(ESceneManager::SceneResourceManager::RenderResource<Model>& resource)
+{
+    for (auto& [path, resource] : resource.RenderResource)
+    {
+        if (false == resource->IsValid())
+            return false;
+
+        //TODO: 씬 리소스 로드 대기해야 하는데 안대요
+        /*
+        for (auto& textures : resource->GetTextures())
+        {
+            for (auto& texture : textures)
+            {
+                if (nullptr == texture)
+                    return false;
+
+                if (false == texture->IsValid())
+                    return false;                   
+            }
+        }
+        */
+    }
+    return true;
+}
+
+bool ESceneManager::SceneResourceManager::CheckAllResourceLoad()
+{
+    if (false == CheckReadyResource(_models))
+    {
+        return false;
+    }
+    if (false == CheckReadyResource(_textures))
+    {
+        return false;
+    }
+    if (false == CheckReadyResource(_fonts))
+    {
+        return false;
+    }
+    if (false == CheckReadyResource(_sdfFonts))
+    {
+        return false;
+    }
+    return true;
+}
+
 void ESceneManager::SceneResourceManager::Engine::CleanUp(SceneResourceManager& manager) 
 {
     manager._models.ResourceLoadQueue.clear();
@@ -2027,6 +2146,9 @@ void ESceneManager::SceneResourceManager::Engine::CleanUp(SceneResourceManager& 
 
     manager._fonts.ResourceLoadQueue.clear();
     manager._fonts.RenderResource.clear();
+
+    manager._sdfFonts.ResourceLoadQueue.clear();
+    manager._sdfFonts.RenderResource.clear();
 }
 
 void ESceneManager::SceneResourceManager::RequestModelResource(const Component* component, const File::Guid& guid,
@@ -2194,16 +2316,6 @@ void ESceneManager::SceneResourceManager::RequestSDFFontResource(const Component
     }
 }
 
-ESceneManager::SceneResourceManager::SceneResourceManager() 
-{
-
-}
-
-ESceneManager::SceneResourceManager::~SceneResourceManager() 
-{
-
-}
-
 void ESceneManager::InputSystem::UpdateInput()
 {
     if (false == _isConnect)
@@ -2261,18 +2373,69 @@ void ESceneManager::InputSystem::UpdateInput()
 
 void ESceneManager::InputSystem::RegisterInputReceiver(InputReceiver& receiver, int buttonIndex, int actionIndex, std::function<void(const Input::Controller& controller)> func)
 {
-    auto& receiverTarget = _receivers[buttonIndex][actionIndex];
-    if (nullptr == receiver._isDestroy)
+    constexpr int maxButtonCount = static_cast<int>(ControllerButton::UNKNOWN);
+    constexpr int maxActionCount = static_cast<int>(Action::UNKNOWN);
+
+    if (buttonIndex < maxButtonCount && actionIndex < maxActionCount)
     {
-        //플래그 bool 값을 동적 할당
-        receiverTarget.emplace_back(std::make_shared<bool>(false), func);
-        receiver._isDestroy = receiverTarget.back().first;
-    }
-    else
+        auto& receiverTarget = _receivers[buttonIndex][actionIndex];
+        if (nullptr == receiver._isDestroy)
+        {
+            // 플래그 bool 값을 동적 할당
+            receiverTarget.emplace_back(std::make_shared<bool>(false), func);
+            receiver._isDestroy = receiverTarget.back().first;
+        }
+        else
+        {
+            // 이미 등록된 리시버는 bool 값을 공유.
+            receiverTarget.emplace_back(receiver._isDestroy, func);
+        }
+    } 
+}
+
+bool ESceneManager::InputSystem::PushReceiverToInputStack(InputReceiver& receiver)
+{
+    if (receiver._isDestroy && false == *receiver._isDestroy)
     {
-        //이미 등록된 리시버는 bool 값을 공유.
-        receiverTarget.emplace_back(receiver._isDestroy, func);
+        if (false == receiver._isPushStack)
+        {
+            _layerStack.emplace_back(receiver._isDestroy.get(), receiver._isDestroy);
+            receiver._isPushStack = true;
+            return true;
+        }
+    }  
+    return false;
+}
+
+bool ESceneManager::InputSystem::PopReceiverToInputStack(InputReceiver& receiver)
+{
+    if (receiver._isDestroy)
+    {
+        bool result = false;
+        while (false == _layerStack.empty())
+        {
+            auto& [topReceiver, isDestroy] = _layerStack.back();
+            if (receiver._isPushStack && receiver._isDestroy.get() == topReceiver)
+            {
+                _layerStack.pop_back();
+                receiver._isPushStack = false;
+                result = true;
+            }
+            else 
+            {               
+                if (auto destroyFlag = isDestroy.lock())
+                {
+                    if (false == *destroyFlag)
+                    {
+                        //유효한 InputLayer면 반환
+                        return result;  
+                    }
+                }
+                _layerStack.pop_back(); //유효하지 않는 레이어는 제거 
+            }        
+        }      
     }
+    return false;
 }
 
 void ESceneManager::InputSystem::CleanupInputReceivers() 
@@ -2284,6 +2447,7 @@ void ESceneManager::InputSystem::CleanupInputReceivers()
             inputReceivers.clear();
         }
     }
+    _layerStack.clear();
 }
 
 void ESceneManager::InputSystem::Vibrate(const Input::ControllerTypes::Vibration vibration)
@@ -2382,7 +2546,18 @@ void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
         }
         else
         {
-            event(_inputController);
+            if (_layerStack.empty())
+            {
+                event(_inputController);
+            }
+            else
+            {
+                auto& [destroyFlag, weak] = _layerStack.back();
+                if (destroyFlag == isDestroy.get())
+                {
+                    event(_inputController);
+                }
+            }       
             checker = true;
         }
     }
@@ -2394,6 +2569,19 @@ void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
             auto& [destroy, event] = pair;
             return nullptr == destroy || *destroy;
         });
+
+        while (false == _layerStack.empty())
+        {
+            auto& [topReceiver, isDestroy] = _layerStack.back();
+            if (true == isDestroy.expired())
+            {
+                _layerStack.pop_back();
+            }
+            else
+            {
+                break;
+            }
+        }
     }
 }
 

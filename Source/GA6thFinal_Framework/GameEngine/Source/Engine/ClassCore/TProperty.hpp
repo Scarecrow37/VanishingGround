@@ -180,7 +180,7 @@ public:
     //Write
     inline TProperty& operator=(const TProperty& rhs) requires (is_setter)
     {
-        if (this != &rhs)
+        if (this != std::addressof(rhs))
         {
             this->Setter(rhs.Getter());
         }

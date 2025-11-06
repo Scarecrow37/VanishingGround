@@ -2,6 +2,7 @@
 #include "WeaponDeffenceToken.h"
 #include "TurnSystem/TurnActor/Character/CharacterBase.h"
 #include "Token/TokenInventory.h"
+#include "ContentMath/ContentMath.h"
 
 namespace TokenObject
 {
@@ -30,9 +31,7 @@ namespace TokenObject
         if (weaponType == deffenceType)
         {
             const int   param     = GetTokenParam(0);
-            const float factor    = 1.0f - (static_cast<float>(param) / 100.0f);
-            const float newDamage = static_cast<float>(damage) * factor;
-            damage                = static_cast<int>(std::ceilf(newDamage));
+            damage = ContentMath::CeilPercentage(damage, 100 - param);
         }
     }
 }

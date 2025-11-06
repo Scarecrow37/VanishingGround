@@ -9,6 +9,9 @@
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <Particle/ParticleComponent.h>
 #include <PlayerSystem/PlayerSystem.h>
+#include "AccessorySystem/AccessorySystem.h"
+#include "UI/Panels/Overlay/OverlayPanel.h"
+#include "TokenHUD/TokenHUD.h"
 
 //Condition
 #include "Condition/PlayerStartCondition.h"
@@ -17,10 +20,12 @@
 #include "Condition/PlayerWinCondition.h"   
 
 //State
+#include "CombatUIManager/CombatUIManager.h"
 #include "State/PlayerWaitTurnState.h"
 #include "State/PlayerPlayTurnState.h"
 #include "State/PlayerDeadState.h"
 #include "State/PlayerWinState.h"
+#include "UI/Contents/SpawnDamagePanel.h"
 
 UMREAL_COMPONENT(Player)
 
@@ -90,23 +95,11 @@ int Player::GetRandomSpeed()
 void Player::PlayTurn()
 {
     Base::PlayTurn();
-    WeaponSystem* system = SingletonComponent<WeaponSystem>::GetInstance();
-    if (system)
-    {
-        const std::string& weaponName = system->GetCurrentWeaponElement().Stats.WeaponName;
-        std::string      message    = std::format("{}{}{}", (const char*)u8"Player 턴 시작. ", "Weapon : ", weaponName);
-        UmLogger.Message(LogLevel::LEVEL_TRACE, message);
-    }
-    else
-    {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, u8" WeaponSystem이 존재하지 않습니다.");
-    }     
 }
 
 void Player::EndTurn()
 {
     Base::EndTurn();
-    UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"Player 턴 종료.");
 }
 
 void Player::Dead()
@@ -118,7 +111,7 @@ void Player::Dead()
     }
 }
 
-void Player::TakeDamage(int damage, bool playAnim) 
+void Player::TakeDamage(int damage, const bool playAnim) 
 {
     TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
     if (turnMode)
@@ -126,10 +119,48 @@ void Player::TakeDamage(int damage, bool playAnim)
         turnMode->ApplyActions([&](TurnAction& action) { action.OnPlayerTakeDamageStart(*this, damage); });
     }
     int takeDamage = damage;
+
+    //인내의 가루 효과 그냥 강제 적용
+    if (AccessorySystem* system = SingletonComponent<AccessorySystem>::GetInstance())
+    {
+        if (system->HasPlayerAccessory(203011))
+        {
+            takeDamage = std::min(takeDamage, 20);
+        }
+    }
+
     Base::TakeDamage(takeDamage, playAnim);
+    ShowDamage(damage, {});
     if (turnMode)
     {
         turnMode->ApplyActions([&](TurnAction& action) { action.OnPlayerTakeDamageEnd(*this, damage); });
+    }
+
+    if (ParticleComponent* particle = GetParticleComponent())
+    {
+        particle->PlayEffect("gethit");
+    }
+}
+
+void Player::ShowDamage(const int damage, const std::span<const std::string> sources)
+{
+    if (const CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        [[maybe_unused]] auto _ = combatUI->CharacterHUDGroup.PlayerSpawnDamagePanel->MakeDamage(damage, sources);
+    }
+}
+
+void Player::Heal(const int amount)
+{
+    Base::Heal(amount);
+    ShowHeal(amount, {});
+}
+
+void Player::ShowHeal(const int healAmount, const std::span<const std::string> sources)
+{
+    if (const CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        [[maybe_unused]] auto _ = combatUI->CharacterHUDGroup.PlayerSpawnHealPanel->MakeDamage(healAmount, sources);
     }
 }
 
@@ -252,14 +283,28 @@ void Player::OnKill(CharacterBase* destination)
     Base::OnKill(destination);
 }
 
-void Player::OnTokenAdded(int tokenID)
+void Player::OnTokenAdded(const int tokenID)
 {
     Base::OnTokenAdded(tokenID);
 }
 
-void Player::OnTokenRemoved(int tokenID)
+void Player::OnTokenRemoved(const int tokenID)
 {
     Base::OnTokenRemoved(tokenID);
+}
+
+void Player::OnTokenEnter(int tokenID)
+{
+    Base::OnTokenEnter(tokenID);
+
+    RegisterTokenHUD(tokenID);
+}
+
+void Player::OnTokenExit(int tokenID)
+{
+    Base::OnTokenExit(tokenID);
+
+    UnregisterTokenHUD(tokenID);
 }
 
 void Player::OnQTEStart() 
@@ -287,5 +332,59 @@ void Player::OnNotifiedAnimationEvent(const Timeline::EventContext* context)
     if ("attackEnd" == context->GetLabel())
     {
         particlecomponent->StopEffect("handglow");
+    }
+}
+
+void Player::RegisterTokenHUD(int tokenID)
+{
+    auto&       tokenInventory = GetTokenInventory();
+    const auto& inventory      = tokenInventory.GetValidTokenList();
+
+    if (!inventory.empty())
+    {
+        auto& model = tokenInventory.GetTokenModelFromID(tokenID);
+
+        // Assets/Prefab/UI/Token Icon.prefab
+        if (auto prefab = UmGameObjectFactory.DeserializeToGuid("0abe19e7-1dc1-48cd-bcc1-6dcd86748d93"))
+        {
+            if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
+            {
+                auto HUD = combatUIManager->CharacterHUDGroup.PlayerHUDPanel;
+                if (HUD)
+                {
+                    Transform::ForeachBFS(HUD->transform, [&](Transform* tr) {
+                        GameObject& object = tr->gameObject;
+                        if (object.CompareTag("Token HUD"))
+                        {
+                            if (auto tokenHUD = prefab->GetComponent<TokenHUD>())
+                            {
+                                if (TokenSystem* tokenSystem = SingletonComponent<TokenSystem>::GetInstance())
+                                {
+                                    if (const TokenData* tokenData = tokenSystem->GetTokenDataFromID(tokenID))
+                                    {
+                                        std::string key = std::format("Player_Token_{}", tokenID);
+                                        tokenHUD->SetupTokenHUD(UmFileSystem.GetGuidFromAssetID(tokenData->ImageID),
+                                                                model, key);
+                                        _tokenHUDTable.emplace(tokenID, prefab.get());
+                                        model.Notify();
+                                        prefab->transform->SetParent(object.transform);
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }              
+            }
+        }
+    }
+}
+
+void Player::UnregisterTokenHUD(int tokenID)
+{
+    auto it = _tokenHUDTable.find(tokenID);
+    if (it != _tokenHUDTable.end())
+    {
+        GameObject::Destroy(it->second);
+        _tokenHUDTable.erase(it);
     }
 }

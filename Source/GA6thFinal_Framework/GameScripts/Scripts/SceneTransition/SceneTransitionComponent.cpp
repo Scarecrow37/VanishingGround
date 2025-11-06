@@ -1,5 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "SceneTransitionComponent.h"
+#include "Audio/BGMManager.h"
 
 UMREAL_COMPONENT(SceneTransitionComponent)
 
@@ -124,6 +125,7 @@ void SceneTransitionComponent::OnDrawDebugSelected()
 void SceneTransitionComponent::Update()
 {
     CalculateFade();
+    UpdateBGMVolume();
 }
 
 void SceneTransitionComponent::CalculateFade()
@@ -132,11 +134,10 @@ void SceneTransitionComponent::CalculateFade()
     {
         return;
     }
-    _fadeElapsedTimer += UmTime.DeltaTime();
-
     if (_fadeElapsedTimer >= Duration)
     {
         _fadeFlag = false;
+        UmTransition->Fade("Game", EndColor, _transitionLock || _fadeFlag);
         if (_fadeCallBackFunction && true == _callbackFlag)
         {
             _fadeCallBackFunction();
@@ -144,6 +145,8 @@ void SceneTransitionComponent::CalculateFade()
         }
         return;
     }
+    _fadeElapsedTimer += UmTime.UnscaledDeltaTime();
+
     float step = _fadeElapsedTimer / Duration;
     if (true == ReflectFields->Ease)
     {
@@ -151,24 +154,27 @@ void SceneTransitionComponent::CalculateFade()
                            ReflectFields->EaseThreshold, step);
         _easeLog.push_back(step);
     }
-    UmTransition->Fade("Game", Color::Lerp(StartColor, EndColor, step), true);
+    UmTransition->Fade("Game", Color::Lerp(StartColor, EndColor, step), _transitionLock || _fadeFlag);
 }
 
-//void SceneTransitionComponent::Reset()
-//{
-//    throw std::logic_error("The method or operation is not implemented.");
-//}
+void SceneTransitionComponent::UpdateBGMVolume() 
+{
+    if (_fadeFlag)
+    {
+        if (BGMManager* manager = SingletonComponent<BGMManager>::GetInstance())
+        {
+            const float step    = Step;
+            const float factor  = IsFadeIn() ? step : 1.0f - step;
+            manager->Volume     = std::clamp(factor, 0.0f, 1.0f);
+        }
+    }
+}
 
 void SceneTransitionComponent::Awake()
 {
     _singletonObject.TrySingleTon(true);
     _singletonComponent.TrySingleTon();
 }
-
-//void SceneTransitionComponent::OnDestroy()
-//{
-//    throw std::logic_error("The method or operation is not implemented.");
-//}
 
 void SceneTransitionComponent::Fade(float duration, const Vector4& start, const Vector4& end,
                                     std::function<void()> callback)
@@ -284,9 +290,19 @@ void SceneTransitionComponent::AddFadePreset()
         it->second = std::move(preset);
 }
 
-bool SceneTransitionComponent::IsTransitioning()
+bool SceneTransitionComponent::IsTransitioning() const
 {
     return _fadeFlag;
+}
+
+bool SceneTransitionComponent::IsFadeIn() const
+{
+    return _startColor.A() > _endColor.A();
+}
+
+bool SceneTransitionComponent::IsFadeOut() const
+{
+    return _startColor.A() < _endColor.A();
 }
 
 void SceneTransitionComponent::SceneTransitionFade(std::string_view inPreset, std::string_view outPreset,

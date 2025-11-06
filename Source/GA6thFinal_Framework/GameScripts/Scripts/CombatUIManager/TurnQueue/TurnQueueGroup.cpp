@@ -2,6 +2,7 @@
 #include "TurnQueueGroup.h"
 
 #include <UI/Views/TurnQueue/TurnQueueView.h>
+#include <UI/Animations/FadeUIComponent/FadeUIComponent.h>
 
 namespace CombatUI
 {
@@ -25,6 +26,8 @@ namespace CombatUI
                     SlotList.push_back(slot);
                 }
             }
+
+            FadeUI = Root->GetComponent<FadeUIComponent>();
         }
         
         return IsValid();
@@ -40,6 +43,37 @@ namespace CombatUI
         if (Root)
         {
             Root->ActiveSelf = active;
+        }
+    }
+
+    void TurnQueueGroup::FadeIn(float duration)
+    {
+        if (false == Root->ActiveSelf)
+        {
+            ActiveUI(true);
+        }
+
+        if (FadeUI)
+        {
+            FadeUI->FadeDuration = duration;
+            FadeUI->FadeIn();
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Fade UI Component가 존재하지 않습니다.");
+        }
+    }
+
+    void TurnQueueGroup::FadeOut(float duration) 
+    {
+        if (FadeUI)
+        {
+            FadeUI->FadeDuration = duration;
+            FadeUI->FadeOut();
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Fade UI Component가 존재하지 않습니다.");
         }
     }
 } // namespace CombatUI

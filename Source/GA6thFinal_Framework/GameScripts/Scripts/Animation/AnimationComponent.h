@@ -27,7 +27,6 @@ class AnimationComponent : public Component
 
 public:
     void Added() override;
-    void Start() override;
     void Update() override;
     void OnDestroy() override;
     void OnEnable() override;
@@ -56,7 +55,7 @@ private:
 
 public:
     void SetAnimator(SkeletalMeshRenderer* renderer);
-    void SetAnimator(GraphicsPointer<IAnimator> animator);
+    void SetAnimator(IAnimator* animator);
 
     /// <summary>
     /// 다음에 적용할 애니메이션 플래그를 설정합니다.
@@ -105,6 +104,11 @@ public:
     /// <param name="loop">루프 여부. 기본 값은 true입니다.</param>
     bool ChangeCurrentAnimation(std::string_view animKey, bool resetFrame = true);
     bool ChangeMainAnimation(std::string_view animKey, bool resetFrame = true);
+
+    /// <summary>
+    /// 기본 애니메이션 상태로 설정합니다.
+    /// </summary>
+    void ChangeDefaultAnimation();
 
     /// <summary>애니메이션의 프레임을 설정합니다.</summary>
     /// <param name="frame">애니메이션 프레임 수</param>
@@ -223,16 +227,16 @@ public:
     inline const std::map<std::string, std::string>& GetAnimationKeyMap() const { return ReflectFields->AnimationKeyMap; }
 
 private:
-    GraphicsPointer<IAnimator> _animator;
-    EventQueue                 _eventQueue;
-    AnimationData*             _currentAnimationData = nullptr; // 현재 애니메이션 데이터
-    AnimationData              _mainAnimationData;
-    std::deque<AnimationData>  _overrideAnimationStack; 
-    AnimationData*             _lastAnimationData = nullptr;
-    bool                       _isBuildingOverrideAnimation = false;
-    UINT                       _prevBeginBuildAnimationID    = 0;
+    IAnimator*                _animator                     = nullptr;
+    EventQueue                _eventQueue;
+    AnimationData*            _currentAnimationData         = nullptr; // 현재 애니메이션 데이터
+    AnimationData             _mainAnimationData;
+    std::deque<AnimationData> _overrideAnimationStack;
+    AnimationData*            _lastAnimationData            = nullptr;
+    bool                      _isBuildingOverrideAnimation  = false;
+    UINT                      _prevBeginBuildAnimationID    = 0;
     
-    std::pair<bool, AnimationFlags> _nextAnimationFlag; // 다음 애니메이션 데이터 (first: isValid, second: NextAnimationData)
+    std::pair<bool, int>        _nextAnimationFlag; // 다음 애니메이션 데이터 (first: isValid, second: NextAnimationData)
     
     // 지연 처리용 큐
     std::vector<std::function<void()>> _delayProcess;

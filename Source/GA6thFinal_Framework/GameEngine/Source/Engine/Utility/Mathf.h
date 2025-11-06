@@ -28,6 +28,29 @@ namespace Mathf
         COUNT
     };
 
+    enum class EasingFunctionType
+    {
+        LINEAR,
+        SINE,
+        CUBIC,
+        QUAD,
+        QUART,
+        QUINT,
+        EXPO,
+        CIRCULAR,
+        BACK,
+        ELASTIC,
+        BOUNCE,
+        COUNT
+    };
+
+    struct ConvertEasingFunctionType
+    {
+        EaseFuncType operator()(EasingFunctionType type) const { return static_cast<EaseFuncType>(type); }
+
+        EasingFunctionType operator()(EaseFuncType type) const { return static_cast<EasingFunctionType>(type); }
+    };
+
     constexpr float FLOAT_MAX = FLT_MAX;
     constexpr float FLOAT_MIN = FLT_MIN;
     constexpr float PI        = 3.14159265f;
@@ -42,6 +65,45 @@ namespace Mathf
     // 선형 보간
     float Lerp(float startfloat, float endfloat, float t);
 
+    constexpr float DEFAULT_FLOAT_EPSILON   = std::numeric_limits<float>::epsilon();
+    constexpr float DEFAULT_FLOAT_TOLERANCE = DEFAULT_FLOAT_EPSILON * 100.0f;
+
+    struct CompareFloat
+    {
+        std::partial_ordering operator()(const float x, const float y) const
+        {
+            return operator()(x, y, DEFAULT_FLOAT_TOLERANCE);
+        }
+        std::partial_ordering operator()(const float x, const float y, const float tolerance) const
+        {
+            std::partial_ordering ordering;
+
+            if (std::isnan(x) || std::isnan(y))
+            {
+                ordering = std::partial_ordering::unordered;
+            }
+            else
+            {
+                const float diff  = std::abs(x - y);
+                const float scale = std::max({1.0f, std::abs(x), std::abs(y)});
+
+                if (diff <= scale * tolerance)
+                {
+                    ordering = std::partial_ordering::equivalent;
+                }
+                else if (x < y)
+                {
+                    ordering = std::partial_ordering::less;
+                }
+                else
+                {
+                    ordering = std::partial_ordering::greater;
+                }
+            }
+
+            return ordering;
+        }
+    };
 
 
     // 두개의 쿼터니언 각도 차이를 반환해줍니다. 단위 : radian
@@ -108,6 +170,15 @@ namespace Mathf
     using EaseFunc      = float (*)(float);
     using EaseDerivFunc = float (*)(float);
 
+
+    inline float InLinear(float t)
+    {
+        return 0;
+    }
+    inline float OutLinear(float t) 
+    {
+        return 0;
+    }
     inline float InSine(float t)
     {
         return 1.0f - cosf(t * PI / 2.0f);
@@ -225,7 +296,7 @@ namespace Mathf
                                                                "Expo", "Circular", "Back", "Elastic", "Bounce"};
 
     inline const std::array<EaseFunc, EaseFuncType::COUNT * 2> EaseTable = {
-        InSine, OutSine, InCubic,    OutCubic,    InQuad, OutQuad, InQuart,   OutQuart,   InQuint,  OutQuint,
+        InLinear, OutLinear, InSine, OutSine, InCubic,    OutCubic,    InQuad, OutQuad, InQuart,   OutQuart,   InQuint,  OutQuint,
         InExpo, OutExpo, InCircular, OutCircular, InBack, OutBack, InElastic, OutElastic, InBounce, OutBounce};
 
     /// <summary>

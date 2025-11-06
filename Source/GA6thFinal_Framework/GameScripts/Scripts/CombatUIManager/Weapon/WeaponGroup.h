@@ -4,6 +4,8 @@ class DescriptionPanel;
 class ImageElement;
 class TextElement;
 class WeaponView;
+class SpriteAnimationElement;
+class FadeUIComponent;
 
 namespace CombatUI
 {
@@ -11,30 +13,33 @@ namespace CombatUI
     {
         struct BackGround
         {
-            ImageElement* OnImage   = nullptr;
-            ImageElement* OffImage  = nullptr;
-            inline bool   IsValid() const { return OnImage && OffImage; }
+            ImageElement*           FocusOn  = nullptr;
+            SpriteAnimationElement* FocusOff = nullptr;
+            inline bool   IsValid() const { return FocusOn && FocusOff; }
         };
         struct TextInfo
         {
-            TextElement* Damage     = nullptr;
-            TextElement* Critical   = nullptr;
-            TextElement* AttackCount= nullptr;
-            TextElement* Speed      = nullptr;
+            TextElement* Damage      = nullptr;
+            TextElement* Critical    = nullptr;
+            TextElement* AttackCount = nullptr;
+            TextElement* Speed       = nullptr;
             inline bool  IsValid() const { return Damage && Critical && AttackCount && Speed; }
         };
         GameObject* Root = nullptr;
         WeaponView* View = nullptr;
 
-        BackGround          Background;
-        TextInfo            TextInfo;
-        ImageElement*       Icon = nullptr;
-        TextElement*        Name = nullptr;
-        DescriptionPanel*   Description = nullptr;
+        BackGround        Background;
+        TextInfo          TextInfo;
+        ImageElement*     Icon        = nullptr;
+        TextElement*      Name        = nullptr;
+        DescriptionPanel* Description = nullptr;
+        FadeUIComponent*  FadeUI      = nullptr;
 
         // UIGroup을(를) 통해 상속됨
         bool FindUI() override;
         bool IsValid() const override;
         void ActiveUI(bool active) override;
+        void FadeIn(float duration) override;
+        void FadeOut(float duration) override;
     };
 } // namespace CombatUI

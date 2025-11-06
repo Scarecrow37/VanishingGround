@@ -4,13 +4,17 @@
 class ImageElement;
 class TextElement;
 class DescriptionPanel;
+class FadeUIComponent;
+class SpriteAnimationElement;
+class ChildsAnimationsController;
 
 struct RevelationUI
 {
-    ImageElement* IconElement;
-    std::vector<ImageElement*> GradeElements;
-    TextElement*  NameElement;
-    DescriptionPanel* DescriptionElement;
+    ImageElement*               IconElement;
+    std::vector<ImageElement*>  GradeElements;
+    TextElement*                NameElement;
+    DescriptionPanel*           DescriptionElement;
+    ChildsAnimationsController* AnimationsController;
 };
 
 class RevelationsView : public Component
@@ -18,6 +22,8 @@ class RevelationsView : public Component
     USING_PROPERTY(RevelationsView)
 
 public:
+    inline static constexpr const char* TAG = "Revelations View Component";
+
     RevelationsView() = default;
     virtual ~RevelationsView();
 
@@ -42,6 +48,12 @@ protected:
 private:
     std::array<RevelationUI, 3> _revelationUis{};
     std::array<GameObject*, 3>  _revelationObjects{};
+
+    std::weak_ptr<FadeUIComponent> _rootFade;
+    std::weak_ptr<FadeUIComponent> _textsFade;
+
+    std::weak_ptr<SpriteAnimationElement> _startAnimation;
+    std::weak_ptr<SpriteAnimationElement> _reloadAnimation;
 
     RevelationsViewModel::Handle _watchHandle;
 };

@@ -3,13 +3,14 @@ struct AccelerationStructureBuffers;
 class MeshRenderer;
 enum class AsBuildClass
 {
-    STATICBLAS,SKELETALBLAS
+    STATICBLAS,
+    SKELETALBLAS
 };
 struct MeshInstanceDesc
 {
-    MeshInfo             meshInfo;
-    UINT                      InstanceID;
-    UINT                      HitGroupIndex=0;
+    MeshInfo                        meshInfo;
+    UINT                            InstanceID;
+    UINT                            HitGroupIndex = 0;
     D3D12_RAYTRACING_INSTANCE_FLAGS Flags;
     AsBuildClass                    BuildClass;
 };
@@ -17,7 +18,7 @@ struct MeshInstanceDesc
 class AccelerationStructureManager
 {
 public:
-    void Initialize(UINT maxInstance);
+    void Initialize(UINT maxInstance, RenderScene* ownerScene);
 
     // 프레임 단위로 호출
     void BeginFrame();
@@ -41,8 +42,8 @@ private:
     };
 
     // key = BaseMesh* (모델 공유)
-    std::unordered_map<BaseMesh*, BlasCache>       _staticBlasMap;
-    std::unordered_map<uint64_t, BlasCache>       _dynamicBlasMap;
+    std::unordered_map<BaseMesh*, BlasCache> _staticBlasMap;
+    std::unordered_map<uint64_t, BlasCache>  _dynamicBlasMap;
     // TLAS
     std::shared_ptr<AccelerationStructureBuffers> _topLevelBuffers;
     DescriptorHandles                             _topLevelBuffersSRV;
@@ -54,10 +55,14 @@ private:
     UINT _nextInstanceID   = 0;
     UINT _maxInstanceCount = 0;
 
-    // ---- 내부 helper ----
-    void BuildOrUpdateStaticBLAS(ID3D12Device5* device, ID3D12GraphicsCommandList4* cmdList, BaseMesh* mesh,
+    RenderScene* _ownerScene = nullptr;
+
+    // 내부 helper 
+
+    ID3D12Resource* BuildOrUpdateStaticBLAS(ID3D12Device5* device, ID3D12GraphicsCommandList4* cmdList, BaseMesh* mesh,
                                  BlasCache& cache);
-    void BuildDynamicBLAS(ID3D12Device5* device, ID3D12GraphicsCommandList4* cmdList, MeshInfo* meshInfo,
+    ID3D12Resource* BuildDynamicBLAS(ID3D12Device5* device, ID3D12GraphicsCommandList4* cmdList, MeshInfo* meshInfo,
                           BlasCache& cache);
-    void BuildOrUpdateTLAS(ID3D12Device5* device, ID3D12GraphicsCommandList4* cmdList);
+    ID3D12Resource* BuildOrUpdateTLAS(ID3D12Device5* device, ID3D12GraphicsCommandList4* cmdList);
+
 };

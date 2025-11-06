@@ -3,54 +3,12 @@
 #include "SceneTransition/SceneTransitionComponent.h"
 #include "ExcelDataSystem/ExcelDataSystem.h"
 #include "UI/Elements/Image/ImageElement.h"
+#include "RestartStageNavi.h"
 
 UMREAL_COMPONENT(ReturnToMapNavi)
 
 namespace ReturnUtility
 {
-    static File::Guid GetSelectBox(ReturnToMapNavi::SelectBoxType type)
-    {
-        File::Guid guid;
-        if (ExcelDataSystem* system = SingletonComponent<ExcelDataSystem>::GetInstance())
-        {
-            if (auto db = system->FindExcelDataBase(u8"전투"))
-            {
-                std::u8string_view rowKey;
-                switch (type)
-                {
-                case ReturnToMapNavi::SelectBoxType::DEFAULT:
-                    rowKey = u8"나가기/ 다음전투 선택버튼 포커스 안됨";
-                    break;
-                case ReturnToMapNavi::SelectBoxType::FOCUS:
-                    rowKey = u8"나가기/ 다음전투 선택버튼 포커스 됨";
-                    break;
-                default:
-                    break;
-                }
-
-                size_t rowIndex = db->FindRowIndex(rowKey, u8"Description");
-                if (rowIndex != db->FIND_INDEX_FAIL)
-                {
-                    std::string_view data = db->FindData(rowIndex, u8"ID");
-                    if (data != db->FIND_STR_FAIL)
-                    {
-                        int id = std::stoi(data.data());
-                        guid   = UmFileSystem.GetGuidFromAssetID(id);
-
-                        if (guid.IsNull())
-                        {
-                            std::string message = "Asset ID : ";
-                            message += std::to_string(id);
-                            message += " is not found";
-                            UmLogger.Log(LogLevel::LEVEL_WARNING, message);
-                        }
-                    }
-                }
-            }
-        }
-        return guid;
-    }
-
     static bool CheckImageElementWithLog(ImageElement* ptr)
     {
         if (ptr == nullptr)
@@ -88,6 +46,7 @@ ReturnToMapNavi::ReturnToMapNavi()
 
 void ReturnToMapNavi::Submit()
 {
+    Base::Submit();
     const File::Path& path = _Guid.ToPath();
 
     GameObject* transitionManager = SingletonObject<SceneTransitionComponent>::GetInstance();
@@ -111,7 +70,7 @@ void ReturnToMapNavi::FocusIn(FocusCallType callType)
 
     if (CheckImageElementWithLog(_imageElement))
     {
-        File::Guid guid = GetSelectBox(SelectBoxType::FOCUS);
+        File::Guid guid = RestartStageNavi::GetSelectBox(RestartStageNavi::SelectBoxType::FOCUS);
         if (guid.IsNull())
         {
             UmLogger.Log(LogLevel::LEVEL_WARNING, u8"포커스 이미지를 찾을 수 없습니다.");
@@ -129,7 +88,7 @@ void ReturnToMapNavi::FocusOut(FocusCallType callType)
 
     if (CheckImageElementWithLog(_imageElement))
     {
-        File::Guid guid = GetSelectBox(SelectBoxType::DEFAULT);
+        File::Guid guid = RestartStageNavi::GetSelectBox(RestartStageNavi::SelectBoxType::DEFAULT);
         if (guid.IsNull())
         {
             UmLogger.Log(LogLevel::LEVEL_WARNING, u8"일반 이미지를 찾을 수 없습니다.");
@@ -173,6 +132,6 @@ void ReturnToMapNavi::Start()
     CheckImageElementWithLog(_imageElement);
     if (_imageElement)
     {
-        _imageElement->SetImage(GetSelectBox(SelectBoxType::DEFAULT));
+        _imageElement->SetImage(RestartStageNavi::GetSelectBox(RestartStageNavi::SelectBoxType::DEFAULT));
     }
 }

@@ -80,6 +80,7 @@ public:
 private:
     void OnTickGui() override;
     void OnStartGui() override;
+    void OnEndGui() override;
 
     void OnPreFrameBegin() override;
     void OnPostFrameBegin() override;
@@ -210,10 +211,11 @@ private:
     public:
         enum SortFlags
         {
-            FLAGS_SORT_BY_NONE = 0,      // 정렬 없음
-            FLAGS_SORT_BY_TYPE = 1 << 1, // 유형별 정렬
-            FLAGS_SORT_BY_NAME = 1 << 2, // 이름순 정렬
-            FLAGS_SORT_BY_DATE = 1 << 3, // 날짜순 정렬
+            FLAGS_SORT_BY_NONE      = 0,      // 정렬 없음
+            FLAGS_SORT_BY_TYPE      = 1 << 1, // 유형별 정렬
+            FLAGS_SORT_BY_NAME      = 1 << 2, // 이름순 정렬
+            FLAGS_SORT_BY_DATE      = 1 << 3, // 날짜순 정렬
+            FLAGS_SORT_BY_ASSET_ID  = 1 << 3, // 에셋 ID순 정렬
         };
 
     public:
@@ -226,6 +228,7 @@ private:
         bool CompareByType(const AssetData* a, const AssetData* b) const;
         bool CompareByName(const AssetData* a, const AssetData* b) const;
         bool CompareByDate(const AssetData* a, const AssetData* b) const;
+        bool CompareByAssetID(const AssetData* a, const AssetData* b) const;
 
     private:
         int flags = 0; // 정렬 플래그 (예: 이름순, 날짜순 등)

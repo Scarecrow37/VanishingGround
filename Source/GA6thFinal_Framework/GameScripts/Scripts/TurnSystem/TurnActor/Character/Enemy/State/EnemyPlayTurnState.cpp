@@ -2,6 +2,10 @@
 #include "EnemyPlayTurnState.h"
 
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+#include "TurnSystem/TurnMode/TurnMode.h"
+#include "RoundInfoUI/RoundInfoUIManager.h"
+#include "Monster/Action/MonsterActionBase.h"
+#include "TurnSystem/TurnMode/State/EnemyActionPhase.h"
 
 REGISTER_CLASS(FSMStateFactory, EnemyPlayTurnState)
 
@@ -20,32 +24,67 @@ void EnemyPlayTurnState::OnAwake()
 
 void EnemyPlayTurnState::OnStart() 
 {
+    _roundInfoUIManager = GameObject::FindComponentWithTag<RoundInfoUIManager>("Round Info Panel");
 }
 
 void EnemyPlayTurnState::OnEnter() 
 {
-    GameObject* gameObject = &GetFSM().gameObject;
+    _isOnce = false;
 
-    std::string message = std::format("{} {}", gameObject->ToString(), (const char*)u8"턴 시작.");
+    Enemy& enemy = GetEnemy();
+    Monster::Controller& controller = enemy.GetController();
+
+    std::string spawnPoint = Monster::SpawnPointToString(enemy.SpawnPoint);
+    std::string actionName = STR_NULL;
+
+    const std::string message = std::format("{}{}{}{}", spawnPoint, (const char*)u8" Enemy 턴 시작. ",
+                                            (const char*)u8"Action : ", actionName);
     UmLogger.Message(LogLevel::LEVEL_TRACE, message);
 }
 
 void EnemyPlayTurnState::OnExit() 
 {
-    GameObject* gameObject = &GetFSM().gameObject;
-
-    std::string message = std::format("{} {}", gameObject->ToString(), (const char*)u8"턴 종료.");
+    Enemy& enemy = GetEnemy();
+    std::string spawnPoint = Monster::SpawnPointToString(enemy.SpawnPoint);
+    std::string message = std::format("{} {}{}", spawnPoint, enemy.gameObject->ToString(), (const char*)u8" 턴 종료.");
     UmLogger.Message(LogLevel::LEVEL_TRACE, message);
+
+    if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+    {
+        mode->ApplyActions([this](TurnAction& action) { action.OnTurnEnd(GetEnemy()); });
+    }
 }
     
 void EnemyPlayTurnState::OnUpdate()
 {
-    Enemy& enemy = GetEnemy();
-    Monster::Controller& controller = enemy.GetController();
-    bool succeed = controller.ProcessAction(); // 컨트롤러가 액션을 마치면 true를 반환함.
-    if (succeed)
+    if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
     {
-        enemy.EndTurn();
+        if (EnemyActionPhase* waitPhase = turnMode->States->EnemyActionPhase)
+        {
+            if (false == waitPhase->WaitPhase)
+            {
+                Enemy&               enemy      = GetEnemy();
+                Monster::Controller& controller = enemy.GetController();
+                bool                 succeed    = controller.ProcessAction(); // 컨트롤러가 액션을 마치면 true를 반환함.
+                if (succeed)
+                {
+                    enemy.EndTurn();
+                }
+
+                if (false == _isOnce)
+                {
+                    if (Monster::Action::Base* action = controller.GetCurrentAction())
+                    {
+                        const std::string& actionName = action->GetActionContext().Name;
+                        if (auto roundInfo = _roundInfoUIManager.lock())
+                        {
+                            roundInfo->FadeInfoUI(actionName);
+                        }
+                        _isOnce = true;
+                    }
+                }  
+            }     
+        }
     }
 }
 

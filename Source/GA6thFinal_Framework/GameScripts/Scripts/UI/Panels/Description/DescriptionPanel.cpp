@@ -1,5 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "DescriptionPanel.h"
+
+#include "UI/Elements/Dummy/DummyElement.h"
+
 #include <Regex>
 
 #include "UI/Elements/Text/TextElement.h"
@@ -88,7 +91,8 @@ struct ParseData
                 }
                 else if (auto assetAttribute = node.attribute("asset"); !assetAttribute.empty())
                 {
-                    int id = std::stoi(assetAttribute.as_string());
+                    std::string idString = assetAttribute.as_string();
+                    int         id       = idString.empty() ? 0 : std::stoi(idString);
                     guid   = UmFileSystem.GetGuidFromAssetID(id);
                 }
                 else
@@ -100,13 +104,18 @@ struct ParseData
                 ElementData     elementData{.Type = ElementType::IMAGE, .Data = attributes};
                 elements.push_back(elementData);
             }
+            else if (std::strcmp(node.name(), "Break") == 0)
+            {
+                ElementData elementData{.Type = ElementType::BREAK, .Data = {}};
+                elements.push_back(elementData);
+            }
         }
 
         return elements;
     }
 };
 
-DescriptionPanel::DescriptionPanel()
+DescriptionPanel::DescriptionPanel() : _fontWeight(0.5f)
 {
     FontPath.SetInputAutoEvent([this]() {
         if (ImGui::BeginDragDropTarget())
@@ -141,6 +150,18 @@ DescriptionPanel::DescriptionPanel()
             ImGui::EndDragDropTarget();
         }
     });
+}
+
+void DescriptionPanel::SetOpacity(const float opacity)
+{
+    ReflectFields->Alpha = std::clamp(opacity, 0.0f, 1.0f);
+    UpdateAlpha();
+}
+
+void DescriptionPanel::SetFontWeight(const float fontWeight)
+{
+    _fontWeight = fontWeight;
+    UpdateContent();
 }
 
 void DescriptionPanel::DeserializedReflectEvent()
@@ -179,6 +200,7 @@ void DescriptionPanel::UpdateContent()
         EraseChild();
         MakeChild();
         InvalidateMeasure();
+        InvalidateArrange();
     }
 }
 
@@ -205,11 +227,29 @@ void DescriptionPanel::MakeChild()
 {
     Transform&        transform = this->transform;
     const std::string text      = ReflectFields->Description;
+    bool              breakNext = false;
 
     for (const std::vector<ElementData> elementData = ParseData()(text); const auto& [Type, Data] : elementData)
     {
+        if (Type == ElementType::BREAK)
+        {
+            breakNext = true;
+            continue;
+        }
+
         const std::shared_ptr<GameObject> child =
             NewGameObject(GameObject::Helper::GenerateUniqueName("Description Child"));
+        child->transform->SetParent(transform, true);
+
+        if (breakNext)
+        {
+            if (HorizontalPanelSlot* slot = child->GetComponent<HorizontalPanelSlot>())
+            {
+                slot->BreakLine = true;
+            }
+            breakNext = false;
+        }
+
         switch (Type)
         {
         case ElementType::TEXT: {
@@ -222,12 +262,13 @@ void DescriptionPanel::MakeChild()
             color.w                    = ReflectFields->Alpha;
             element.Color              = color;
             element.FontScale          = ReflectFields->FontScale;
+            element.FontWeight         = _fontWeight;
+            element.SetArtificial(true);
         }
         break;
         case ElementType::IMAGE: {
-            RatioWrapper& ratio      = child->AddComponent<RatioWrapper>();
-            ratio.HorizontalFillMode = FillMode::FILL;
-            ratio.VerticalFillMode   = FillMode::FILL;
+            RatioWrapper& ratio    = child->AddComponent<RatioWrapper>();
+            ratio.VerticalFillMode = FillMode::FILL;
             const std::shared_ptr<GameObject> imageChild =
                 NewGameObject(GameObject::Helper::GenerateUniqueName("Image Element"));
             auto [guid]           = std::get<ImageAttributes>(Data);
@@ -236,28 +277,29 @@ void DescriptionPanel::MakeChild()
             element.HorizontalFillMode = FillMode::FILL;
             element.VerticalFillMode   = FillMode::FILL;
             element.Alpha              = ReflectFields->Alpha;
+            element.SetArtificial(true);
             imageChild->transform->SetParent(child->transform, true);
         }
         break;
+        default:
+            break;
         }
-        child->transform->SetParent(transform, true);
     }
 }
 
 void DescriptionPanel::UpdateAlpha()
 {
-    const float                     alpha    = ReflectFields->Alpha;
-    const std::vector<UIComponent*> children = Children;
-    std::ranges::for_each(children, [alpha](const UIComponent* child) {
-        if (TextElement* textElement = child->GetComponent<TextElement>(); nullptr != textElement)
+    const float alpha = ReflectFields->Alpha;
+    Transform::ForeachBFS(transform, [alpha](Transform* t) 
+    {
+        GameObject& object = t->gameObject;
+        if (TextElement* textElement = object.GetComponent<TextElement>(); nullptr != textElement)
         {
-            Color color        = textElement->Color;
-            color.w            = alpha;
-            textElement->Color = color;
+            textElement->SetOpacity(alpha);
         }
-        else if (ImageElement* imageElement = child->GetComponent<ImageElement>(); nullptr != imageElement)
+        else if (ImageElement* imageElement = object.GetComponent<ImageElement>(); nullptr != imageElement)
         {
-            imageElement->Alpha = alpha;
+            imageElement->SetOpacity(alpha);
         }
     });
 }

@@ -10,7 +10,8 @@ public:
     virtual ~ParticleEffect();
 
     // 문자열 수명 보존을 위해 view 대신 값 복사 사용 권장
-    class ParticleEmitter* AddEmitter(SIZE_T maxParticles = 100000, float emissionRate = 500.f, float emitterLifetime = 5.f,
+    class ParticleEmitter* AddEmitter(SIZE_T maxParticles = 10000, float emissionRate = 500.f,
+                                      float emitterLifetime = 5.f,
                                 LocationShape locatorShape   = LocationShape::SPHERE,
                                 Vector3       locationFactor = Vector3(1, 1, 1),
                                       ParticleType        particleType   = ParticleType::SPRITE,
@@ -32,7 +33,9 @@ public:
     void                                                 SetRotation(Vector3* rotation);
     void                                                 SetScale(Vector3* scale);
     void                                                 SetBoneFollowFlag(bool* flag);
+    bool                                                 GetBoneFollowFlag();
     void                                                 SetBoneMatrix(const Matrix* matrix);
+    const Matrix*                                        GetBoneMatrix() const { return _boneWorldMatrix; }
     void                                                 SetParentMatrix(const Matrix* matrix);
 
     ParticleEffect(const ParticleEffect&)                = delete;

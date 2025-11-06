@@ -21,9 +21,10 @@ public:
 
     bool Evaluate() override;
     void DrawImguiEditor() override;
-    const std::string& GetConditionInfo() const override;
+    const std::string& GetConditionInfo() override;
 
-protected:
+    bool CheckEvaluate(int chainCount);
+
     REFLECT_PROPERTY()
     REFLECT_FIELDS_BEGIN(TurnActionCondition)
     TurnTarget Target   = TurnTarget::SELF;
@@ -32,6 +33,7 @@ protected:
     int        Value2   = 0;
     REFLECT_FIELDS_END(ChainCondition)
 
+protected:
     void SerializedReflectEvent() override;
     void DeserializedReflectEvent() override;
 
@@ -39,4 +41,5 @@ private:
     std::string _conditionInfo;
     void        UpdateConditionInfo();
 
+    bool CheckEvaluate(CharacterBase* character) override;
 };

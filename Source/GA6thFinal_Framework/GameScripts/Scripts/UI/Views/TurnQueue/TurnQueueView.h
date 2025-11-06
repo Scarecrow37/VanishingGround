@@ -2,6 +2,7 @@
 #include "ViewModels/TurnQueue/TurnQueueViewModel.h"
 
 class ImageElement;
+class FadeUIComponent;
 
 class TurnQueueView : public Component
 {
@@ -58,6 +59,8 @@ private:
     
     std::array<ButtonIconImage, 6> _turnQueueButtonIcons{};
     TurnQueueViewModel::Handle _watchHandle;
+
+    std::weak_ptr<FadeUIComponent> _fadeUIComponent;
 
 private:
     void DisableButtonIcons(ButtonIconImage& image);

@@ -3,6 +3,7 @@
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <Token/TokenInventory.h>
+#include <Particle/ParticleComponent.h>
 
 namespace TokenObject
 {
@@ -37,8 +38,14 @@ namespace TokenObject
                 int stackCount = tokenInventory.GetTokenStackFromID(ID);
                 int param  = GetTokenParam(0);
                 int damage = param * stackCount;
-                UmLogger.Log(LogLevel::LEVEL_DEBUG, TokenLog(*owner));
-                owner->TakeDamage(damage);
+                UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(*owner));
+                TakeDamage(owner, damage);
+
+                // 이펙트 출력
+                if (ParticleComponent* particle = owner->GetParticleComponent())
+                {
+                    particle->PlayEffect("bleed");
+                }
             }
             tokenInventory.RemoveTokenStackFromID(ID);
         }

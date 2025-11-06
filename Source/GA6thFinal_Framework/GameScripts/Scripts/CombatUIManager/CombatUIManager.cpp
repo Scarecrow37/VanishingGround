@@ -23,8 +23,6 @@ void CombatUIManager::Refresh()
             }
         }
     }
-
-    CharacterHUDGroup.RefreshEnemiesPosition();
 }
 
 void CombatUIManager::SetActiveUI(bool active) 
@@ -60,10 +58,8 @@ void CombatUIManager::Start()
 
 void CombatUIManager::Update() 
 {
-    if (CharacterHUDGroup.IsValid())
-    {
-        CharacterHUDGroup.RefreshUIPosition();
-    }
+    CharacterHUDGroup.RefreshUIPosition();
+    CharacterHUDGroup.RefreshCharactersUIPosition();
 }
 
 void CombatUIManager::FixedUpdate() 
@@ -115,7 +111,6 @@ void CombatUIManager::PreferencesKeyDown(const Input::Controller&)
 
     if (isOpen)
     {
-        //TODO: 마지막 포커스된 UI를 전달해야함
         if (PreferencesManager* manager = SingletonComponent<PreferencesManager>::GetInstance())
         {
             UINavigationComponent* lastFocus = GetLastFocusNaviFromObjectName("UI Root");
@@ -134,7 +129,6 @@ void CombatUIManager::InventoryKeyDown(const Input::Controller&)
 
      if (isOpen)
     {
-        // TODO: 마지막 포커스된 UI를 전달해야함
         if (InventoryUIManager* manager = SingletonComponent<InventoryUIManager>::GetInstance())
         {
             UINavigationComponent* lastFocus = GetLastFocusNaviFromObjectName("UI Root");
@@ -154,4 +148,21 @@ UINavigationComponent* CombatUIManager::GetLastFocusNaviFromObjectName(const std
         }
     }
     return value;
+}
+
+
+void CombatUIManager::FadeIn(float duration)
+{
+    for (auto& group : _uiGroups)
+    {
+        group->FadeIn(duration);
+    }
+}
+
+void CombatUIManager::FadeOut(float duration)
+{
+    for (auto& group : _uiGroups)
+    {
+        group->FadeOut(duration);
+    }
 }

@@ -7,6 +7,7 @@ class FiniteStateMachine;
 class TurnActor;
 class Enemy;
 class Player;
+class UmCineMotion;
 
 /*
 * 턴을 관리하는 컴포넌트입니다.
@@ -38,14 +39,19 @@ public:
     int AddRoundCount() { return ++_roundCount; }
 
     /// <summary>
-    /// 현재 Scene에 존재하는 모든 TurnActor를 TurnList에 담습니다.
+    /// 이번 라운드의 플레이어의 무기 턴 횟수입니다. 
+    /// </summary>
+    int GetPlayerWeaponCounter() { return _playerWeaponCounter; }
+
+    /// <summary>
+    /// 턴 리스트 생성 및 정렬을 수행합니다.
     /// </summary>
     void MakeTurnList();
 
     /// <summary>
-    /// Random Speed를 뽑고 TurnList를 정렬합니다.
+    /// 턴 항목에서 죽은 캐릭터를 제거합니다.
     /// </summary>
-    void SortTurnList();
+    void EraseTurnListToDeadCharacter();
 
     /// <summary>
     /// 가장 우선순위가 높은 TurnActor를 CurrTurnActor 로 설정합니다.
@@ -67,7 +73,7 @@ public:
     /// <summary>
     /// 턴 대기중인 Actor의 개수를 반환합니다.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>int 갯수</returns>
     int GetPendingActorCount();
 
     /*slot 값을 통해 플레이어 엑터인지 확인합니다.*/
@@ -77,13 +83,36 @@ public:
         return 0 <= slot;
     }
 
+    UmCineMotion* GetIntroCamera() { return _introCamera.lock().get(); }
+    UmCineMotion* GetBattleCamera() { return _battleCamera.lock().get(); }
+
 public:
     REFLECT_PROPERTY(
         RoundCount
     )
 
     GETTER_ONLY(int, RoundCount) { return _roundCount; }
+    // 현재 라운드 수
+    // type : int
     PROPERTY(RoundCount)
+
+    GETTER(bool, RevelationActiveFlag) { return _revelationActiveFlag;  }
+    SETTER(bool, RevelationActiveFlag) 
+    { 
+       _revelationActiveFlag = value; 
+       if (value)
+       {
+           _currentTurnRevelationActiveFlag = value;
+       }
+    }
+    // 계시 발동 조건 평가용 플래그 변수입니다. QTE 공격이 완전히 종료될때마다 false로 초기화됩니다.
+    // type : bool
+    PROPERTY(RevelationActiveFlag)
+
+    GETTER_ONLY(bool, IsCurrentTurnActiveRevelation) { return _currentTurnRevelationActiveFlag; }
+    // 이번 턴 계시 발동 여부 입니다.
+    // type : bool
+    PROPERTY(IsCurrentTurnActiveRevelation)
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
@@ -105,6 +134,15 @@ private:
     /*플레이어의 무기 slot 번호를 함께 저장합니다. int 값이 -1이면 Enemy, 0 이상이면 Player 입니다.*/
     MVVM::Model<std::deque<std::pair<int, TurnActor*>>> _turnList;
     MVVM::Model<TurnActor*>                             _currTurnActor;
+
+    /*이번 공격에 대한 계시 발동 여부를 관리하는 플래그입니다.*/
+    bool _revelationActiveFlag = false;
+    /*이번 턴에 대한 계시 발동 여부를 관리하는 플래그입니다.*/
+    bool _currentTurnRevelationActiveFlag = false;
+
+    // 카메라 연출용
+    std::weak_ptr<UmCineMotion> _introCamera;
+    std::weak_ptr<UmCineMotion> _battleCamera;
 
 private:
     struct SystemStates
@@ -179,13 +217,18 @@ public:
                 baseAction->_isDestroy = isDestroy.get();
                 newAction              = baseAction;
                 result                 = true;
+                CallAddedAction(action);
             }
         }
         return result;
     }
+private:
+    void CallAddedAction(TurnAction* action);
 
 private:
     std::vector<std::pair<std::unique_ptr<bool>, TurnAction*>> _turnActions;
+    
+    int _playerWeaponCounter = 0;
 
 public:
     GETTER_ONLY(const SystemStates&, States) { return _systemStates; }
@@ -208,8 +251,13 @@ protected:
     /// <para> 이 함수는 항상 Start 함수 전에 호출되며 프리팹이 인스턴스화 된 직후에 호출됩니다.                </para>
     /// <para> 게임 오브젝트의 Active가 false 상태인 경우 Awake 함수는 true가 될때까지 호출되지 않습니다.      </para>
     /// </summary>
-    virtual void Awake() override;
+    void Awake() override;
+    void Start() override;
 
-    virtual void ImGuiDrawPropertysEvent() override;
+    void OnDestroy() override;
+
+    void ImGuiDrawPropertysEvent() override;
+
+    void FindCameras();
 
 };

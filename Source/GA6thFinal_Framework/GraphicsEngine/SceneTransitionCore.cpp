@@ -9,6 +9,6 @@ void SceneTransitionCore::Fade(const char* sceneName, const Color& color, bool f
 {
     auto [it, inserted]  = _sceneTransitionProps.try_emplace(sceneName);
     auto& prop          = it->second;
-    prop._fadeColor     = color;
+    prop._fadeColor = color;
     prop._fadeFlag      = flag;
 }

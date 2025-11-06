@@ -4,8 +4,23 @@ InputReceiver::~InputReceiver()
 {
     if (nullptr != _isDestroy)
     {
+        if (_isPushStack)
+            PopInputLayer();
+
         *_isDestroy = true;
     }
+}
+
+bool InputReceiver::PushInputLayer()
+{
+    auto& inputSystem = ESceneManager::Engine::GetInputSystem();
+    return inputSystem.PushReceiverToInputStack(*this);
+}
+
+bool InputReceiver::PopInputLayer()
+{
+    auto& inputSystem = ESceneManager::Engine::GetInputSystem();
+    return inputSystem.PopReceiverToInputStack(*this);
 }
 
 void InputReceiver::Vibrate(const Input::ControllerTypes::Vibration vibration)

@@ -138,6 +138,7 @@ void HierarchyFindTool::DrawFindList()
                 {
                     if (_nameFilter.PassFilter(name.data()))
                     {
+                        ImGui::PushID(object.get());
                         if (ImGui::Selectable(name.data()))
                         {
                             EditorHierarchyTool::SetFocusObject(object);
@@ -145,6 +146,7 @@ void HierarchyFindTool::DrawFindList()
                             _editorHierarchyTool->SetFocusFrame();
                             _editorHierarchyTool->OpenFocusObjectTree();
                         }
+                        ImGui::PopID();
                     }
                 }
             }

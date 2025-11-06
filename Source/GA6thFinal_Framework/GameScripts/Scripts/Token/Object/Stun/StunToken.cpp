@@ -4,6 +4,12 @@
 #include <TurnSystem/TurnActor/Character/CharacterBase.h>
 #include <Token/TokenInventory.h>
 #include <Stats/CharacterStats.h>
+#include "ContentMath/ContentMath.h"
+#include "TurnSystem/TurnMode/TurnMode.h"
+#include "TurnSystem/TurnActor/Character/Player/Player.h"
+#include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
+#include "Particle/ParticleComponent.h"
+
 namespace TokenObject
 {
     REGISTER_TOKEN(Stun)
@@ -24,6 +30,20 @@ namespace TokenObject
             else
             {
                 // 기절 저항이 없다면 기절 토큰을 추가한다.
+                // 스턴 액션 호출
+                if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+                {
+                    if (typeid(Player) == typeid(*owner))
+                    {
+                        Player* player = static_cast<Player*>(owner);
+                        mode->ApplyActions([player](TurnAction& action) { action.OnPlayerStun(*player); });
+                    }
+                    else if (typeid(Enemy) == typeid(*owner))
+                    {
+                        Enemy* enemy = static_cast<Enemy*>(owner);
+                        mode->ApplyActions([enemy](TurnAction& action) { action.OnEnemyStun(*enemy); });
+                    }
+                }
                 return true;
             }
         }
@@ -42,10 +62,27 @@ namespace TokenObject
             if (stats)
             {
                 // 스턴 저항 수치 갱신은 올림 계산
-                const float stunResistance = std::ceilf((float)stats->StunResistance * stats->StunResistanceMultiplier);
-                stats->StunResistance = static_cast<int>(stunResistance);
+                stats->StunResistance = ContentMath::CeilPercentage(
+                    stats->StunResistance, static_cast<int>(stats->StunResistanceMultiplier * 100.0f));
                 tokenInventory.AddTokenStackFromID(TokenObject::StunResistance::ID, stats->StunResistance);
             }
+            UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(*owner));
+        }
+    }
+    void Stun::OnTokenEnter(CharacterBase* owner, int tokenID) 
+    {
+        // 이펙트 출력
+        if (ParticleComponent* particle = owner->GetParticleComponent())
+        {
+            particle->PlayEffect("stun");
+        }
+    }
+    void Stun::OnTokenExit(CharacterBase* owner, int tokenID) 
+    {
+        // 이펙트 종료
+        if (ParticleComponent* particle = owner->GetParticleComponent())
+        {
+            particle->StopEffect("stun");
         }
     }
 } // namespace TokenObject

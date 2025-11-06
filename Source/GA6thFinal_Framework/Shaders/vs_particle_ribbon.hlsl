@@ -15,7 +15,6 @@ struct VSOutput
     float4 position : SV_POSITION;
     float2 uv : TEXCOORD;
     float4 color : COLOR0;
-    float depth : TEXCOORD1;
     nointerpolation int emitterIndex : CUSTOM_FLAG;
 };
 
@@ -33,7 +32,6 @@ VSOutput vs_main(uint vertexId : SV_VertexID)
     o.uv = float2(u, v);
 
     o.color = p.Color;
-    o.depth = o.position.z / o.position.w;
     o.emitterIndex = p.EmitterIndex;
     return o;
 }

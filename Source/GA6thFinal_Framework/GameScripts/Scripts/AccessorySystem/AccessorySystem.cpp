@@ -24,6 +24,15 @@ bool AccessorySystem::EquipAccessory(const AccessoryElement& accessory)
     if (result)
     {
         _playerAccessoryItems.push_back(accessory);
+        if (UmCore->IsPlay())
+        {
+            const auto& lastAccessory = _playerAccessoryItems[_playerAccessoryItems.size() - 1];
+            for (auto& action : lastAccessory._actions)
+            {
+                if (action)
+                    action->OnEquipAccessory();
+            }
+        }
     }
     return result;
 }
@@ -158,25 +167,24 @@ void AccessorySystem::ImGuiDrawPropertysEvent()
                             else if (findName)
                             {
                                 // 이미 있으면 액션 제외하고 복사
-                                std::string originActionName        = nameFindIter->second.ReflectFields->ActionName;
-                                std::string originActionData        = nameFindIter->second.ReflectFields->ActionData;
+                                std::vector<std::pair<std::string, std::string>> originActions = nameFindIter->second.ReflectFields->Actions;
                                 *nameFindIter->second.ReflectFields = *temp.ReflectFields;
-                                nameFindIter->second.ReflectFields->ActionName = std::move(originActionName);
-                                nameFindIter->second.ReflectFields->ActionData = std::move(originActionData);
+                                nameFindIter->second.ReflectFields->Actions = std::move(originActions);
                             }
                             else if (findID)
                             {
                                 AccessoryElement*  accessory = *idFindIter;
+                                const std::string& originName = accessory->AccessoryName;
                                 const std::string& tempName  = temp.AccessoryName;
-                                RenameAccessory(*accessory, tempName);
+                                if (originName != tempName)
+                                    RenameAccessory(*accessory, tempName);
+
                                 if (auto findIter = _elementTable.find(tempName); findIter != _elementTable.end())
                                 {
-                                    accessory                            = &findIter->second;
-                                    std::string originActionName         = accessory->ReflectFields->ActionName;
-                                    std::string originActionData         = accessory->ReflectFields->ActionData;
-                                    *accessory->ReflectFields            = *temp.ReflectFields;
-                                    accessory->ReflectFields->ActionName = std::move(originActionName);
-                                    accessory->ReflectFields->ActionData = std::move(originActionData);
+                                    accessory = &findIter->second;
+                                    std::vector<std::pair<std::string, std::string>> originActions = accessory->ReflectFields->Actions;
+                                    *accessory->ReflectFields         = *temp.ReflectFields;
+                                    accessory->ReflectFields->Actions = std::move(originActions);
                                 }
                             }
                             if (false == result)
@@ -314,7 +322,33 @@ void AccessorySystem::ImGuiTableEditor()
                 ImGui::PopStyleColor();
                 ImGui::TableSetColumnIndex(3);
                 {
-                    TurnAction::ImGuiDrawActionMaker(key, accessory._action, accessory._showActionEditor);
+                    if (false == accessory._actions.empty())
+                    {
+                        for (size_t i = 0; i < accessory._actions.size(); ++i)
+                        {
+                            auto& ShowEditorFlags = _editorOnly.ShowActionEditor[key];
+                            auto& action = accessory._actions[i];
+                            if (ShowEditorFlags.size() <= i)
+                            {
+                                ShowEditorFlags.resize(i + 1);
+                            }
+                            bool showEditor = ShowEditorFlags[i];
+                            TurnAction::ImGuiDrawActionMaker(key + std::to_string(i), action, showEditor);
+                            ShowEditorFlags[i] = showEditor;
+                        }
+                    }
+                    if (ImGui::Button("Push"))
+                    {
+                        accessory._actions.emplace_back();
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Pop"))
+                    {
+                        if (false == accessory._actions.empty())
+                        {
+                            accessory._actions.pop_back();
+                        }
+                    }
                 }
             }
             ImGui::PopID();
@@ -450,15 +484,7 @@ void AccessorySystem::ImGuiDrawPlayerAccsessoryItems()
             ImGui::PushStyleColor(ImGuiCol_Text, accessory.GetGradeColor());
             {
                 const std::string& name = accessory.AccessoryName;
-                AccessoryElement*  change = AccessorySelectCombo(name.c_str());
-                if (change)
-                {
-                    _playerAccessoryItems.at(i, [&](AccessoryElement& element) 
-                    { 
-                        element = *change;
-                    });
-                }
-
+                ImGui::Text(name.data());
                 ImGui::SameLine();
                 if (ImGui::Button("Unequip"))
                 {

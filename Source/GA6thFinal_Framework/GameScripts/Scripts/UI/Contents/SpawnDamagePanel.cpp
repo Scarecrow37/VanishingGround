@@ -94,8 +94,6 @@ void SpawnDamagePanel::DeserializedReflectEvent()
 void SpawnDamagePanel::Awake()
 {
     UIComponent::Awake();
-
-    BindInputAction(ControllerButton::A, Action::PRESSED, this, &SpawnDamagePanel::OnButton);
 }
 
 void SpawnDamagePanel::Reset()
@@ -124,36 +122,55 @@ void SpawnDamagePanel::EraseChild() const
     children.clear();
 }
 
-DamageElement* SpawnDamagePanel::MakeDamage() const
+std::weak_ptr<DamageElement> SpawnDamagePanel::MakeDamage(const int damage, const std::span<const std::string> revelations) const
 {
     const std::shared_ptr<GameObject> child = NewGameObject(GameObject::Helper::GenerateUniqueName("Damage Element"));
-    DamageElement&                    damageElement = child->AddComponent<DamageElement>();
-    auto [point, angle]                             = GetRandomSpawnPointAndAngle();
-    damageElement.Point                             = point;
-    damageElement.Size                              = {50, 20};
-    const LONG distance                             = static_cast<LONG>((1 - RadiusRatio) * Radius);
-    std::array<std::string, 1> revelations  = {"하늘베기"};
-    damageElement.Setup(distance, angle, LifeTime, point, _Guid, FontScale, Color, "100", revelations);
+
+    DamageElement& damageElement = child->AddComponent<DamageElement>();
+
+    auto [point, angle] = GetRandomSpawnPointAndAngle();
+
+    damageElement.Point              = point;
+    const SIZE size                  = Size;
+    damageElement.Size               = size;
+    damageElement.HorizontalFillMode = FillMode::WRAP;
+    damageElement.VerticalFillMode   = FillMode::WRAP;
+
+    const LONG               distance = static_cast<LONG>((1 - RadiusRatio) * Radius);
+
+    const DamageElement::SetupData data{.Distance           = distance,
+                                        .Angle              = angle,
+                                        .Duration           = LifeTime,
+                                        .Origin             = point,
+                                        .FontGuid           = _Guid,
+                                        .BeginFontSize      = BeginScale,
+                                        .EndFontSize        = EndScale,
+                                        .BeginColor         = BeginColor,
+                                        .EndColor           = EndColor,
+                                        .BeginOutlineColor  = BeginOutlineColor,
+                                        .EndOutlineColor    = EndOutlineColor,
+                                        .Damage             = std::to_string(damage),
+                                        .Revelations        = revelations,
+                                        .TurningPoint       = TurningPoint,
+                                        .EasingFunctionType = EasingFunctionType};
+
+    damageElement.Setup(data);
+
     child->transform->SetParent(transform, true);
-    return &damageElement;
+    return damageElement.GetWeakPtrAs<DamageElement>();
 }
 
 std::pair<POINT,float> SpawnDamagePanel::GetRandomSpawnPointAndAngle() const
 {
-    const POINT    center            = CenterPoint;
+    const auto [x, y]                = CenterPoint - Point;
     const float    randomRadiusRatio = Random::Range(0.0f, RadiusRatio);
     const float    radius            = randomRadiusRatio * Radius;
     const float    angle             = Random::Range(0.0f, XM_2PI);
     const XMVECTOR direction         = XMVectorSet(radius, 0, 0, 0);
     const XMMATRIX rotation          = XMMatrixRotationZ(angle);
     const XMVECTOR vector            = XMVector3Transform(direction, rotation);
-    const XMVECTOR centerVector      = XMVectorSet(static_cast<float>(center.x), static_cast<float>(center.y), 0, 0);
-    const XMVECTOR    resultVector      = XMVectorAdd(centerVector, vector);
-    const POINT       result = {static_cast<LONG>(XMVectorGetX(resultVector)), static_cast<LONG>(XMVectorGetY(resultVector))};
+    const XMVECTOR centerVector      = XMVectorSet(static_cast<float>(x), static_cast<float>(y), 0, 0);
+    const XMVECTOR resultVector      = XMVectorAdd(centerVector, vector);
+    const POINT result = {static_cast<LONG>(XMVectorGetX(resultVector)), static_cast<LONG>(XMVectorGetY(resultVector))};
     return std::make_pair(result, angle);
-}
-
-void SpawnDamagePanel::OnButton(const Input::Controller& controller)
-{
-    _damageElements.push_back(MakeDamage());
 }

@@ -1,10 +1,14 @@
 ﻿#include "pchScripts.h"
 #include "RecoveryAction.h"
 #include <TurnSystem/TurnMode/TurnMode.h>
+#include "TurnSystem/TurnSystemHelper.h"
 #include <TurnSystem/TurnMode/State/CombatStartPhase.h>
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include <Stats/CharacterStats.h>
+#include "PlayerSystem/PlayerSystem.h"
+#include "Stats/Player/PlayerStatsComponent.h"
+#include "Stats/Player/PlayerStats.h"
 
 REGISTER_TURN_ACTION(RecoveryAction)
 
@@ -37,82 +41,41 @@ void RecoveryAction::ImGuiDrawActionEditor()
     ImguiDrawConditionEditor();
 }
 
+void RecoveryAction::OnPlayerBattleCalculateDamageModifier(Player& attacker, PlayerStats& attackerStats,
+                                                           WeaponStats& weaponStats, Enemy& target,
+                                                           EnemyStats& targetStats)
+{
+    if (ReflectFields->Trigger == TriggerType::ATTACK)
+    {
+        if (EvaluateConditions())
+        {
+            ProcessHeal();
+        }
+    }
+}
+
+void RecoveryAction::OnEquipAccessory() 
+{
+    if (ReflectFields->Trigger == TriggerType::EQUIP_ACCESSORY)
+    {
+        if (EvaluateConditions())
+        {
+            ProcessHeal();
+        }
+    }
+}
+
 void RecoveryAction::OnEnemyDeadByWeapon(Enemy& enemy, WeaponElement& weapon)
 {
     if (ReflectFields->Trigger == TriggerType::WEAPON_KILL_ENEMY)
     {
         if (EvaluateConditions())
         {
-            if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
-            {
-                CombatStartPhase* combatStartPhase = turnMode->States->CombatStartPhase;
-                if (combatStartPhase)
-                {
-                    static std::vector<CharacterBase*> targetList;
-                    targetList.clear();
-                    ActionTarget target    = ReflectFields->Target;
-                    auto   lastAttaker     = Battle::GetLastAttacker().lock();
-                    auto   lastTarget      = Battle::GetLastTarget().lock();
-                    auto   lastTargetEnemy = Battle::GetLastTargetEnemy().lock();
-                    switch (target)
-                    {
-                    default:
-                    case ActionTarget::SELF: {
-                        const auto& self = lastAttaker;
-                        if (self)
-                        {
-                            targetList.push_back(self.get());
-                        }
-                        break;
-                    }
-                    case ActionTarget::PLAYER: {
-                        Player* player = combatStartPhase->GetPlayer();
-                        if (player && player == lastTarget.get())
-                        {
-                            targetList.push_back(player);
-                        }
-                        break;
-                    }
-                    case ActionTarget::ENEMY: {
-                        if (lastTarget && lastTarget.get() == lastTargetEnemy.get())
-                        {
-                            targetList.push_back(lastTarget.get());
-                        }
-                        break;
-                    }
-                    case ActionTarget::ALL_ENEMIES: {
-                        auto& enemys = combatStartPhase->GetEnemies();
-                        for (auto& enemy : enemys)
-                        {
-                            targetList.push_back(enemy);
-                        }
-                        break;
-                    }
-                    case ActionTarget::ALL: {
-                        auto& characters = combatStartPhase->GetCharacters();
-                        for (auto& character : characters)
-                        {
-                            targetList.push_back(character);
-                        }
-                        break;
-                    }
-                    }
-
-                    if (false == targetList.empty())
-                    {
-                        for (auto& target : targetList)
-                        {
-                            if (target)
-                            {
-                                target->Heal(ReflectFields->RecoveryHP);
-                            }
-                        }
-                    }
-                }
-            }
+            ProcessHeal();
         }
     }
 }
+
 
 void RecoveryAction::DeserializedReflectEvent() 
 {
@@ -128,37 +91,60 @@ void RecoveryAction::UpdateActionInfo()
     case RecoveryAction::TriggerType::WEAPON_KILL_ENEMY:
         triggerName = (const char*)u8"무기 공격으로 적 처치시 ";
         break;
+    case RecoveryAction::TriggerType::ATTACK:
+        triggerName = (const char*)u8"공격할 때 마다 ";
+        break;
+    case RecoveryAction::TriggerType::EQUIP_ACCESSORY:
+        triggerName = (const char*)u8"장신구로 장착시 ";
+        break;
     default:
         break;
     }
 
-    ActionTarget target = ReflectFields->Target;
+    TurnTarget target = ReflectFields->Target;
     std::string_view targetName = STR_NULL;
-    switch (target)
-    {
-    case ActionTarget::SELF:
-        targetName = u8"자신의"_c_str;
-        break;
-    case ActionTarget::PLAYER:
-        targetName = u8"플레이어의"_c_str;
-        break;
-    case ActionTarget::ENEMY:
-        targetName = u8"적의"_c_str;
-        break;
-    case ActionTarget::ALL_ENEMIES:
-        targetName = u8"모든 적의"_c_str;
-        break;
-    case ActionTarget::ALL:
-        targetName = u8"모든 캐릭터의"_c_str;
-        break;
-    default:
-        break;
-    }
+    targetName = (const char*)TurnSystemHelper::GetTurnTargetToolTip(target).data();
     _actionInfo = triggerName;
     _actionInfo += targetName;
     _actionInfo += (const char*)u8" 체력";
     _actionInfo += " ";
     std::string recoveryHP = std::to_string(ReflectFields->RecoveryHP);
     _actionInfo += recoveryHP;
+    if (ReflectFields->RecoveryUnit == Unit::PERCENT)
+    {
+        _actionInfo += (const char*)u8"퍼";
+    }
     _actionInfo += (const char*)u8" 회복";
 }
+
+void RecoveryAction::ProcessHeal()
+{
+    std::vector<CharacterBase*> targetList = TurnSystemHelper::GetTargetCharacters(Target);
+    if (false == targetList.empty())
+    {
+        for (auto& target : targetList)
+        {
+            ProcessHeal(target);
+        }
+    }
+}
+
+void RecoveryAction::ProcessHeal(CharacterBase* target)
+{
+    int recoveryHP = ReflectFields->RecoveryHP;
+    if (target)
+    {
+        switch (ReflectFields->RecoveryUnit)
+        {
+        case Unit::FLAT:
+            target->Heal(recoveryHP);
+            break;
+        case Unit::PERCENT:
+            target->HealByPercentage(recoveryHP);
+            break;
+        default:
+            break;
+        }
+    }
+}
+

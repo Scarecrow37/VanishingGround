@@ -11,13 +11,13 @@ FadeDescriptionPanel::FadeDescriptionPanel()
 void FadeDescriptionPanel::FadeIn()
 {
     _fadeDirection = FadeDirection::FORWARD;
-    UIAnimation::Reset(ReflectFields->FadeDuration, false);
+    UIAnimation::Reset();
 }
 
 void FadeDescriptionPanel::FadeOut()
 {
     _fadeDirection = FadeDirection::BACKWARD;
-    UIAnimation::Reset(ReflectFields->FadeDuration, false);
+    UIAnimation::Reset();
 }
 
 void FadeDescriptionPanel::Stop()
@@ -27,22 +27,20 @@ void FadeDescriptionPanel::Stop()
 
 void FadeDescriptionPanel::Begin()
 {
-    Alpha = BeginAlpha;
-    UIAnimation::Reset(ReflectFields->FadeDuration, false);
+    SetElapsedTime(0.0f);
 }
 
 void FadeDescriptionPanel::End()
 {
-    Alpha = EndAlpha;
-    UIAnimation::Reset(0.0f, false);
+    const float duration = FadeDuration;
+    SetElapsedTime(duration);
 }
 
 void FadeDescriptionPanel::Start()
 {
     DescriptionPanel::Start();
 
-    Alpha = BeginAlpha;
-    UIAnimation::Reset(ReflectFields->FadeDuration, false);
+    UpdateAnimationProperty();
 }
 
 void FadeDescriptionPanel::Update()
@@ -72,4 +70,10 @@ void FadeDescriptionPanel::Reset()
 void FadeDescriptionPanel::UpdateAlpha(const float alpha)
 {
     Alpha = std::lerp(BeginAlpha, EndAlpha, alpha);
+}
+
+void FadeDescriptionPanel::UpdateAnimationProperty()
+{
+    const float duration = FadeDuration;
+    SetDuration(duration);
 }

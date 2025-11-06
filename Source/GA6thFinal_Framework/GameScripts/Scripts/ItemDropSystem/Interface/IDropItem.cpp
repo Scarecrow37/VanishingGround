@@ -25,50 +25,61 @@ std::u8string_view DropItemInfo::GetDataBaseName(ArtifactDropType type)
     }
 }
 
-int DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType type)
+int DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType type, bool isMapScene)
 {
     int id = 0;
-    if (ExcelDataSystem* excelDataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
+    if (isMapScene)
     {
-        std::unique_ptr<ExcelDataBase> dataBase;
-        dataBase = excelDataSystem->FindExcelDataBase(u8"전투");
-        if (dataBase)
+        switch (type)
         {
-            std::string_view             data;
-            constexpr std::u8string_view columnKey = u8"Description";
-            size_t                       rowIndex  = ExcelDataBase::FIND_INDEX_FAIL;
-            switch (type)
-            {
-            case ArtifactDropType::SWORD:
-                rowIndex = dataBase->FindRowIndex(u8"보상_검", columnKey);
-                break;
-            case ArtifactDropType::DAGGER:
-                rowIndex = dataBase->FindRowIndex(u8"보상_단검", columnKey);
-                break;
-            case ArtifactDropType::WARHAMMER:
-                rowIndex = dataBase->FindRowIndex(u8"보상_대형망치", columnKey);
-                break;
-            case ArtifactDropType::ACCESSORY:
-                rowIndex = dataBase->FindRowIndex(u8"보상_장신구", columnKey);
-                break;
-            case ArtifactDropType::REVELATION:
-                rowIndex = dataBase->FindRowIndex(u8"보상_계시", columnKey);
-                break;
-            case ArtifactDropType::ERASE_REVELATION:
-                rowIndex = dataBase->FindRowIndex(u8"보상_계시 지우기", columnKey);
-                break;
-            default:
-                break;
-            }
-
-            if (rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
-            {
-                data = dataBase->FindData(rowIndex, u8"ID");
-                if (data != ExcelDataBase::FIND_STR_FAIL)
-                {
-                    id = std::stoi(data.data());
-                }
-            }
+        case ArtifactDropType::SWORD:
+            id = 440017;
+            break;
+        case ArtifactDropType::DAGGER:
+            id = 440018;
+            break;
+        case ArtifactDropType::WARHAMMER:
+            id = 440019;
+            break;
+        case ArtifactDropType::ACCESSORY:
+            id = 440020;
+            break;
+        case ArtifactDropType::REVELATION:
+            id = 440021;
+            break;
+        case ArtifactDropType::ERASE_REVELATION:
+            id = 440022;
+            break;
+        default:
+            id = 0;
+            break;
+        }
+    }
+    else
+    {
+        switch (type)
+        {
+        case ArtifactDropType::SWORD:
+            id = 460012;
+            break;
+        case ArtifactDropType::DAGGER:
+            id = 460013;
+            break;
+        case ArtifactDropType::WARHAMMER:
+            id = 460014;
+            break;
+        case ArtifactDropType::ACCESSORY:
+            id = 460015;
+            break;
+        case ArtifactDropType::REVELATION:
+            id = 460016;
+            break;
+        case ArtifactDropType::ERASE_REVELATION:
+            id = 460017;
+            break;
+        default:
+            id = 0;
+            break;
         }
     }
     return id;
@@ -141,11 +152,11 @@ int DropItemInfo::GetArtifactIconID(DropItemInfo itemInfo)
     case ArtifactDropType::SWORD:
         return -201002;
     case ArtifactDropType::ACCESSORY:
-        return DropItemInfo::GetArtifactCategoryAssetID(itemInfo.Category);
+        return DropItemInfo::GetArtifactCategoryAssetID(itemInfo.Category, false);
     case ArtifactDropType::REVELATION:
         return GetRevelationDefaultIcon(itemInfo);
     case ArtifactDropType::ERASE_REVELATION:
-        return DropItemInfo::GetArtifactCategoryAssetID(itemInfo.Category);
+        return DropItemInfo::GetArtifactCategoryAssetID(itemInfo.Category, false);
     default:
         return 0;
     }

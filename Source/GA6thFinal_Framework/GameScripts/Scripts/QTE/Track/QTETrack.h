@@ -25,13 +25,10 @@ namespace QTE
 
         inline void  SetQTESpeedScale(float scale) { ReflectFields->QTESpeedScale = scale; }
         inline float GetQTESpeedScale() const { return ReflectFields->QTESpeedScale; }
-
-        inline const File::Path& GetFilePath() const { return _filePath; }
-        inline std::weak_ptr<Timeline::EventTrack> GetEventTrack() { return _eventTrack; }
-
         inline float GetMinFrame() const { return _eventTrack ? _eventTrack->GetMinFrame() : 0.0f; }
         inline float GetMaxFrame() const { return _eventTrack ? _eventTrack->GetMaxFrame() : 0.0f; }
-
+        inline const File::Path& GetFilePath() const { return _filePath; }
+        inline std::weak_ptr<Timeline::EventTrack> GetEventTrack() { return _eventTrack; }
     public:
         void SerializedReflectEvent() override;
         void DeserializedReflectEvent() override;
@@ -43,5 +40,40 @@ namespace QTE
         float       QTESpeedScale = 1.0f;       // QTE 속도 배율
         std::string TrackSerializeData = "";    // 트랙 직렬화 데이터
         REFLECT_FIELDS_END(Track)
+
+    public:
+        Track(const Track& rhs)
+        {
+            *ReflectFields = *rhs.ReflectFields;
+            _filePath      = rhs._filePath;
+            _eventTrack    = rhs._eventTrack;
+        }
+        Track(Track&& rhs) noexcept
+        {
+            *ReflectFields = std::move(*rhs.ReflectFields);
+            _filePath      = std::move(rhs._filePath);
+            _eventTrack    = std::move(rhs._eventTrack);
+        }
+        Track& operator=(const Track& rhs)
+        {
+            if (this == &rhs)
+                return *this;
+
+            *ReflectFields = *rhs.ReflectFields;
+            _filePath = rhs._filePath;
+            _eventTrack = rhs._eventTrack;
+            return *this;
+        }
+        Track& operator=(Track&& rhs) noexcept
+        {
+            if (this == &rhs)
+                return *this;
+
+            *ReflectFields = std::move(*rhs.ReflectFields);
+            _filePath      = std::move(rhs._filePath);
+            _eventTrack    = std::move(rhs._eventTrack);
+            return *this;
+        }
+
     };
 } // namespace QTE

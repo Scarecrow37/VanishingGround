@@ -3,6 +3,7 @@
 #include "Token/TokenSystem.h"
 #include "TurnSystem/TurnActor/Character/CharacterBase.h"
 #include "Stats/Weapon/WeaponStats.h"
+#include "ContentMath/ContentMath.h"
 
 namespace TokenObject
 {
@@ -25,10 +26,8 @@ namespace TokenObject
         // 일격 데미지 감소
         if (QTE::QTE_RESULT_NORMAL == attackerData.NoteResult.Result)
         {
-            const int   param     = GetTokenParam(0);
-            const float factor    = 1.0f - (static_cast<float>(param) / 100.0f);
-            const float newDamage = static_cast<float>(damage) * factor;
-            damage                = static_cast<int>(std::ceilf(newDamage));
+            const int param = GetTokenParam(0);
+            damage = ContentMath::CeilPercentage(damage, 100 - param);
         }
     }
 } // namespace TokenObject

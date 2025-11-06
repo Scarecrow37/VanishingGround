@@ -45,7 +45,8 @@ GameObject::GameObject()
     _prefabGuid(STR_NULL),
     _components(),
     _instanceID(-1),
-    _activeInHierarchy(true)
+    _activeInHierarchy(true), 
+    _creationFrame(0)
 {
 
 }

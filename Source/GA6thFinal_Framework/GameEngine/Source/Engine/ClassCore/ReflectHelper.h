@@ -332,6 +332,8 @@ namespace ReflectHelper
         template <typename Type>
         bool DeserializedObjet(Type& obj, std::string_view data)
         {
+            using NavigationRoute  = std::tuple<unsigned int, unsigned char, std::string, int>;
+            using NavigationRoutes = std::vector<NavigationRoute>;
             auto result = rfl::json::read<Type>(data.data());
             if (result)
             {
@@ -347,19 +349,27 @@ namespace ReflectHelper
                     {
                         const auto view = rfl::to_view(obj);
                         view.apply([&](auto& field) {
-                            using FieldTpye     = std::remove_cvref_t<decltype(*field.value())>;
+                            using FieldType     = std::remove_cvref_t<decltype(*field.value())>;
                             auto        name    = field.name();
                             auto&       value   = *field.value();
                             yyjson_val* jsonVal = yyjson_obj_get(root, name.data());
                             if (jsonVal)
                             {
-                                if constexpr (std::is_signed_v<FieldTpye>)
+                                if constexpr (std::is_signed_v<FieldType>)
                                 {
-                                    if constexpr (std::is_floating_point_v<FieldTpye>)
+                                    if constexpr (std::is_floating_point_v<FieldType>)
                                     {
                                         if (yyjson_is_real(jsonVal))
                                         {
                                             value = yyjson_get_real(jsonVal);
+                                        }
+                                        else if (yyjson_is_sint(jsonVal))
+                                        {
+                                            value = static_cast<float>(yyjson_get_sint(jsonVal));
+                                        }
+                                        else if (yyjson_is_uint(jsonVal))
+                                        {
+                                            value = static_cast<float>(yyjson_get_uint(jsonVal));
                                         }
                                     }
                                     else
@@ -368,11 +378,15 @@ namespace ReflectHelper
                                         {
                                             value = yyjson_get_sint(jsonVal);
                                         }
+                                        else if (yyjson_is_uint(jsonVal))
+                                        {
+                                            value = static_cast<int>(yyjson_get_uint(jsonVal));
+                                        }
                                     }                               
                                 }
-                                else if constexpr (std::is_unsigned_v<FieldTpye>)
+                                else if constexpr (std::is_unsigned_v<FieldType>)
                                 {
-                                    if constexpr (std::is_same_v<bool, FieldTpye>)
+                                    if constexpr (std::is_same_v<bool, FieldType>)
                                     {
                                         if (yyjson_is_bool(jsonVal))
                                         {
@@ -387,14 +401,14 @@ namespace ReflectHelper
                                         }
                                     }
                                 }                                                          
-                                else if constexpr (std::is_same_v<FieldTpye, std::string>)
+                                else if constexpr (std::is_same_v<FieldType, std::string>)
                                 {
                                     if (yyjson_is_str(jsonVal))
                                     {
                                         value = yyjson_get_str(jsonVal);
                                     }
                                 }
-                                else if constexpr (std::is_same_v<FieldTpye, SIZE>)
+                                else if constexpr (std::is_same_v<FieldType, SIZE>)
                                 {
                                     char* data = yyjsonValToCStr(jsonVal);
                                     if (nullptr != data)
@@ -407,7 +421,7 @@ namespace ReflectHelper
                                         free(data);
                                     }
                                 }
-                                else if constexpr (std::is_same_v<FieldTpye, POINT>)
+                                else if constexpr (std::is_same_v<FieldType, POINT>)
                                 {
                                     char* data = yyjsonValToCStr(jsonVal);
                                     if (nullptr != data)
@@ -420,7 +434,7 @@ namespace ReflectHelper
                                         free(data);
                                     }
                                 }
-                                else if constexpr (std::is_same_v<FieldTpye, RECT>)
+                                else if constexpr (std::is_same_v<FieldType, RECT>)
                                 {
                                     char* data = yyjsonValToCStr(jsonVal);
                                     if (nullptr != data)
@@ -433,7 +447,7 @@ namespace ReflectHelper
                                         free(data);
                                     }
                                 }
-                                else if constexpr (std::is_same_v<FieldTpye, std::array<float, 4>>)
+                                else if constexpr (std::is_same_v<FieldType, std::array<float, 4>>)
                                 {
                                     char* data = yyjsonValToCStr(jsonVal);
                                     if (nullptr != data)
@@ -446,7 +460,60 @@ namespace ReflectHelper
                                         free(data);
                                     }
                                 }
-                            }
+                                else if constexpr (std::is_same_v<FieldType, std::vector<bool>>)
+                                {
+                                    char* data = yyjsonValToCStr(jsonVal);
+                                    if (nullptr != data)
+                                    {
+                                        auto result = rfl::json::read<std::vector<bool>>(data);
+                                        if (result)
+                                        {
+                                            value = result.value();
+                                        }
+                                        free(data);
+                                    }
+                                }
+                                else if constexpr (std::is_same_v<FieldType, std::vector<unsigned int>>)
+                                {
+                                    char* data = yyjsonValToCStr(jsonVal);
+                                    if (nullptr != data)
+                                    {
+                                        auto result = rfl::json::read<std::vector<unsigned int>>(data);
+                                        if (result)
+                                        {
+                                            value = result.value();
+                                        }
+                                        free(data);
+                                    }
+                                }
+                                else if constexpr (std::is_same_v<FieldType, NavigationRoute>)
+                                {
+                                    char* data = yyjsonValToCStr(jsonVal);
+                                    if (nullptr != data)
+                                    {
+                                        auto result = rfl::json::read<NavigationRoute>(data);
+                                        if (result)
+                                        {
+                                            value = result.value();
+                                        }
+                                        free(data);
+                                    }
+                                }
+                                else if constexpr (std::is_same_v<FieldType, NavigationRoutes>)
+                                {
+                                    char* data = yyjsonValToCStr(jsonVal);
+                                    if (nullptr != data)
+                                    {
+                                        auto result = rfl::json::read<NavigationRoutes>(data);
+                                        if (result)
+                                        {
+                                            value = result.value();
+                                        }
+                                        free(data);
+                                    }
+                                }
+                                
+                            }                       
                         });
                     }
                 }

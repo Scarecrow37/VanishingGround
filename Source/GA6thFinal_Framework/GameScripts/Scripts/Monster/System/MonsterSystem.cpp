@@ -3,7 +3,7 @@
 
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
 #include "Stats/CharacterStats.h"
-
+#include "Particle/ParticleComponent.h"
 #include "ExcelDataSystem/ExcelDataSystem.h"
 
 UMREAL_COMPONENT(MonsterSystem)
@@ -16,8 +16,13 @@ void MonsterSystem::Reset()
 
 void MonsterSystem::Awake()
 {
-    if (_singletonComponent.TrySingleTon() &&
-        _singletonObject.TrySingleTon(true))
+    _singletonComponent.TrySingleTon();
+    _singletonObject.TrySingleTon(true);
+}
+
+void MonsterSystem::Start() 
+{
+    if (_singletonComponent.IsSingleTon())
     {
         LoadFromExcelData();
     }
@@ -111,9 +116,9 @@ bool MonsterSystem::SpawnMonsterFromSpawnID(SpawnID spawnID, SpawnPoint spawnPoi
 
     if (_spawnDataTable.contains(spawnID))
     {
-        const auto& spawnData  = _spawnDataTable[spawnID];
-        size_t      diffIndex  = static_cast<size_t>(difficulty);
-        size_t      spawnIndex = static_cast<size_t>(spawnPointType);
+        auto&  spawnData  = _spawnDataTable[spawnID];
+        size_t diffIndex  = static_cast<size_t>(difficulty);
+        size_t spawnIndex = static_cast<size_t>(spawnPointType);
 
         // [assert] 난이도 인덱스가 최대 난이도 수를 넘지 않아야합니다.
         assert(diffIndex < MAX_DIFF_COUNT);
@@ -122,9 +127,9 @@ bool MonsterSystem::SpawnMonsterFromSpawnID(SpawnID spawnID, SpawnPoint spawnPoi
         assert(spawnPoint); // [assert] 해당 인덱스의 적 스폰 포인트가 존재하지 않습니다.
         if (spawnPoint)
         {
-            const SpawnParam& spawnParam = spawnData.SpawnParams[spawnIndex];
-            LevelID           levelID    = spawnData.LevelID[diffIndex];
-            DataID            monsterID  = spawnParam.MonsterID;
+            SpawnParam& spawnParam = spawnData.SpawnParams[spawnIndex];
+            LevelID     levelID    = spawnData.LevelID[diffIndex];
+            DataID      monsterID  = spawnParam.MonsterID;
 
             std::weak_ptr<Enemy> weakClone = SpawnMonster(levelID, monsterID);
             // 스폰에 성공했을 시 
@@ -148,14 +153,7 @@ bool MonsterSystem::SpawnMonsterFromSpawnID(SpawnID spawnID, SpawnPoint spawnPoi
 
                     // 컨트롤러 빌드
                     Controller& controller = clone->GetController();
-                    controller.Build(weakClone, &dataContext, &statData);
-
-                    // 초기 토큰 설정
-                    auto& tokenInventory = clone->GetTokenInventory();
-                    for (const auto& tokenParam : spawnParam.InitialTokens)
-                    {
-                        tokenInventory.AddTokenStackFromID(tokenParam.TokenID, tokenParam.Count);
-                    }
+                    controller.Build(weakClone, &dataContext, &statData, &spawnData);
 
                     // 테이블 등록
                     _spawnedEnemyTable[spawnPointType] = weakClone;
@@ -322,6 +320,10 @@ void MonsterSystem::FindSpawnPoints()
         {
             const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(SPAWN_POINT_TAGS[i]);
             assert(weakGameObject.expired() == false); // [assert] 해당 태그의 스폰 포인트가 유효해야합니다.
+            if (ParticleComponent* particle = weakGameObject.lock()->GetComponent<ParticleComponent>())
+            {
+                particle->PlayEffect("slot");
+            }
             _spawnPointTable[index] = weakGameObject;
         }
     }
@@ -380,7 +382,7 @@ void MonsterSystem::LoadDataContextFromExcelData(ExcelDataSystem* dataSystem)
                         int fsmID = StringToInt(data);
                         if (0 != fsmID)
                         {
-                            context.FsmIDs[i] = fsmID;
+                            context.FsmIDs.push_back(fsmID);
                         }
                     }
                 }
@@ -393,7 +395,7 @@ void MonsterSystem::LoadDataContextFromExcelData(ExcelDataSystem* dataSystem)
                         int skillID = StringToInt(data);
                         if (0 != skillID)
                         {
-                            context.ActionIDs[i] = skillID;
+                            context.ActionIDs.push_back(skillID);
                         }
                     }
                 }
@@ -430,7 +432,7 @@ void MonsterSystem::LoadActionContextFromExcelData(ExcelDataSystem* dataSystem)
                 data = dataBase->FindData(rowIndex, ExcelActionKey::TYPE);
                 if (data != ExcelDataBase::FIND_STR_FAIL)
                 {
-                    context.Type = std::string(data);
+                    context.IconID = StringToInt(data);
                 }
                 data = dataBase->FindData(rowIndex, ExcelActionKey::TARGET);
                 if (data != ExcelDataBase::FIND_STR_FAIL)

@@ -1,25 +1,68 @@
 ﻿#pragma once
 #include <CombatUIManager/UIGroup.h>
+
 class OverlayPanel;
 class ImageElement;
+class FadeUIComponent;
+class SpawnDamagePanel;
+class Player;
+class Enemy;
 
 namespace CombatUI
 {
     struct CharacterHUDGroup : public UIGroup
     {
-        GameObject*     Root = nullptr;
+        GameObject*         Root            = nullptr;
+        OverlayPanel*       Overlay         = nullptr;
 
-        OverlayPanel*   PlayerHUDPanel = nullptr;
-        Vector3         PlayerPosition = Vector3::Zero;
+        FadeUIComponent*    FadeUI          = nullptr;
+        OverlayPanel*       PlayerHUDPanel  = nullptr;
 
-        OverlayPanel*   EnemyHUDPanel[3] = {nullptr, nullptr, nullptr}; // Left, Middle, Right
-        Vector3         EnemyPosition[3] = {Vector3::Zero, Vector3::Zero, Vector3::Zero};
+        OverlayPanel*       EnemyHUDPanel[3]                = {nullptr, nullptr, nullptr}; // Left, Middle, Right
+        OverlayPanel*       EnemyActionPanel[3]             = {nullptr, nullptr, nullptr}; // Left, Middle, Right
+
+        Vector3             PlayerPosition                  = Vector3::Zero;
+        Vector3             EnemyFootPosition[3]            = {Vector3::Zero, Vector3::Zero, Vector3::Zero};
+        Vector3             EnemyHeadPosition[3]            = {Vector3::Zero, Vector3::Zero, Vector3::Zero};
+
+        SpawnDamagePanel*   PlayerSpawnHealPanel            = nullptr;
+        SpawnDamagePanel*   PlayerSpawnDamagePanel          = nullptr;
+
+        SpawnDamagePanel*   EnemySpawnHealPanel[3]          = {nullptr, nullptr, nullptr};
+        SpawnDamagePanel*   EnemySpawnDamagePanel[3]        = {nullptr, nullptr, nullptr};
+        SpawnDamagePanel*   EnemySpawnCriticalDamage[3]     = {nullptr, nullptr, nullptr};
 
         bool FindUI() override;
         bool IsValid() const override;
         void ActiveUI(bool active) override;
 
         void RefreshUIPosition();
-        bool RefreshEnemiesPosition();
+        bool RefreshCharactersUIPosition();
+
+        void FadeIn(float duration) override;
+        void FadeOut(float duration) override;
+
+        Vector3 GetHeadOffset(Enemy* enemy);
+        Vector3 GetHeadOffset(Player* player);
+
+    private:
+        inline static constexpr std::array<const char*, 3> MONSTER_HUD = {
+            "Left Monster HUD", "Middle Monster HUD", "Right Monster HUD"
+        };
+        inline static constexpr std::array<const char*, 3> MONSTER_ACTION_HUD = {
+            "Left Proclamation HUD", "Middle Proclamation HUD", "Right Proclamation HUD"
+        };
+        inline static constexpr std::array<const char*, 3> MONSTER_SPAWN_DAMAGE_HUD = {
+            "Left Spawn Damage UI", "Middle Spawn Damage UI", "Right Spawn Damage UI"
+        };
+        inline static constexpr std::array<const char*, 3> MONSTER_SPAWN_CRIT_DAMAGE_HUD = {
+            "Left Spawn Critical Damage UI", "Middle Spawn Critical Damage UI", "Right Spawn Critical Damage UI"
+        };
+        inline static constexpr std::array<const char*, 3> MONSTER_SPAWN_HEAL_HUD = {
+            "Left Spawn Heal UI", "Middle Spawn Heal UI", "Right Spawn Heal UI"
+        };
+
+        inline static LONG MONSTER_HUD_SPACE_X = 0;
+        inline static LONG MONSTER_HUD_SPACE_Y = -30;
     };
 } // namespace CombatUI

@@ -461,11 +461,13 @@ public:
     /// <returns></returns>
     const std::vector<std::weak_ptr<MeshComponent>>& GetMeshComponents();
 
+    void ClearExpiredMeshComponents();
+
     class SceneResourceManager
     {
     public:
-        SceneResourceManager();
-        ~SceneResourceManager();
+        SceneResourceManager() = default;
+        ~SceneResourceManager() = default;
 
         struct Engine
         {
@@ -518,6 +520,7 @@ public:
         void RequestSDFFontResource(const Component* component, const File::Guid& guid, const std::function<void()>& func);
         void RequestSDFFontResource(const Component* component, const File::Path& path, const std::function<void()>& func);
 
+        bool CheckAllResourceLoad();
     private:
         template <typename T>
         struct RenderResource
@@ -591,6 +594,17 @@ public:
         void RegisterInputReceiver(InputReceiver& receiver, int buttonIndex, int actionIndex, std::function<void(const Input::Controller& controller)> func);
 
         /// <summary>
+        /// InputReceiver 레이어를 스택에 Push 합니다.
+        /// </summary>
+        /// <param name="receiver :">레이어 리시버</param>
+        bool PushReceiverToInputStack(InputReceiver& receiver);
+
+        /// <summary>
+        /// InputReceiver 레이어를 Pop 합니다.
+        /// </summary>
+        bool PopReceiverToInputStack(InputReceiver& receiver);
+
+        /// <summary>
         /// 등록된 모든 Receiver을 해제합니다.
         /// </summary>
         void CleanupInputReceivers();
@@ -627,6 +641,8 @@ public:
             CONTROLLER_BUTTON_COUNT>
             _receivers;
 
+        std::deque<std::pair<bool*, std::weak_ptr<bool>>> _layerStack;
+
     private:
         void UpdateTracker(Input::Controller::Button button);
         void UpdateAnalogButtons();
@@ -648,12 +664,14 @@ private:
     void SceneUpdate();
  
 private:
+    bool ResourceLoadWait();
     void ObjectsInputUpdate();       //Input을 사용하는 Component들의 Event를 Update합니다.
     void ObjectsFixedUpdate();       //FixedUpdate를 호출합니다.
     void ObjectsUpdate();            //Update 를 호출합니다.
     void ObjectsLateUpdate();        //LateUpdate를 호출합니다.
 
     void ObjectsAddRuntime();        //추가 대기중인 오브젝트, 컴포넌트를 라이프 사이클에 포함시킵니다.
+    void ResourceManagerUpdate();    //리로스 매니저를 업데이트합니다.
     void ObjectsOnEnable();          //OnEnable 예정인 컴포넌트들의 OnEnable 함수를 호출합니다.
     void ObjectsOnDisable();         //OnDisable 예정인 컴포넌트들의 OnDisable 함수를 호출해줍니다.
     void ObjectsAwake();             //Awake 예정인 컴포넌트들의 Awake 함수를 호출합니다.
@@ -772,10 +790,13 @@ private:
     std::vector<Scene*> _lodedSceneList;
 
     //다음에 로드할 씬
-    File::Guid _nextSceneGuid;
+    std::vector<File::Guid> _nextSceneGuids;
 
     //다음에 로드할 스카이박스
     Scene* _nextSceneSkybox;
+
+    bool _waitResourceLoad = false;
+    bool _checkResourceLoad = false;
 
 protected:
     /// <summary>

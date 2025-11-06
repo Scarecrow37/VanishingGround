@@ -21,7 +21,7 @@ std::shared_ptr<Model> EditorModelDetails::GetModel() const
     return _meshRenderer ? _meshRenderer->GetModel() : std::shared_ptr<Model>();
 }
 
-GraphicsPointer<IAnimator> EditorModelDetails::GetAnimator() const
+IAnimator* EditorModelDetails::GetAnimator() const
 {
     return _animator;
 }
@@ -407,7 +407,8 @@ void EditorModelDetails::ImportModel(const File::Path& path)
     FBXConverter& fbxConverter = GetFBXConverter();
     fbxConverter.ImportModel(path, model);
 
-    UmGraphics.LoadResource(path.wstring(), _meshRenderer.Get());
+    UmGraphics.SetResource(model, _meshRenderer.Get());
+    //UmGraphics.LoadResource(path.wstring(), _meshRenderer.Get());
 
     _meshRenderer->SetActive(&_isModelActive);
     _filePath = path;

@@ -22,7 +22,6 @@ struct UIMaterialData
 
 StructuredBuffer<Material> material;
 StructuredBuffer<UIMaterialData> uiMaterialData;
-StructuredBuffer<uint> IDs : register(t0, space0);
 
 RWTexture2D<uint> OITHead;
 RWStructuredBuffer<OITNode> OITNodes;
@@ -33,10 +32,11 @@ Texture2D textures[];
 // Material Types
 static const uint BASIC = 0;
 static const uint LINEAR_FILL = 1;
+static const uint RADIAL_FILL = 2;
 
 void ps_main(PSInput input)
 {
-    uint index = IDs[input.instanceID];
+    uint index = input.instanceID;
     
     float2 column_row = (float2) material[index].atlas.xy;
     float2 current = (float2) material[index].atlas.zw;
@@ -48,15 +48,23 @@ void ps_main(PSInput input)
     color.a *= material[index].alpha;
     
     clip(color.a - Epsilon);
-    
-    color = Premultiply(color);
-    
+        
     switch (uiMaterialData[index].type)
     {
         case LINEAR_FILL:
             clip(uiMaterialData[index].fill - input.uv.x);
             break;
+        case RADIAL_FILL:
+            float2 centered = input.uv - 0.5;
+            float angle = atan2(centered.x, centered.y);
+            float normalizedAngle = (angle + PI) / (2.0 * PI);
+            clip(uiMaterialData[index].fill - normalizedAngle);
+            break;
+        default:
+            break;
     }
+    
+    color = Premultiply(color);
 
     uint nodeIndex = OITAllocNode(OITCounter);
     if (nodeIndex >= FRAME_NODE_CAPACITY)

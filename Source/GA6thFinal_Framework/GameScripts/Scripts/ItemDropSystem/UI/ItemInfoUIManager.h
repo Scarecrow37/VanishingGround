@@ -13,6 +13,7 @@ class ItemInfoUIManager : public Component
 protected:
     struct Components
     {
+        ImageElement*     FrameImage      = nullptr;
         TextElement*      ItemName        = nullptr;
         ImageElement*     ItemIcon        = nullptr;
         DescriptionPanel* ItemDescription = nullptr;
@@ -28,6 +29,24 @@ protected:
 public:
     inline static const char* TAG = "Item Info Ui Manager";
 
+    inline File::Guid GetFrameGuid(ArtifactDropType dropType) 
+    {
+        switch (dropType)
+        {
+        case ArtifactDropType::SWORD:
+        case ArtifactDropType::DAGGER:
+        case ArtifactDropType::WARHAMMER:
+            return File::Guid("88b9814f-6b35-45a7-9aa3-130401b36674");
+        case ArtifactDropType::ACCESSORY:
+        case ArtifactDropType::REVELATION:
+        case ArtifactDropType::ERASE_REVELATION:
+        case ArtifactDropType::Consumable:
+            return File::Guid("b4ec7ed4-7493-48dd-a9c9-7620d1f95429");
+        default:
+            return File::Guid();
+        }
+    };
+
     ItemInfoUIManager();
     ~ItemInfoUIManager() override;
 
@@ -41,7 +60,6 @@ public:
     void SetItemName(const std::string& name);
 
     void SetItemIcon(const DropItemInfo& info);
-    void SetItemIcon(const File::Guid& guid);
 
     void SetItemDescription(const DropItemInfo& info);
     void SetItemDescription(const std::string& description);
@@ -63,10 +81,12 @@ protected:
 
 protected:
     void Awake() override;
-
     void FindComponents();
 
 private:
     Components _uiComponents;
+
+private:
+    void SetItemIcon(const File::Guid& guid);
 };
 

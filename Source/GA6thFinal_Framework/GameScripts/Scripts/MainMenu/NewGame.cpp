@@ -3,6 +3,7 @@
 #include "SceneTransition/SceneTransitionComponent.h"
 #include "PlayerSystem/PlayerSystem.h"
 #include "Map/MapManager.h"
+#include "QTE/System/QTESystem.h"
 
 UMREAL_COMPONENT(NewGame)
 
@@ -22,13 +23,19 @@ NewGame::NewGame()
             ImGui::EndDragDropTarget();
         }
     });
+    SetSubmitAudioID("-101000");
 }
 
 NewGame::~NewGame() = default;
 
 void NewGame::Submit()
 {
+    Base::Submit();
     TransitionToNextScene();
+    if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
+    {
+        system->ResetState();
+    }
 }
 
 void NewGame::Update() 

@@ -1,5 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "SturnResistanceView.h"
+#include "Stats/Player/PlayerStatsComponent.h"
 #include "Stats/Player/PlayerStats.h"
 #include "UI/Elements/Text/TextElement.h"
 #include "PlayerSystem/PlayerSystem.h"
@@ -11,8 +12,9 @@ PlayerSturnResistanceView::~PlayerSturnResistanceView() = default;
 
 void PlayerSturnResistanceView::Start() 
 {
+    _targetText = GetComponent<TextElement>();
     Base::Start();
-    if (SingletonComponent<PlayerSystem>::GetInstance())
+    if (PlayerSystem* system = SingletonComponent<PlayerSystem>::GetInstance())
     {
         _viewModelHandle = UmWatcher.Watch<SturnResistanceViewModel, int>(PlayerStats::MODEL_STURN_KEY, [this](const int& value) 
         {
@@ -21,6 +23,11 @@ void PlayerSturnResistanceView::Start()
                 _targetText->Text = std::to_string(value);
             }
         });
+
+        if (auto component = system->GetPlayerStats())
+        {
+            _targetText->Text = std::to_string(component->GetStats().StunResistance);
+        }      
     }
 }
 

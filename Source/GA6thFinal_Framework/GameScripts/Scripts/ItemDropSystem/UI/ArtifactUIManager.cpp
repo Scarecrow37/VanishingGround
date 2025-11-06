@@ -6,6 +6,7 @@
 #include "ItemDropSystem/ItemDropSystem.h"
 #include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
 #include "ItemDropSystem/UINavi/ArtifactButtonNavi.h"
+#include "AccessorySystem/AccessorySystem.h"
 
 UMREAL_COMPONENT(ArtifactUIManager)
 
@@ -13,11 +14,6 @@ File::Guid ArtifactUIManager::GetObtainFrameGuid()
 {
     return UmFileSystem.GetGuidFromAssetID(460009); //일단 하드코딩...
 } 
-
-static File::Guid GetNormalFrameGuid()
-{
-    return UmFileSystem.GetGuidFromAssetID(460006); //일단 하드코딩...
-}
 
 static File::Guid GetFocusFrameGuid()
 {
@@ -151,7 +147,6 @@ void ArtifactUIManager::FindImageElements()
             if (ImageElement* element = gameObject.GetComponent<ImageElement>())
             {
                 _frameImageElements.push_back(element);
-                element->SetImage(GetNormalFrameGuid());
             }
         }
         else if (gameObject.CompareTag("Icon"))
@@ -173,6 +168,7 @@ void ArtifactUIManager::FindImageElements()
             if (ImageElement* element = gameObject.GetComponent<ImageElement>())
             {
                 _focusImageElements.push_back(element);
+                element->Enable = false;
                 element->SetImage(GetFocusFrameGuid());
             }
             if (ArtifactButtonNavi* navi = gameObject.GetComponent<ArtifactButtonNavi>())
@@ -228,6 +224,17 @@ void ArtifactUIManager::ImageUIUnlock()
         return startIndex + 1;
     };
 
+    auto IsOdd = [](int num)
+    { 
+        return (num % 2) != 0;
+    };
+
+    bool lockOddArtifact = false;
+    if (AccessorySystem* system = SingletonComponent<AccessorySystem>::GetInstance())
+    {
+        lockOddArtifact = system->HasPlayerAccessory(203201);
+    }
+
     if (ItemDropSystem* system = SingletonComponent<ItemDropSystem>::GetInstance())
     {
         int clearCount = system->StageClearCount;
@@ -268,15 +275,17 @@ void ArtifactUIManager::ImageUIUnlock()
             {
                 if (ItemDropSystem* dropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
                 {
-                    if (false == dropSystem->IsObtainArtifact(i))
+                    bool isOddIndex = IsOdd(i);
+                    if (dropSystem->IsObtainArtifact(i) || (lockOddArtifact && isOddIndex))
                     {
-                        navi->Enable = true;
-                        iconImage->Alpha = 1.0f;
+                        navi->Enable     = false;
+                        iconImage->Alpha = 0.5f;
                     }
                     else
                     {
-                        navi->Enable = false;
-                        iconImage->Alpha = 0.5f;
+
+                        navi->Enable     = true;
+                        iconImage->Alpha = 1.0f;
                     }
                 }
             }       
@@ -287,7 +296,8 @@ void ArtifactUIManager::ImageUIUnlock()
             ImageElement* iconImage  = _iconElements[i];
             if (ItemDropSystem* dropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
             {
-                if (dropSystem->IsObtainArtifact(i))
+                bool isOddIndex = IsOdd(static_cast<int>(i));
+                if (dropSystem->IsObtainArtifact(i) || (lockOddArtifact && isOddIndex))
                 {
                     frameImage->SetImage(GetObtainFrameGuid());
                     iconImage->Alpha = 0.5f;

@@ -41,11 +41,6 @@ void AttackTokenApplyAction::OnPlayerBattleCalculateDamageModifier(Player& attac
                 for (auto& applyTarget : targets)
                 {
                     applyTarget->GetTokenInventory().AddTokenStackFromID(TokenID, ReflectFields->TokenCount);
-                    std::string msg(applyTarget->gameObject->ToString());
-                    msg += (const char*)u8"에게 ";
-                    msg += std::format("{}{}{}{}", tokenSystem->GetTokenNameFromID(ReflectFields->TokenID),
-                                       (const char*)u8"토큰 ", ReflectFields->TokenCount, (const char*)u8"개 부여");
-                    UmLogger.Message(LogLevel::LEVEL_TRACE, msg);
                 }
             }
         }

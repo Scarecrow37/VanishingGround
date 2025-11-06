@@ -34,8 +34,8 @@ StructuredBuffer<matrix> boneMatrices;
 VSOutput vs_main(VSInput input)
 {
     uint offset = bit32_1_instanceOffset.Offset;
-    uint cascadeIndex = input.instanceID % MAX_CASCADES;
-    InstanceData data = instanceData[input.instanceID / MAX_CASCADES + offset];
+    uint cascadeIndex = MAX_CASCADES;
+    InstanceData data = instanceData[input.instanceID + offset];
 
     matrix boneTransform = mul(input.blendWeights.x, boneMatrices[data.MatrixID * MAX_BONE_MATRIX + input.blendIndices.x]);
     boneTransform       += mul(input.blendWeights.y, boneMatrices[data.MatrixID * MAX_BONE_MATRIX + input.blendIndices.y]);

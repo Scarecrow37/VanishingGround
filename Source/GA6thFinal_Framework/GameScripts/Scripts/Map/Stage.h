@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "ItemDropSystem/Interface/IDropItem.h"
+#include "Monster/Common/MonsterCommon.h"
 
 class Stage : public UISFXNavigationComponent
 {
@@ -11,37 +12,57 @@ public:
 
 public:
     const std::array<int, ARTIFACT_DROP_COUNT>& GetDropItems() const { return _dropItemAssetIDs; }
-    bool                                        IsEnable() const { return _stageEnable.Get(); }
+   
+    void SetEnable(bool enable) { _stageEnable = enable; }
+    bool IsEnable() const { return _stageEnable.Get(); }
 
 public:
     void RegisterStage(const std::string& key, const File::Guid& enableImage, const File::Guid& disableImage);
     void UpdateData(const std::string& key, const File::Guid& enableImage, const File::Guid& disableImage);
+    void OnSelected();
 
 public:
     void FocusIn(FocusCallType callType) override;
     void Submit() override;
 
-public:
+private:
     void Start() override;
 
 public:
-    REFLECT_PROPERTY(StagePath, LightingPath)
+    REFLECT_PROPERTY(StagePath, LightingPath, MainLevel, SubLevel, BattleCount)
 
-    GETTER_ONLY(std::string, StagePath) { return ReflectFields->StagePath; }
+    GETTER_ONLY(std::string, StagePath) { return File::Guid(ReflectFields->StageGuid).ToPath().string(); }
     PROPERTY(StagePath)
 
-    GETTER_ONLY(std::string, LightingPath) { return ReflectFields->LightingPath; }
+    GETTER_ONLY(std::string, LightingPath) { return File::Guid(ReflectFields->LightingGuid).ToPath().string(); }
     PROPERTY(LightingPath)
+
+    SETTER(int, MainLevel) { ReflectFields->MainLevel = value; }
+    GETTER(int, MainLevel) { return ReflectFields->MainLevel; }
+    PROPERTY(MainLevel)
+
+    SETTER(int, SubLevel) { ReflectFields->SubLevel = value; }
+    GETTER(int, SubLevel) { return ReflectFields->SubLevel; }
+    PROPERTY(SubLevel)
+
+    SETTER(int, BattleCount) { _battleCount = value; }
+    GETTER(int, BattleCount) { return _battleCount; }
+    PROPERTY(BattleCount)
 
 protected:
     REFLECT_FIELDS_BEGIN(UISFXNavigationComponent)
-    std::string StagePath;
-    std::string LightingPath;
+    std::string StageGuid;
+    std::string LightingGuid;
+    int         MainLevel = 0; // ex) 맵이 1-3일 때 1부분
+    int         SubLevel = 0;  // ex) 맵이 1-3일 때 3부분
     REFLECT_FIELDS_END(Stage)
 
 private:
-    MVVM::Model<bool>                             _stageEnable      = true;
+    std::string       _key;  // 모델 키
+    MVVM::Model<bool> _stageEnable = true; // 스테이지 진입 가능 여부
+
     std::array<int, ARTIFACT_DROP_COUNT>          _dropItemAssetIDs = {0, 0, 0, 0, 0, 0};
     std::array<DropItemInfo, ARTIFACT_DROP_COUNT> _dropItemInfos;
-    std::string                                   _key;
+
+    int _battleCount = 1;
 };

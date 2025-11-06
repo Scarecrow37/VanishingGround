@@ -12,27 +12,29 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     // 입력
     ParticleInput input = ParticleInputBuffer[idx];
     EmitterInfo emitter = EmitterInfoBuffer[input.EmitterIndex];
-
-    // 출력 공통 시드
     ParticleOutput output;
 
     // 기본 물리/색/스케일 계산 (기존 그대로)
     float3 acceleration = float3(0, -9.8, 0) * input.Mass;
     float3 gravityOffset = acceleration * input.Age;
-
-    float ratio = saturate(input.Age / emitter.Particlelifetime);
-
+    float ratio = saturate(input.Age / emitter.Particlelifetime.x);
+    
+    
     float dragCoefficient = emitter.DragForce.z;
     float decay = exp(-dragCoefficient * input.Age);
 
     float useWorldSpace = emitter.Particlelifetime.y;
+    float useWorldScale = clamp(emitter.DragForce.y, 0.f, 1.f);
 
     float3 emitterCenter = emitter.WorldMatrix[3].xyz * useWorldSpace;
+
     float3 r = input.Position.xyz - emitterCenter;
 
     float3 vortexAxis = emitter.VortexForce.xyz;
     float3 localAxisDir = normalize(vortexAxis);
+
     float3 worldAxisDir = mul(localAxisDir, (float3x3) emitter.WorldMatrix);
+
     float3 axisDir = lerp(localAxisDir, worldAxisDir, useWorldSpace);
 
     float vortexAttenuation = emitter.VortexForce.w;
@@ -48,13 +50,17 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     float3 outputColor = lerp(emitter.StartColor.rgb, emitter.EndColor.rgb, ratio);
     float outputOpacity = lerp(emitter.StartColor.a, emitter.EndColor.a, ratio);
     output.Color = float4(outputColor, outputOpacity);
+   
+    // 4. 스케일 적용
+    float4 currentScale = lerp(float4(emitter.StartScale.xy, 1, 1), float4(emitter.EndScale.xy, 1, 1), ratio);
+    float4x4 localScaleMat = CreateScaleMatrix(currentScale);
+    float4x4 worldScaleMat = ExtractScaleMatrix(emitter.OrientedWorldMatrix);
+    localScaleMat = mul(localScaleMat, lerp(IdentityMatrix, worldScaleMat, useWorldScale));
 
-    // 스케일(폭 정보 FrameInfo.x에 들어있음)
-    float4 currentScale = lerp(float4(emitter.StartScale.xy, 1, 1),
-                               float4(emitter.EndScale.xy, 1, 1), ratio);
-    float4x4 scaleMat = CreateScaleMatrix(currentScale);
+    float ribbonWidth = localScaleMat[0][0];
+    float ribbonThickness = localScaleMat[1][1];
+    output.FrameInfo = float4(ribbonWidth, ribbonThickness, ratio, 0);
 
-    // 월드/뷰 (Position.w는 월드에서 1 유지)
     float4 worldPos = mul(float4(input.Position.xyz, 1.0), emitter.WorldMatrix);
     worldPos.xyz += gravityOffset * input.Age;
     output.Position = worldPos; // 일단 center로 세팅(아래서 Top/Bottom으로 덮어씀)
@@ -85,25 +91,14 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
         0, 0, 1, 0,
         worldPos.x, worldPos.y, worldPos.z, 1);
 
-    output.FinalMatrix = scaleMat;
+    output.FinalMatrix = localScaleMat;
     output.FinalMatrix = mul(output.FinalMatrix, translationMat);
     output.FinalMatrix = mul(output.FinalMatrix, mvp.ViewMatrix);
     output.FinalMatrix = mul(output.FinalMatrix, mvp.ProjMatrix);
 
-    output.FrameInfo = float4(currentScale.x /*width*/, currentScale.y, ratio, 0);
 
-    // ===== 여기부터: Top/Bottom을 CS에서 생성 =====
-    float halfWidth = currentScale.x * 0.5f;
-
-    // Top
-    ParticleOutput topOut = output;
-    topOut.Position.xyz = worldPos.xyz + side * halfWidth;
-
-    // Bottom
-    ParticleOutput botOut = output;
-    botOut.Position.xyz = worldPos.xyz - side * halfWidth;
-
-    // 쓰기 (Top, Bottom 순으로)
-    ParticleOutputBuffer[idx * 2 + 0] = topOut;
-    ParticleOutputBuffer[idx * 2 + 1] = botOut;
+    //output.FrameInfo = float4(currentScale.x, currentScale.y, ratio, 0);
+    
+    ParticleOutputBuffer[idx*2] = output;
+    ParticleOutputBuffer[idx*2+1] = output;
 }

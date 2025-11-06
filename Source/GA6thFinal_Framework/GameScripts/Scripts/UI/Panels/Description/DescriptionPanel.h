@@ -1,10 +1,13 @@
 ﻿#pragma once
+#include "UI/Base/IFontAppearance/IFontAppearance.h"
+#include "UI/Base/IOpacity/IOpacity.h"
 #include "UI/Panels/Horizontal/HorizontalPanel.h"
 
 enum class ElementType : unsigned char
 {
     TEXT,
-    IMAGE
+    IMAGE,
+    BREAK,
 };
 
 struct TextAttributes
@@ -24,7 +27,7 @@ struct ElementData
     std::variant<TextAttributes, ImageAttributes> Data;
 };
 
-class DescriptionPanel : public HorizontalPanel
+class DescriptionPanel : public HorizontalPanel, public IOpacity, public IFontAppearance
 {
     USING_PROPERTY(DescriptionPanel)
 
@@ -60,12 +63,12 @@ public:
     PROPERTY(FontScale)
 
     GETTER(float, Alpha) { return ReflectFields->Alpha; }
-    SETTER(float, Alpha)
-    {
-        ReflectFields->Alpha = std::clamp(value, 0.0f, 1.0f);
-        UpdateAlpha();
-    }
+    SETTER(float, Alpha) { SetOpacity(value); }
     PROPERTY(Alpha)
+
+public:
+    void SetOpacity(float opacity) override;
+    void SetFontWeight(float fontWeight) override;
 
 protected:
     void DeserializedReflectEvent() override;
@@ -89,4 +92,6 @@ protected:
 
 private:
     File::Guid _Guid;
+
+    float _fontWeight;
 };

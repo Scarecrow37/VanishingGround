@@ -17,10 +17,11 @@ public:
     virtual const float GetAlpha() const       = 0;
 
 public:
-    virtual void SetType(SpriteType type)                       = 0;
+    virtual void SetType(UIType type)                           = 0;
     virtual void SetSize(SIZE size)                             = 0;
     virtual void SetTexture(std::shared_ptr<Texture> texture)   = 0;
     virtual void SetLinearFill(float fill)                      = 0;
+    virtual void SetRadialFill(float fill)                      = 0;
     virtual void SetAlpha(float alpha)                          = 0;
     virtual void SetAtlas(UINT column, UINT row)                = 0;
     virtual void SetAtlasIndex(UINT columnIndex, UINT rowIndex) = 0;

@@ -22,6 +22,10 @@ public:
     // 현재 사용중인 무기의 슬롯 번호 입니다.
     PROPERTY(CurrentWeaponSlot)
 
+    GETTER_ONLY(int, LastWeaponSlot) { return _lastWeaponSlot; }
+    // 마지막으로 사용한 무기 슬롯 번호 입니다.
+    PROPERTY(LastWeaponSlot)
+
     /// <summary>
     /// 장착된 무기의 원본 Stats을 인덱스로 반환합니다.
     /// </summary>
@@ -83,6 +87,13 @@ public:
     /// </summary>
     void RollRandomSpeed();
 
+    /// <summary>
+    /// 현재 장착중인 무기들중 특정 타입 갯수를 반환합니다.
+    /// </summary>
+    /// <param name="type">: 확인할 타입</param>
+    /// <returns></returns>
+    int GetEquipWeaponTypeCount(WeaponType type);
+
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     std::array<std::string, EQUIP_WEAPONS_SIZE> EquipWeaponsData;
@@ -94,6 +105,8 @@ protected:
 private:
     /*현재 사용중인 무기 슬롯*/
     int _currentWeaponSlot = 0;
+    /*마지막으로 사용한 무기 슬롯*/
+    int _lastWeaponSlot = -1;
 
     /*장착된 무기들*/
     std::array<WeaponElement, EQUIP_WEAPONS_SIZE> _equipWeapons;
@@ -107,5 +120,5 @@ private:
 
 private:
     SingletonComponent<WeaponSystem> _singletonComponent{this};
-        
+       
 };

@@ -18,8 +18,7 @@ struct PSOutput
 {
     float4 color : SV_Target0;
     float4 normal : SV_Target1;
-    float depth : SV_Target2;
-    uint customDepth : SV_Target3;
+    uint customDepth : SV_Target2;
 };
 
 #define DIFFUSE   0
@@ -74,7 +73,7 @@ PSOutput ps_main(PSInput input)
     
     float3 directLighting = float3(0, 0, 0);
     float3 ambientLighting = 0;
-    float3 ambient = CalculateIBL(normal, V, irradianceMap, prefilteredMap, brdfLUT, albedo.rgb, roughness, metallic);
+    float3 ambient = CalculateIBL(normal, V, irradianceMap, prefilteredMap, brdfLUT, albedo.rgb, roughness, metallic);   
     
     NumLight numLights = bit32_4_numLight;
     //Directional Lights
@@ -122,7 +121,6 @@ PSOutput ps_main(PSInput input)
     PSOutput output = (PSOutput) 0;
     output.color = float4(color, albedo.a * alpha);
     output.normal = float4(normal, 1);
-    output.depth = input.position.z;
     output.customDepth = input.customDepth;
 
     return output;

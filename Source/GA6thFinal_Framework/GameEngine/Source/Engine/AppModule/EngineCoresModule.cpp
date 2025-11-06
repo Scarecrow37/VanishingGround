@@ -23,7 +23,6 @@ void EngineCoresModule::ModuleUnInitialize()
     }
     ETimeSystem::Engine::CleanUpInvokeFuntions();
     ESceneManager::Engine::CleanupSceneManager();
-    EGameObjectFactory::Engine::Finalize();
     engineCore->ComponentFactory.UninitalizeComponentFactory();
     UmPreferences.Uninitialize();
     UmGraphics.Finalize();

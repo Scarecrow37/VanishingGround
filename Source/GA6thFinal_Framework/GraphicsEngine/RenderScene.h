@@ -10,6 +10,7 @@ class SpriteRenderer;
 class TextRenderer;
 class SDFTextRenderer;
 class AccelerationStructureManager;
+class UIRenderer;
 class RenderScene
 {
 public:
@@ -45,6 +46,7 @@ public:
     void ResetEnvironmentSkyBox();
     void ResetIBLSkyBox();
     void ClearRenderQueue();
+    void UpdateRenderQueue();
 
 public:
     template <typename T>
@@ -81,9 +83,8 @@ public:
 
     std::vector<std::unique_ptr<RenderTechnique>> _techniques;
     std::vector<MeshRenderer*>                    _meshRenderQueue;
-    std::vector<SpriteRenderer*>                  _uiRenderQueue;
-    std::vector<TextRenderer*>                    _textRenderQueue;
-    std::vector<SDFTextRenderer*>                 _sdfTextRenderQueue;
+    std::vector<UIRenderer*>                      _uiRenderQueue;
+    std::vector<UIRenderer*>                      _activeUIs;
     std::vector<MeshInfo>                         _activeMeshes[MESH_TYPE_END];
 
     CommandSet _commandSet;
@@ -95,7 +96,6 @@ public:
     std::vector<BoneMatrices>                   _boneMatrices;
     std::vector<Matrix>                         _uiMatrices;
     std::vector<UIMaterial>                     _uiMaterials;
-    std::vector<Matrix>                         _textMatrices;
     std::vector<MeshInstanceID>                 _staticMeshInstanceIDs;
     std::vector<MeshInstanceID>                 _skeletalMeshInstanceIDs;
     std::shared_ptr<Camera>                     _camera;

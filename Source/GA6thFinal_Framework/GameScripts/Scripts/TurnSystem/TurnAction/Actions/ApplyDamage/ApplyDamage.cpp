@@ -2,7 +2,7 @@
 #include "ApplyDamage.h"
 #include "TurnSystem/TurnAction/TurnActionFactory.h"
 #include "TurnSystem/TurnSystemHelper.h"
-#include "TurnSystem/TurnActor/Character/CharacterBase.h"
+#include "TurnSystem/TurnActor/Character/Player/Player.h"
 
 REGISTER_TURN_ACTION(ApplyDamage)
 
@@ -42,10 +42,11 @@ void ApplyDamage::ImGuiDrawActionEditor()
         UpdateInfoText();
     }
 
-    constexpr std::array<std::u8string_view, 2> TRIGGER_TOOLTIP = 
+    constexpr std::array<std::u8string_view, 3> TRIGGER_TOOLTIP = 
     { 
         GetTriggerToolTip(TriggerType::QTE_END),
-        GetTriggerToolTip(TriggerType::WEAPON_KILL_ENEMY)
+        GetTriggerToolTip(TriggerType::WEAPON_KILL_ENEMY),
+        GetTriggerToolTip(TriggerType::PLAYER_TURN_END)
     };
     ImGuiHelper::EnumCombo<TriggerType>(u8"트리거"_c_str, ReflectFields->Trigger, [this](std::pair<std::string_view, TriggerType> pair)
     { 
@@ -73,7 +74,7 @@ void ApplyDamage::OnPlayerQTEResult(Player& player, const QTE::OverallResult& re
             std::vector<CharacterBase*> targets = TurnSystemHelper::GetTargetCharacters(ReflectFields->Target);
             for (auto& target : targets)
             {
-                target->TakeDamage(ReflectFields->Damage);
+                target->TakeDamage(ReflectFields->Damage, false);
             }
         }
     }
@@ -88,7 +89,48 @@ void ApplyDamage::OnEnemyDeadByWeapon(Enemy& enemy, WeaponElement& weapon)
             std::vector<CharacterBase*> targets = TurnSystemHelper::GetTargetCharacters(ReflectFields->Target);
             for (auto& target : targets)
             {
-                target->TakeDamage(ReflectFields->Damage);
+                target->TakeDamage(ReflectFields->Damage, false);
+            }
+        }
+    }
+}
+
+void ApplyDamage::OnTurnEnd(CharacterBase& destination) 
+{
+    bool onAction = false;
+    if (TriggerType::PLAYER_TURN_END == ReflectFields->Trigger)
+    {
+        if (typeid(destination) == typeid(Player))
+        {
+            onAction = true;
+        }      
+    }
+
+    if (onAction)
+    {
+        if (EvaluateConditions())
+        {
+            std::vector<CharacterBase*> targets = TurnSystemHelper::GetTargetCharacters(ReflectFields->Target);
+            for (auto& target : targets)
+            {
+                target->TakeDamage(ReflectFields->Damage, false);
+            }
+        }
+    }
+}
+
+void ApplyDamage::OnPlayerBattleCalculateDamageModifier(Player& attacker, PlayerStats& attackerStats,
+                                                        WeaponStats& weaponStats, Enemy& target,
+                                                        EnemyStats& targetStats)
+{
+    if (TriggerType::ATTACK == ReflectFields->Trigger)
+    {
+        if (EvaluateConditions())
+        {
+            std::vector<CharacterBase*> targets = TurnSystemHelper::GetTargetCharacters(ReflectFields->Target);
+            for (auto& target : targets)
+            {
+                target->TakeDamage(ReflectFields->Damage, false);
             }
         }
     }

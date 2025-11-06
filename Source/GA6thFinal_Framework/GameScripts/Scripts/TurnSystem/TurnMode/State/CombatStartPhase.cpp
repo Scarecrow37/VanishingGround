@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "CombatStartPhase.h"
 
+#include "Camera/UmCineMotion.h"
 #include "TurnSystem/TurnMode/TurnMode.h"
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
@@ -9,10 +10,13 @@
 #include "WeaponSystem/WeaponSystem.h"
 #include "AccessorySystem/AccessorySystem.h"
 #include "PlayerSystem/PlayerSystem.h"
+#include "ItemDropSystem/ItemDropSystem.h"
 
 #include "Scripts/Stats/Enemy/EnemyStatsComponent.h"
 #include "UI/Views/MonsterHp/MonsterHpView.h"
 #include "UI/Views/MonsterChain/MonsterChainView.h"
+#include "SceneTransition/SceneTransitionComponent.h"
+#include "BattleIntroUIController/BattleIntroUIController.h"
 
 #include "CombatUIManager/CombatUIManager.h"
 #include "QTE/UI/QTEUIManager.h"
@@ -20,6 +24,9 @@
 #include "Monster/System/MonsterSystem.h"
 
 #include "DifficultyManager/DifficultyManager.h"
+#include "Map/MapManager.h"
+#include "Map/Stage.h"
+#include "TutorialSystem/TutorialSystem.h"
 
 REGISTER_CLASS(FSMStateFactory, CombatStartPhase)
 
@@ -28,6 +35,7 @@ static constexpr int EXPECTED_ENEMY_COUNT = 3;
 CombatStartPhase::CombatStartPhase()
     : 
     _phaseEnd(false), 
+    _waitPhaseEnd(false),
     _player(nullptr)
 {
 
@@ -116,77 +124,138 @@ Enemy* CombatStartPhase::GetEnemyFromSpawnPoint(Monster::SpawnPoint spawnPoint) 
 
 void CombatStartPhase::OnAwake() 
 {
-    if (MonsterSystem* system = SingletonComponent<MonsterSystem>::GetInstance())
-    {
-        Difficulty difficulty = Difficulty::NORMAL;
-        if (DifficultyManager* difficultyManager = SingletonComponent<DifficultyManager>::GetInstance())
-        {
-            difficulty = difficultyManager->GetDifficulty();
-        }
 
-        // TODO: 나중에 전투에 맞는 스폰 ID로 변경
-        Monster::SpawnID spawnID = 211321;
-        system->SpawnMonsterFromSpawnID(spawnID, difficulty);
-    }
-    ResetCharacterStats();
-    RegisterEnemiesHUD();
-    RegisterEnemiesHP();
-    RegisterEnemiesChain();
-    ReviveEnemies();
-    ResetPlayer();
-    RefreshUI();
 }
 
 void CombatStartPhase::OnStart() 
 {
     TurnModeStateBase::OnStart();
+
+    if (MonsterSystem* system = SingletonComponent<MonsterSystem>::GetInstance())
+    {
+        Difficulty       difficulty = Difficulty::NORMAL;
+        Monster::SpawnID spawnID    = 0;
+        if (DifficultyManager* manager = SingletonComponent<DifficultyManager>::GetInstance())
+        {
+            difficulty = manager->GetDifficulty();
+        }
+        if (MapManager* manager = SingletonComponent<MapManager>::GetInstance())
+        {
+            spawnID = manager->GetCurrentSpawnID();
+        }
+
+        if (0 != spawnID)
+            system->SpawnMonsterFromSpawnID(spawnID, difficulty);
+        else
+            system->SpawnMonsterFromSpawnID(211112);
+    }
+    ResetCharacterStats();
+    RegisterEnemiesHUD();
+    RegisterEnemiesHP();
+    RegisterEnemiesChain();
+
+    AddValidActions();
+    ReviveEnemies();
+    ResetPlayer();
 }
 void CombatStartPhase::OnEnter() 
 {
-    if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
+    _phaseEnd = false;
+    _waitPhaseEnd = true;
+    float introDuration = 0.f;
+    if (ItemDropSystem* dropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
     {
-        //켜져 있어야 하는거
-        combatUIManager->AccessoriesGroup.ActiveUI(true);  
-        combatUIManager->ConsumableGroup.ActiveUI(true);  
-        combatUIManager->CharacterHUDGroup.ActiveUI(true);  
+        if (UmCineMotion* introCamera = _turnMode->GetIntroCamera())
+        {
+            if (dropSystem->StageClearCount == 0)
+            {
+                introCamera->SetMainCamera();
+                introCamera->ResetRail(true);
+                introCamera->StartRail(false);
+                introDuration = introCamera->Duration;
+            }
+            else
+            {
+                introCamera->ResetRail(false);
+            }
+        }
+    }
+    UmTime.Invoke(GetFSM(), introDuration, [this]() 
+    { 
+        _waitPhaseEnd = false;
+    });
+   
+    _turnMode->ResetRoundCount();
+    AddExtinctionRevelation();
 
-        //꺼져 있어야 하는거
-        combatUIManager->WeaponGroup.ActiveUI(false);  
-        combatUIManager->RevelationsGroup.ActiveUI(false);  
-        combatUIManager->TurnQueueGroup.ActiveUI(false);  
+    Battle::ResetLastCharacter();
+    if (RevelationSystem* system = SingletonComponent<RevelationSystem>::GetInstance())
+    {
+        system->FindRevelationsView();
     }
 
-    /// 사운드
-    UmAudio.Play("-20000");
-
-    _turnMode->ResetRoundCount();
-    AddValidActions();
-
-    UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...3");
-    UmTime.Invoke(&GetFSM(), 1.f, [this]() { UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...2"); });
-    UmTime.Invoke(&GetFSM(), 2.f, [this]() { UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...1"); });
-    UmTime.Invoke(&GetFSM(), 3.f, [this]() 
-    { 
-        this->_phaseEnd = true; 
-        
-        if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
-        {
-            combatUIManager->SetActiveUI(true);
-        }
-    });
-
     NotifyCombatStart();
-    Battle::ResetLastCharacter();
 }
 
 void CombatStartPhase::OnExit() 
 {
+    if (UmCineMotion* battleCamera = _turnMode->GetBattleCamera())
+    {
+        battleCamera->SetMainCamera();
+        battleCamera->ResetRail(true);
+    }
 
+    if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        combatUIManager->CharacterHUDGroup.ActiveUI(true);
+    }
+
+     if (ItemDropSystem* itemDropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
+    {
+        // 소멸 계시 추가시 튜토리얼
+        int stageClearCount = itemDropSystem->StageClearCount;
+        if (TutorialSystem* tutorial = SingletonComponent<TutorialSystem>::GetInstance())
+        {
+            if (0 < stageClearCount)
+            {
+                tutorial->Show(805908);
+            }
+        }      
+    }
 }
 
 void CombatStartPhase::OnUpdate() 
 {
-
+    if (false == _phaseEnd && false == _waitPhaseEnd)
+    {
+        if (SceneTransitionComponent* transition = SingletonComponent<SceneTransitionComponent>::GetInstance())
+        {
+            if (false == transition->IsTransitioning())
+            {
+                if (BattleIntroUIController* controller = SingletonComponent<BattleIntroUIController>::GetInstance())
+                {
+                    if (MapManager* manager = SingletonComponent<MapManager>::GetInstance())
+                    {
+                        if (Stage* stage = manager->GetCurrentSelectedStage())
+                        {
+                            float delay = controller->PlayIntro(stage->MainLevel, stage->BattleCount);
+                            UmTime.Invoke(GetFSM(), delay, [this]()
+                            { 
+                                _phaseEnd = true; 
+                            });
+                            _waitPhaseEnd = true;
+                            return;
+                        }           
+                    }
+                }         
+            }
+            else
+            {
+                return;
+            }          
+        }
+        _phaseEnd = true;
+    } 
 }
 
 void CombatStartPhase::NotifyCombatStart() 
@@ -213,12 +282,31 @@ void CombatStartPhase::AddValidActions()
     {
         for (auto& accessory : _accessorySystem->GetPlayerAccessoryItems())
         {
-            TurnAction* action = accessory.GetAction();
-            if (action)
+            const auto& actions = accessory.GetActions();
+            for (auto& action : actions)
             {
-                _turnMode->AddTurnAction(action);
+                if (action)
+                {
+                    _turnMode->AddTurnAction(action.get());
+                }             
             }
         }     
+    }
+}
+
+void CombatStartPhase::AddExtinctionRevelation() const
+{
+    if (ItemDropSystem* itemDropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
+    {
+        if (RevelationSystem* revelationSystem = SingletonComponent<RevelationSystem>::GetInstance())
+        {
+            //스테이지 클리어 횟수만큼 랜덤한 소멸 계시 추가
+            int stageClearCount = itemDropSystem->StageClearCount;
+            if (0 < stageClearCount)
+            {
+                revelationSystem->EquipRandomExtinctionElement(static_cast<size_t>(stageClearCount));       
+            }           
+        }
     }
 }
 
@@ -234,29 +322,30 @@ namespace
 
 void CombatStartPhase::RegisterEnemiesHUD() 
 {
-    auto SetHUDObject = [&](size_t index, const std::string& tag) 
+    auto SetHUDObject = [&](Monster::SpawnPoint point, const std::string& tag) 
     {
-        if (index < _enemies.size())
+        const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
+        if (auto object = weakGameObject.lock())
         {
-            const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
-            if (auto object = weakGameObject.lock())
+            if (Enemy* enemy = GetEnemyFromSpawnPoint(point))
             {
-                _enemies[index]->SetMonsterHUD(object.get());
+                object->ActiveSelf = true;
+                enemy->SetMonsterHUD(object.get());
+                if (EnemyStatsComponent* statsComponent = enemy->GetComponent<EnemyStatsComponent>())
+                {
+                    statsComponent->RegisterHUD(HUD_KEY_ARRAY[static_cast<size_t>(point)].data());
+                }
+            }
+            else
+            {
+                object->ActiveSelf = false;
             }
         }
     };
 
-    for (size_t i = 0; i < _enemies.size(); ++i)
-    {
-        if (EnemyStatsComponent* statsComponent = _enemies[i]->GetComponent<EnemyStatsComponent>())
-        {
-            statsComponent->RegisterHUD(HUD_KEY_ARRAY[i].data());
-        }
-    }
-
-    SetHUDObject(0, "Left Monster HUD");
-    SetHUDObject(1, "Middle Monster HUD");
-    SetHUDObject(2, "Right Monster HUD");
+    SetHUDObject(Monster::SpawnPoint::Left, "Left Monster HUD");
+    SetHUDObject(Monster::SpawnPoint::Middle, "Middle Monster HUD");
+    SetHUDObject(Monster::SpawnPoint::Right, "Right Monster HUD");
 }
 
 void CombatStartPhase::RegisterEnemiesHP() const
@@ -266,11 +355,12 @@ void CombatStartPhase::RegisterEnemiesHP() const
     RegisterEnemyHP(2, HUD_KEY_ARRAY[2].data(), "Right Monster HP UI");
 }
 
-void CombatStartPhase::RegisterEnemyHP(const int index, const std::string& key, const std::string& tag) const
+void CombatStartPhase::RegisterEnemyHP(const int point, const std::string& key, const std::string& tag) const
 {
-    if (index < _enemies.size())
+    Monster::SpawnPoint spawnPoint = static_cast<Monster::SpawnPoint>(point);
+    if (Enemy* enemy = GetEnemyFromSpawnPoint(spawnPoint))
     {
-        if (const EnemyStatsComponent* leftEnemyStatsComponent = _enemies[index]->GetComponent<EnemyStatsComponent>();
+        if (const EnemyStatsComponent* leftEnemyStatsComponent = enemy->GetComponent<EnemyStatsComponent>();
             nullptr != leftEnemyStatsComponent)
         {
             const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
@@ -301,10 +391,9 @@ void CombatStartPhase::RegisterEnemyHP(const int index, const std::string& key, 
         }
         else
         {
-            UmLogger.Log(LogLevel::LEVEL_ERROR,
-                         "EnemyStatsComponent not found for enemy at index " + std::to_string(index));
+            UmLogger.Log(LogLevel::LEVEL_ERROR, "EnemyStatsComponent not found for enemy at index " + rfl::enum_to_string(spawnPoint));
         }
-    }
+    }        
 }
 
 void CombatStartPhase::RegisterEnemiesChain() 
@@ -314,11 +403,12 @@ void CombatStartPhase::RegisterEnemiesChain()
     RegisterEnemyChain(2, HUD_KEY_ARRAY[2].data(), "Right Monster Chain UI");
 }
 
-void CombatStartPhase::RegisterEnemyChain(int index, const std::string& key, const std::string& tag) 
+void CombatStartPhase::RegisterEnemyChain(int point, const std::string& key, const std::string& tag)
 {
-    if (index < _enemies.size())
+    Monster::SpawnPoint spawnPoint = static_cast<Monster::SpawnPoint>(point);
+    if (Enemy* enemy = GetEnemyFromSpawnPoint(spawnPoint))
     {
-        if (const EnemyStatsComponent* leftEnemyStatsComponent = _enemies[index]->GetComponent<EnemyStatsComponent>();
+        if (const EnemyStatsComponent* leftEnemyStatsComponent = enemy->GetComponent<EnemyStatsComponent>();
             nullptr != leftEnemyStatsComponent)
         {
             const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
@@ -340,8 +430,7 @@ void CombatStartPhase::RegisterEnemyChain(int index, const std::string& key, con
         }
         else
         {
-            UmLogger.Log(LogLevel::LEVEL_ERROR,
-                         "EnemyStatsComponent not found for enemy at index " + std::to_string(index));
+            UmLogger.Log(LogLevel::LEVEL_ERROR, "EnemyStatsComponent not found for enemy at index " + rfl::enum_to_string(spawnPoint));
         }
     }
 }
@@ -350,7 +439,10 @@ void CombatStartPhase::ReviveEnemies()
 {
     for (auto& enemy : _enemies)
     {
-        enemy->CharacterBase::Revive();
+        if (enemy)
+        {
+            enemy->Revive();
+        }
     }
 }
 
@@ -366,19 +458,5 @@ void CombatStartPhase::ResetPlayer()
     if (_player)
     {
         _player->TurnActor::Revive();
-    }
-}
-
-void CombatStartPhase::RefreshUI() 
-{
-    if (CombatUIManager* manager = SingletonComponent<CombatUIManager>::GetInstance())
-    {
-        manager->Refresh();
-    }
-    if (QTEUIManager* uiManager = QTEUIManager::GetInstance())
-    {
-        uiManager->Refresh();
-        uiManager->SetUIAlpha(0.0f);
-        uiManager->SetBackgroundUIAlpha(0.0f);
     }
 }

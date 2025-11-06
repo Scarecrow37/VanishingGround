@@ -6,9 +6,9 @@
 
 struct PlayerStats : public CharacterStats
 {
-    inline static constexpr const char* MODEL_HP_KEY = "A5576328-0510-4E9C-A161-0868109710A9";
-    inline static constexpr const char* MODEL_CHAIN_KEY = "775124A6-1CD5-4222-912A-30BC74876430";
-    inline static constexpr const char* MODEL_STURN_KEY = "7EF594ED-1A69-48A5-8A7A-47D15F6A4E86";
+    inline static constexpr const char* MODEL_HP_KEY        = "A5576328-0510-4E9C-A161-0868109710A9";
+    inline static constexpr const char* MODEL_CHAIN_KEY     = "775124A6-1CD5-4222-912A-30BC74876430";
+    inline static constexpr const char* MODEL_STURN_KEY     = "7EF594ED-1A69-48A5-8A7A-47D15F6A4E86";
 
     USING_PROPERTY(PlayerStats)
     PlayerStats() = default;

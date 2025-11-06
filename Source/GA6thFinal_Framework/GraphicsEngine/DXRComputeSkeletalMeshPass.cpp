@@ -25,40 +25,74 @@ void DXRComputeSkeletalMeshPass::Begin(ID3D12GraphicsCommandList* commandList)
 
 void DXRComputeSkeletalMeshPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
-    // auto computeCmdList = Global::device->GetComputeCommandList();
+    std::vector<D3D12_RESOURCE_BARRIER> uavBarriers;
+    std::vector<D3D12_RESOURCE_BARRIER> srvBarriers;
+    std::vector<ID3D12Resource*>        skinnedBuffers;
+
+    uavBarriers.reserve(_ownerScene->_activeMeshes[SKELETAL_MESH].size());
+    srvBarriers.reserve(_ownerScene->_activeMeshes[SKELETAL_MESH].size());
+    skinnedBuffers.reserve(_ownerScene->_activeMeshes[SKELETAL_MESH].size());
+
+    for (auto& meshInfo : _ownerScene->_activeMeshes[SKELETAL_MESH])
+    {
+        if (nullptr == meshInfo.SkinnedInstance)
+            continue;
+        ID3D12Resource* skinnedVertexBuffer = meshInfo.SkinnedInstance->GetUpdateVertexBuffer();
+        skinnedBuffers.push_back(skinnedVertexBuffer);
+        auto br = CD3DX12_RESOURCE_BARRIER::Transition(
+            skinnedVertexBuffer, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+        
+        uavBarriers.push_back(br);
+    }
+    // barrier 한번에 처리
+    if (!uavBarriers.empty())
+        commandList->ResourceBarrier(static_cast<UINT>(uavBarriers.size()), uavBarriers.data());
+
+    // dispatch 처리
     for (auto& meshInfo : _ownerScene->_activeMeshes[SKELETAL_MESH])
     {
         Dispatch(commandList, meshInfo);
     }
+
+    for (auto* buffer : skinnedBuffers)
+    {
+        auto br = CD3DX12_RESOURCE_BARRIER::Transition(
+            buffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+        srvBarriers.push_back(br);
+    }
+    if (!srvBarriers.empty())
+        commandList->ResourceBarrier(static_cast<UINT>(srvBarriers.size()), srvBarriers.data());
 }
 
 void DXRComputeSkeletalMeshPass::End(ID3D12GraphicsCommandList* commandList) {}
 
 void DXRComputeSkeletalMeshPass::Dispatch(ID3D12GraphicsCommandList* commandList, MeshInfo meshInfo)
 {
-    /*auto& skeletalInstances = meshInfo.SkinnedInstance;
+    if (nullptr == meshInfo.SkinnedInstance)
+        return;
 
-    ID3D12Resource* resource = skeletalInstances->GetUpdateVertexBuffer();
-    VIBuffer*       vibuffer = skeletalInstances->GetVIBuffer();
-    auto            br = CD3DX12_RESOURCE_BARRIER::Transition(resource, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
-                                                              D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-    auto&           frameResource = _ownerScene->_frameResources[_ownerScene->_currentFrameIndex];
-    commandList->ResourceBarrier(1, &br);
-    commandList->SetComputeRootUnorderedAccessView(_shader->GetRootParameterIndex("skinnedVertices"),
-                                                   resource->GetGPUVirtualAddress());
-    commandList->SetComputeRootShaderResourceView(_shader->GetRootParameterIndex("vertices"),
-                                                  vibuffer->_vertexBuffer->GetGPUVirtualAddress());
-    frameResource->SetComputeFrameResource(FrameResourceType::BONE_MATRICES,
-                                           _shader->GetRootParameterIndex("boneMatrices"), commandList);
+    auto* skeletalInstance = meshInfo.SkinnedInstance;
+    VIBuffer* viBuffer         = skeletalInstance->GetVIBuffer();
+    ID3D12Resource* skinnedVertexBuffer = skeletalInstance->GetUpdateVertexBuffer();
 
-    UINT parameter[3]{0, MAX_BONE_MATRIX, 0};
-    parameter[0] = meshInfo.InstanceID;
-    parameter[2] = vibuffer->_vertexCount;
-    commandList->SetComputeRoot32BitConstants(_shader->GetRootParameterIndex("bit32_4_objectData"), 3, parameter, 0);
+    auto& frameResource = _ownerScene->_frameResources[_ownerScene->_currentFrameIndex];
+    
+    commandList->SetComputeRootUnorderedAccessView(_fx.GetRootParameterIndex("skinnedVertices"),
+                                                   skinnedVertexBuffer->GetGPUVirtualAddress());
+    commandList->SetComputeRootShaderResourceView(_fx.GetRootParameterIndex("vertices"),
+                                                  viBuffer->_vertexBuffer->GetGPUVirtualAddress());
+    frameResource->SetComputeFrameResource(FrameResourceType::BONE_MATRICES, _fx.GetRootParameterIndex("boneMatrices"),
+                                           commandList);
 
-    UINT threadGroupsX = (vibuffer->_vertexCount + 255) / 256;
+    MeshData meshData;
+    meshData.InstanceID = meshInfo.InstanceData.MatrixID;
+    meshData.BoneMatrixOffset = MAX_BONE_MATRIX;
+    meshData.VertexCount      = viBuffer->_vertexCount;
+    
+    commandList->SetComputeRoot32BitConstants(_fx.GetRootParameterIndex("bit32_3_meshData"), 3, &meshData, 0);
+    
+    UINT threadGroupsX = (viBuffer->_vertexCount + 255) / 256;
     commandList->Dispatch(threadGroupsX, 1, 1);
-    br = CD3DX12_RESOURCE_BARRIER::Transition(resource, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);*/
 }
 
 void DXRComputeSkeletalMeshPass::InitShaderAndPSO()

@@ -8,9 +8,16 @@ public:
 public:
     UIAnimation(const Callback& callback);
 
-    void Reset(float duration, bool isLoop);
+    void SetDuration(float duration);
+    void SetLoop(bool isLoop);
+    void SetElapsedTime(float elapsedTime);
+    float GetElapsedTime() const { return _elapsedTime; }   
+    void Reset();
 
     void Update(float deltaTime);
+
+private:
+    void UpdateAnimation() const;
 
 private:
     float    _elapsedTime;

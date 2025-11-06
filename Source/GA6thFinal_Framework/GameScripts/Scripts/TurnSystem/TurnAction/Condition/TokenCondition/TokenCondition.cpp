@@ -13,10 +13,7 @@ REFLECT_FUNCTION(TokenCondition)
 
 using namespace u8_literals;
 
-TokenCondition::TokenCondition() 
-{
-    UpdateConditionInfo();
-}
+TokenCondition::TokenCondition() = default;
 
 bool TokenCondition::Evaluate()
 {
@@ -28,21 +25,7 @@ bool TokenCondition::Evaluate()
         return false;
     }
 
-    Operator oper    = ReflectFields->Operator;
-    int      tokenID = ReflectFields->TokenType;
-    int      value   = ReflectFields->Value;
-
-    auto CheckOperation = [&](int tokenCount) 
-    {
-        switch (oper)
-        {
-            case Operator::GREATER_EQUAL: return tokenCount >= value;
-            case Operator::LESS_EQUAL:    return tokenCount <= value;
-            case Operator::EQUAL:         return tokenCount == value;
-            default:                      return false;
-        }
-    };
-
+    int tokenID = ReflectFields->TokenType;
     for (const auto& target : targetList)
     {
         int targetTokenCount = target->GetTokenInventory().GetTokenStackFromID(tokenID);
@@ -99,19 +82,10 @@ void TokenCondition::DrawImguiEditor()
     }
 }
 
-const std::string& TokenCondition::GetConditionInfo() const
+const std::string& TokenCondition::GetConditionInfo()
 {
+    TryUpdateTokenSystemInfo();
     return _conditionInfo;
-}
-
-void TokenCondition::SerializedReflectEvent() 
-{
-   
-}
-
-void TokenCondition::DeserializedReflectEvent() 
-{
-    UpdateConditionInfo();
 }
 
 void TokenCondition::UpdateConditionInfo() 
@@ -172,3 +146,48 @@ void TokenCondition::GetTargetList(std::vector<class CharacterBase*>& targetList
 {
     targetList = TurnSystemHelper::GetTargetCharacters(ReflectFields->Target);
 }
+
+void TokenCondition::TryUpdateTokenSystemInfo() 
+{
+    if (false == _validTokenSystem)
+    {
+        if (TokenSystem* system = SingletonComponent<TokenSystem>::GetInstance())
+        {
+            const std::string& tokenName = system->GetTokenNameFromID(ReflectFields->TokenType);
+            if (tokenName.empty())
+            {
+                ReflectFields->TokenType = TokenObject::Bleed::ID;
+            }
+            UpdateConditionInfo();
+            _validTokenSystem = true;
+        }
+    }
+}
+
+bool TokenCondition::CheckEvaluate(CharacterBase* character)
+{
+    if (character)
+    {
+        int tokenID          = ReflectFields->TokenType;
+        int targetTokenCount = character->GetTokenInventory().GetTokenStackFromID(tokenID);
+        return CheckOperation(targetTokenCount);
+    }
+    return false;
+}
+
+bool TokenCondition::CheckOperation(int tokenCount) 
+{
+    Operator oper  = ReflectFields->Operator;
+    int      value = ReflectFields->Value;
+    switch (oper)
+    {
+    case Operator::GREATER_EQUAL:
+        return tokenCount >= value;
+    case Operator::LESS_EQUAL:
+        return tokenCount <= value;
+    case Operator::EQUAL:
+        return tokenCount == value;
+    default:
+        return false;
+    }
+};

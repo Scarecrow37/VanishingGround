@@ -10,7 +10,10 @@ namespace Monster
     {
         ShiveringWhisper::ShiveringWhisper() : Base("Attack1") {}
         ShiveringWhisper::~ShiveringWhisper() = default;
-        void ShiveringWhisper::OnActionEnter() {}
+        void ShiveringWhisper::OnActionEnter()
+        {
+            _attackCount = 0;
+        }
         void ShiveringWhisper::OnActionUpdate() {}
         void ShiveringWhisper::OnActionExit() {}
         void ShiveringWhisper::OnActionReset() {}
@@ -19,7 +22,11 @@ namespace Monster
             const std::string& label = context->GetLabel();
             if ("Attack" == label)
             {
-                Attack();
+                if (_attackCount < GetActionContext().AttackCount)
+                {
+                    Attack();
+                    ++_attackCount;
+                }
             }
         }
 

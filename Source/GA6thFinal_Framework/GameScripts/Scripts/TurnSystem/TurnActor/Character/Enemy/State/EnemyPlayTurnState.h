@@ -2,7 +2,7 @@
 #include "Base/EnemyStateBase.h"
 #include "../Enum/EnemyEnum.h"
 
-
+class RoundInfoUIManager;
 namespace EnemyAction
 {
     class ActionBase;
@@ -29,4 +29,7 @@ private:
 private:
     REFLECT_FIELDS_BEGIN(EnemyStateBase)
     REFLECT_FIELDS_END(EnemyPlayTurnState)
+
+    std::weak_ptr<RoundInfoUIManager> _roundInfoUIManager;
+    bool                              _isOnce = false;
 };

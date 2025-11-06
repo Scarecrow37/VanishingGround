@@ -10,6 +10,11 @@
 #include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
 #include "Debugger/Debugger.h"
 
+#include "Map/MapManager.h"
+#include "Map/Stage.h"
+#include "CombatUIManager/CombatUIManager.h"
+#include "Audio/BGMManager.h"
+
 UMREAL_COMPONENT(ItemDropSystem)
 
 //내부 사용 구조체 및 enum
@@ -268,7 +273,7 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
             artifact = RollRevelationRandomItem();
             break;
         case ArtifactDropType::ERASE_REVELATION:
-            artifact.ID       = DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::ERASE_REVELATION);
+            artifact.ID       = DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::ERASE_REVELATION, false);
             artifact.Category = ArtifactDropType::ERASE_REVELATION;
             artifact.Name     = (const char*)u8"계시 지우기";
             break;
@@ -292,6 +297,14 @@ void ItemDropSystem::SetStageClearCount(int count)
     if (ArtifactUIManager* uiManager = SingletonComponent<ArtifactUIManager>::GetInstance())
     {
         uiManager->UpdateUnlock();
+    }
+    if (MapManager* manager = SingletonComponent<MapManager>::GetInstance())
+    {
+        if (Stage* stage = manager->GetCurrentSelectedStage())
+        {
+            // n번 째 전투 = 클리어 횟수의 +1
+            stage->BattleCount = count + 1;
+        }
     }
 }
 
@@ -333,27 +346,20 @@ void ItemDropSystem::PlayItemDropUISequence()
             // 포커스 되야할 버튼
             ArtifactButtonNavi::LastFocusIndex = 0;
             itemDropUIRootManager->AutoFocus();
+
+            if (BGMManager* bgmManager = SingletonComponent<BGMManager>::GetInstance())
+            {
+                bgmManager->PlayBGM("-460000", true);
+            }
         }
     }
 
-    if (auto turnQueue = GameObject::FindWithTag("Turn Queue Panel").lock())
+    if (CombatUIManager* uiManager = SingletonComponent<CombatUIManager>::GetInstance())
     {
-        turnQueue->ActiveSelf = false;
-    }
-
-    if (auto HUD = GameObject::FindWithTag("Character HUD Group").lock())
-    {
-        HUD->ActiveSelf = false;
-    }
-
-    if (auto revelationPanel = GameObject::FindWithTag("Revelations Panel").lock())
-    {
-        revelationPanel->ActiveSelf = false;
-    }
-
-    if (auto weaponPanel = GameObject::FindWithTag("Weapon Panel").lock())
-    {
-        weaponPanel->ActiveSelf = false;
+        uiManager->TurnQueueGroup.ActiveUI(false);
+        uiManager->CharacterHUDGroup.ActiveUI(false);
+        uiManager->RevelationsGroup.ActiveUI(false);
+        uiManager->WeaponGroup.ActiveUI(false);
     }
 }
 

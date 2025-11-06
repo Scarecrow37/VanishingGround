@@ -4,6 +4,7 @@
 #include "Utility/SingletonHelper.h"
 
 class TurnAction;
+class RevelationsView;
 class RevelationSystem : public Component
 {
     USING_PROPERTY(RevelationSystem)      
@@ -29,12 +30,25 @@ public:
     /// <returns></returns>
     std::shared_ptr<RevelationElement> RemovePlayerElement(int slot);
 
+    void ClearPlayerElements() { _playerElementList.clear(); }
+
     /// <summary>
     /// 플레이어의 인벤토리 제일 뒤쪽에 계시를 추가합니다.
     /// </summary>
-    /// <param name="element"></param>
+    /// <param name="element :">추가할 계시</param>
     /// <returns></returns>
     const std::shared_ptr<RevelationElement>& PushBackRevelation(const RevelationElement& element);
+
+    /// <summary>
+    /// 플레이어의 인벤토리에 랜덤한 소멸 계시를 추가합니다.
+    /// <param name="count :">추가할 갯수</param>
+    /// </summary>
+    void EquipRandomExtinctionElement(size_t count = 1);
+
+    /// <summary>
+    /// 플레이어가 인벤토리 뒤쪽에 가지고 있는 모든 소멸 계시를 지웁니다.
+    /// </summary>
+    void RemoveAllExtinctionElements();
    
     /// <summary>
     /// 이번 라운드 활성화 계시를 랜덤으로 뽑습니다.
@@ -62,6 +76,17 @@ public:
     /// <returns></returns>
     const std::vector<RevelationElement*>& GetRevelationTableElements() { return _elementTableOrderID; }
 
+    /// <summary>
+    /// 이번 전투에 발동한 계시 항목들을 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    const std::vector<std::string>& GetBattleActiveRevelations() { return _battleActiveRevelations; }
+
+    /// <summary>
+    /// 이번 전투에 발동한 계시 항목들을 초기화합니다.
+    /// </summary>
+    void ClearBattleActiveRevelations() { _battleActiveRevelations.clear(); }
+
 public:     
     /// <summary>
     /// 새로운 Element를 테이블에 추가합니다.
@@ -86,44 +111,26 @@ public:
     RevelationElement* FindElement(const std::string& elementName);
 
     /// <summary>
+    /// 계시를 테이블에서 찾아서 존재하면 반환합니다.
+    /// </summary>
+    /// <param name="id :">찾을 계시 아이디</param>
+    /// <returns>없으면 nullptr</returns>
+    RevelationElement* FindElementWithID(std::u8string_view id);
+
+    /// <summary>
     /// ElementTable과 Action들을 Json으로 직렬화해 반환합니다.
     /// </summary>
     /// <returns></returns>
-   std::string SaveElementTable() 
-    { 
-        ElementsToElementDatas();
-        ActionsToActionDatas();
-        std::string result = rfl::json::write(std::pair{rfl::json::write(ReflectFields->RevelationElementDatas),
-                                                        rfl::json::write(ReflectFields->RevelationActionDatas)});
-        return result; 
-    }
+    std::string SaveElementTable();
 
     /// <summary>
     /// Json으로 직렬화한 Element Table과 Action들을 역직렬화 합니다.
     /// </summary>
     /// <param name="data :">json 형식의 문자열</param>
     /// <returns>결과</returns>
-    bool LoadElementTable(std::string_view data)
-    {
-        auto result = rfl::json::read<std::pair<std::string, std::string>>(data.data());
-        if (result)
-        {
-            auto& [elementData, actionData] = result.value();
-            auto element = rfl::json::read<ElementDataType>(elementData.data());
-            if (element)
-            {
-                ReflectFields->RevelationElementDatas = element.value();
-                ElementDatasToElements();
-            }
-            auto action = rfl::json::read<ActionDataType>(actionData.data());
-            if (action)
-            {
-                ReflectFields->RevelationActionDatas = action.value();
-                ActionDatasToActions();
-            }
-        }
-        return result;
-    }
+    bool LoadElementTable(std::string_view data);
+
+    void FindRevelationsView();
 
 private:
     bool _tableEditorOpen = false;
@@ -199,11 +206,10 @@ private:
 
 private:
     SingletonComponent<RevelationSystem>            _singletonComponent{this};
-    std::vector<std::shared_ptr<RevelationElement>> _playerElementList;       // 플레이어가 사용중인 계시 (인벤토리)
+    std::vector<std::shared_ptr<RevelationElement>> _playerElementList;                    // 플레이어가 사용중인 계시 (인벤토리)
     MVVM::Model<std::vector<std::shared_ptr<RevelationElement>>> _roundElementList;        // 이번 라운드에 효과가 발동된 계시 (뽑힌 계시)
-    std::unordered_map<std::string, unsigned int>   _elementTotalAppearances; // 계시가 뽑힌 횟수
-    unsigned int                                    _totalRollCount = 0;      //계시를 굴린 횟수
-
+    std::unordered_map<std::string, unsigned int>   _elementTotalAppearances;              // 계시가 뽑힌 횟수
+    unsigned int                                    _totalRollCount = 0;                   // 계시를 굴린 횟수
 
 private:
     void ImGuiDrawPlayerElementEditor();
@@ -215,5 +221,9 @@ private:
 protected:
     void Awake() override;
     void Reset() override;
+
+private:
+    std::vector<std::string> _battleActiveRevelations; //이번 배틀에 발동된 계시들. Battle에서 매번 clear 합니다.
+    std::weak_ptr<RevelationsView> _revelationsView;
 
 };

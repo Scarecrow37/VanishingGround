@@ -26,6 +26,11 @@ public:
                                                      const std::vector<D3D12_STATIC_SAMPLER_DESC>& samplers,
                                                      D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_NONE);
     static DxilLibrary               CreateDxilLibrary();
+
+//#ifdef NDEBUG
+    static DxilLibrary CreateDxilLibraryFromBuiltIn();
+//#endif
+
     static RootSignatureDesc         CreateRayGenRootDesc();
     static RootSignatureDesc         CreateHitRootDesc();
     static RootSignatureDesc         CreateMissRootDesc();

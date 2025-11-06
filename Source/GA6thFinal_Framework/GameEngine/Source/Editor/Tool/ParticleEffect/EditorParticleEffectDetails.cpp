@@ -17,42 +17,76 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
 
 void EditorParticleEffectDetails::SetCurrentEmitter(class ParticleEmitter* curEmitter)
 {
-    _curEmitter = curEmitter;
-    _curEffect  = nullptr;
-}
-
-void EditorParticleEffectDetails::OnFrameRender() 
-{
-    ParticleEffect* managersEffect = UmParticleManager->GetCurrentEditorEffect();
-
-    if (managersEffect == nullptr)
+    // 현재 매니저가 가리키는 에디터 이펙트와 동기화
+    ParticleEffect* mgr = UmParticleManager->GetCurrentEditorEffect();
+    if (mgr == nullptr)
     {
-        // The manager has no effect, so we must have no effect.
-        _curEffect = nullptr;
-        _curEmitter = nullptr; // Also clear emitter for safety
+        _curEffect  = nullptr;
+        _curEmitter = nullptr;
+        return;
+    }
+    if (_curEffect != mgr)
+    {
+        _curEffect  = mgr;
+        _curEmitter = nullptr;
+    }
+
+    if (curEmitter == nullptr)
+    {
+        _curEmitter = nullptr;
         return;
     }
 
-    // If we have a _curEffect, but it's NOT the same as the manager's effect,
-    // it means our pointer is stale (dangling). We must not use it.
-    if (_curEffect != nullptr && _curEffect != managersEffect)
+    auto& list  = _curEffect->GetEmitterList(); 
+    bool  found = false;
+    for (auto const& up : list)
     {
-        _curEffect = nullptr;
+        if (up.get() == curEmitter)
+        {
+            found = true;
+            break;
+        }
+    }
+    _curEmitter = found ? curEmitter : nullptr;
+}
+
+void EditorParticleEffectDetails::OnFrameRender()
+{
+    // 1) 매니저 기준으로 현재 이펙트 재동기화
+    ParticleEffect* mgr = UmParticleManager->GetCurrentEditorEffect();
+    if (mgr == nullptr)
+    {
+        _curEffect  = nullptr;
+        _curEmitter = nullptr;
+        ImGui::TextDisabled("No effect selected.");
+        return;
+    }
+    if (_curEffect != mgr)
+    {
+        _curEffect  = mgr;
+        _curEmitter = nullptr;
     }
 
-    // If an emitter is selected, _curEffect is supposed to be null.
-    // If no emitter is selected, and our _curEffect is now null (either from startup or because it was stale),
-    // we should fall back to showing the manager's current effect.
-    if (_curEmitter == nullptr && _curEffect == nullptr)
+    if (_curEmitter)
     {
-        _curEffect = managersEffect;
+        auto& list        = _curEffect->GetEmitterList();
+        bool  stillExists = false;
+        for (auto const& up : list)
+        {
+            if (up.get() == _curEmitter)
+            {
+                stillExists = true;
+                break;
+            }
+        }
+        if (!stillExists)
+            _curEmitter = nullptr;
     }
 
-
-    // Now, the original logic can run, but with a safer _curEffect pointer.
-    if (nullptr != _curEmitter && nullptr == _curEffect)
+    // 3) 렌더
+    if (_curEmitter)
         ShowEmitterDetails();
-    if (nullptr == _curEmitter && nullptr != _curEffect)
+    else
         ShowEffectDetails();
 }
 
@@ -81,6 +115,13 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
 
         ImGui::TableNextColumn();
         ImGui::Text(shapeItems[static_cast<UINT>(_curEmitter->_locationType)]);
+        
+        if (_curEmitter->_locationType == LocationShape::MESH_SURFACE)
+        {
+            ImGui::TableNextRow();
+            auto pathText = _curEmitter->_emitLocator->AsMeshSurfaceLocator()->GetModelPath().string();
+            ImGui::Text(pathText.c_str());
+        }
 
         ImGui::EndTable();
     }
@@ -115,6 +156,8 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
                     {
                         spriteModule->ChangeAlbedoTexture(out.front().wstring());
                         isDirty = true;
+                        ImGui::Text("Texture Path : ");
+                        ImGui::Text(out.front().string().c_str());
                     }
                 }
                 bool animFlag = _spriteAnimFlag;
@@ -586,9 +629,23 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
 
     // scale
     {
+
         // axis
         if (ParticleType::SPRITE == _curEmitter->_particleType)
         {
+
+            {
+                Vector3 temp = _curEmitter->GetParticleRotation();
+                float axis[3] = {temp.x, temp.y, temp.z};
+                ImGui::Text("Particle Rotation");
+                ImGui::SameLine();
+                bool result = ImGui::SliderFloat3("##Particle Rotation", axis, -180, 180);
+                if (false == isDirty)
+                    if (true == result)
+                        isDirty = result;
+                _curEmitter->SetParticleRotation({axis[0], axis[1], axis[2]});
+                ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.0f);
+            }
 
             {
                 bool scaleVelFlag = _curEmitter->GetScaleByVelocityFlag();
@@ -733,8 +790,7 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
     // drag
     {
         Vector4 force = _curEmitter->GetDragForce();
-        ImGui::Text("Drag Force");
-        ImGui::SameLine();
+        ImGui::Text("sprite loop / use world sprite scale / drag atten");
         bool result = ImGui::SliderFloat4("##Drag Force", (float*)&force, -1000, 1000);
         if (false == isDirty)
             if (true == result)
@@ -776,5 +832,49 @@ void EditorParticleEffectDetails::ShowEffectDetails()
         ImGui::SameLine();
         ImGui::InputFloat("##Effect Lifetime", &lifetime);
         _curEffect->SetLifetime(lifetime);
+    }
+    {
+        for (auto& emitter : _curEffect->GetEmitterList())
+        { 
+            if (emitter && emitter->_particleRenderModule)
+            {
+                if (emitter->_particleRenderModule->AsSprite())
+                {
+
+                    auto& pathText = emitter->_particleRenderModule->AsSprite()->GetModelAndTexturePath();
+
+                    int n = WideCharToMultiByte(CP_UTF8, 0, pathText.c_str(), (int)pathText.size(), nullptr, 0, nullptr,
+                                                nullptr);
+                    std::string pathString(n, '\0');
+                    WideCharToMultiByte(CP_UTF8, 0, pathText.c_str(), (int)pathText.size(), pathString.data(), n,
+                                        nullptr, nullptr);
+
+                    std::string label = "tex : ##" + emitter->GetEmitterName() + " tex : ";
+                    ImGui::InputText(label.c_str(), pathString.data(), pathString.size() + 1,
+                                     ImGuiInputTextFlags_ReadOnly);
+                }
+                if (emitter->_particleRenderModule->AsRibbon())
+                {
+
+                    auto& pathText = emitter->_particleRenderModule->AsRibbon()->GetModelAndTexturePath();
+
+                    int n = WideCharToMultiByte(CP_UTF8, 0, pathText.c_str(), (int)pathText.size(), nullptr, 0, nullptr,
+                                                nullptr);
+                    std::string pathString(n, '\0');
+                    WideCharToMultiByte(CP_UTF8, 0, pathText.c_str(), (int)pathText.size(), pathString.data(), n,
+                                        nullptr, nullptr);
+
+                    std::string label = "tex : ##" + emitter->GetEmitterName() + " tex : ";
+                    ImGui::InputText(label.c_str(), pathString.data(), pathString.size() + 1,
+                                     ImGuiInputTextFlags_ReadOnly);
+                }
+                if (emitter->_emitLocator && emitter->_locationType == LocationShape::MESH_SURFACE)
+                {
+                    auto        pathText = emitter->_emitLocator->AsMeshSurfaceLocator()->GetModelPath().string();
+                    std::string label    = "model : ##" + emitter->GetEmitterName() + " model : ";
+                    ImGui::InputText(label.c_str(), pathText.data(), pathText.size() + 1, ImGuiInputTextFlags_ReadOnly);
+                }
+            }
+        }
     }
 }

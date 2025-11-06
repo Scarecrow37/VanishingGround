@@ -56,8 +56,10 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
         irradiance          = defaultTexture;
         prefiltered         = defaultTexture;
     }
-    bool useSSAO    = ssaoPass->IsEnable(); 
-    int useSSAOInt = useSSAO ? 1 : 0;
+
+    bool useSSAO    = ssaoPass->IsEnable();
+    int  useSSAOInt = useSSAO ? 1 : 0;
+
     commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_1_isssao"), 1, &useSSAOInt, 0); 
     commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_4_numLight"), 4, &_ownerScene->_numLight, 0);
     commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
@@ -73,9 +75,11 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("ormMap"), renderTargetGroup[GBuffer::ORM]->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("emissiveMap"), renderTargetGroup[GBuffer::EMISSIVE]->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("depthMap"), renderTargetGroup[GBuffer::DEPTH]->GetSRVHandle());
+    
     if (useSSAO)
+    {
         commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("SSAOMap"), ssaoPass->GetAOTexture());
-  
+    }
     
     _ownerScene->_frameQuad->Render(commandList);
 }

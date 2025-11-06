@@ -3,11 +3,16 @@
 #include "RevelationSystem.h"
 
 #include "ViewModels/Revelations/RevelationsViewModel.h"
+#include "UI/Views/RevelationsView/RevelationsView.h"
+#include "UI/Animations/ChildsAnimationsController/ChildsAnimationsController.h"
+#include "TurnSystem/TurnAction/Condition/ChainCondition/ChainCondition.h"
 
 #include <TurnSystem/TurnAction/TurnActionFactory.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
+#include "TurnSystem/TurnAction/TurnAction.h"
 
 #include "ExcelDataSystem/ExcelDataSystem.h"
+#include "Camera/UmCineMotion.h"
 
 UMREAL_COMPONENT(RevelationSystem)
 
@@ -52,63 +57,185 @@ const std::shared_ptr<RevelationElement>& RevelationSystem::PushBackRevelation(c
     return _playerElementList.emplace_back(new RevelationElement(element));
 }
 
+void RevelationSystem::EquipRandomExtinctionElement(size_t count)
+{
+    if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+    {
+        mode->ApplyActions([&count](TurnAction& action) 
+        {
+            action.OnRandomExtinctionPushPlayer(count);
+        });
+    }
+
+    if (count < 1)
+        return;
+
+    // 소멸 계시만 필터
+    auto& revelations = GetRevelationTableElements();
+    std::vector<RevelationElement*> extinctions;
+    extinctions.reserve(revelations.size());
+    std::ranges::copy_if(revelations, std::back_inserter(extinctions), [](RevelationElement* element)
+    { 
+        RevelationGrade garde = element->Grade;
+        return garde == RevelationGrade::EXTINCTION;
+    });
+
+    //랜덤 셔플 후 앞에 2개 추가
+    if (false == extinctions.empty())
+    {
+        auto& engine = Random::GetEngine();
+        std::ranges::shuffle(extinctions, engine);
+        extinctions.resize(count);
+
+        for (auto& extinction : extinctions)
+        {
+            if (extinction)
+            {
+                PushBackRevelation(*extinction);
+            }          
+        }
+    }  
+}
+
+void RevelationSystem::RemoveAllExtinctionElements() 
+{
+    size_t size = _playerElementList.size();
+    while (0 < size)
+    {
+        size_t lastIndex = size - 1;
+        auto&  element   = _playerElementList[lastIndex];
+        if (nullptr == element)
+            break;
+
+        RevelationGrade grade = element->Grade;
+        if (grade != RevelationGrade::EXTINCTION)
+            break;
+
+        RemovePlayerElement(static_cast<int>(lastIndex));
+        size = _playerElementList.size();
+    }
+}
+
 void RevelationSystem::RollRoundElement()
 {
     TurnMode* _turnMode = SingletonComponent<TurnMode>::GetInstance();
 
     if (_turnMode)
     {
-        const auto& roundElementList = _roundElementList;
-        //기존 액션들 비활성화
-        for (auto& element : roundElementList)
+        std::vector<std::shared_ptr<RevelationElement>> _roundElements;
+        if (false == _roundElementList.empty())
         {
-            if (element->IsAction())
+            // 기존 액션들 비활성화
+            const auto& roundElementList = _roundElementList;
+            for (auto& element : roundElementList)
             {
-                element->GetAction().SetDestroy();
+                if (element->IsAction())
+                {
+                    element->GetAction().SetDestroy();
+                }
             }
         }
-        _roundElementList.clear();
 
         // 실제 존재하는 계시만 리스트에 넣는다
         for (auto& element : _playerElementList)
         {
             if (element)
             {
-                _roundElementList.push_back(element);
+                _roundElements.push_back(element);
             }
         }
 
         // 랜덤 셔플
-        _roundElementList.shuffle(Random::GetEngine());
+        std::ranges::shuffle(_roundElements, Random::GetEngine());
 
         // 사용 가능한 개수만 남긴다.
-        if (ReflectFields->RevelationsPerRound < _roundElementList.size())
+        if (ReflectFields->RevelationsPerRound < _roundElements.size())
         {
-            _roundElementList.resize(ReflectFields->RevelationsPerRound);
+            _roundElements.resize(ReflectFields->RevelationsPerRound);
         }
 
         // 뽑힌 횟수 계산 및 액션 활성화
-        for (auto& element : roundElementList)
+        for (size_t i = 0; i < _roundElements.size(); ++i)
         {
+            auto& element = _roundElements[i];
             const std::string& name = element->ElementName;
             _elementTotalAppearances[name]++;
             if (element->IsAction())
             {
                 std::weak_ptr<RevelationElement> weakElement = element;
                 TurnAction& action = element->GetAction();
-                action.OnActionActive = [weakElement]() 
+                auto ActionActiveCallback = [weakElement, this, i]() 
                 { 
                     if (auto element = weakElement.lock())
                     {
                         const std::string& name = element->ElementName;
                         std::string msg  = std::format("{}{}", name, (const char*)u8" 발동.");
                         UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
+                        _battleActiveRevelations.push_back(name);
+                        if (auto view = _revelationsView.lock())
+                        {
+                            auto& uis = view->GetRevelationUIs();
+                            if (i < uis.size())
+                            {
+                                if (uis[i].AnimationsController)
+                                {
+                                    RevelationGrade garde = element->Grade;
+                                    uis[i].AnimationsController->StartAnimation(static_cast<size_t>(garde));
+                                    if (garde != RevelationGrade::EXTINCTION)
+                                    {
+                                        //일반 계시 발동 소리
+                                        UmAudio.Play("-401000");
+                                    }
+                                    else
+                                    {
+                                        //소멸 계시 발동 소리
+                                        UmAudio.Play("-401010");
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+                    {
+                        mode->RevelationActiveFlag = true;
                     }
                 };
+
+                if (element->RevelationID != 202044)
+                {
+                    action.OnActionActive = ActionActiveCallback;
+                }
+                else
+                {
+                    // 엉성한 응급조치만 특수 처리
+                    action.OnActionActive = [ActionActiveCallback, weakElement, revelation = element.get()]()
+                    { 
+                        ActionActiveCallback();
+                        if (false == weakElement.expired())
+                        {
+                            if (revelation->IsAction())
+                            {
+                                TurnAction& action = revelation->GetAction();
+                                for (auto& condition : action.GetConditions())
+                                {
+                                    if (condition && typeid(*condition) == typeid(ChainCondition))
+                                    {
+                                        ChainCondition* chainCondition = static_cast<ChainCondition*>(condition.get());
+                                        ++chainCondition->ReflectFields->Value1;
+                                    }
+                                }
+                            }
+                        }
+                    };
+                }        
                 _turnMode->AddTurnAction(&action);
             }
         }
-        _totalRollCount += (int)_roundElementList.size();
+        _totalRollCount += (int)_roundElements.size();
+
+        // 적용
+        _roundElementList = std::move(_roundElements);
     }
 }
 
@@ -164,6 +291,35 @@ RevelationElement* RevelationSystem::FindElement(const std::string& elementName)
     return nullptr;
 }
 
+RevelationElement* RevelationSystem::FindElementWithID(std::u8string_view id)
+{
+    if (ExcelDataSystem* data = SingletonComponent<ExcelDataSystem>::GetInstance())
+    {
+        if (auto db = data->FindExcelDataBase(u8"계시"))
+        {
+            size_t rowIndex = db->FindRowIndex(id, u8"ID");
+            if (rowIndex != db->FIND_INDEX_FAIL)
+            {
+                std::string_view data = db->FindData(rowIndex, u8"Name");
+                if (data != db->FIND_STR_FAIL)
+                {
+                    return FindElement(data.data());
+                }
+            }
+        }
+    }
+    return nullptr;
+}
+
+std::string RevelationSystem::SaveElementTable()
+{
+    ElementsToElementDatas();
+    ActionsToActionDatas();
+    std::string result = rfl::json::write(std::pair{rfl::json::write(ReflectFields->RevelationElementDatas),
+                                                    rfl::json::write(ReflectFields->RevelationActionDatas)});
+    return result;
+}
+
 static ReflectHelper::ImGuiDraw::InputAutoSetting InitSetting()
 {
     ReflectHelper::ImGuiDraw::InputAutoSetting setting;
@@ -171,7 +327,34 @@ static ReflectHelper::ImGuiDraw::InputAutoSetting InitSetting()
     return setting;
 }
 
-void RevelationSystem::ImGuiDrawElementTableEditor() 
+bool RevelationSystem::LoadElementTable(std::string_view data)
+{
+    auto result = rfl::json::read<std::pair<std::string, std::string>>(data.data());
+    if (result)
+    {
+        auto& [elementData, actionData] = result.value();
+        auto element                    = rfl::json::read<ElementDataType>(elementData.data());
+        if (element)
+        {
+            ReflectFields->RevelationElementDatas = element.value();
+            ElementDatasToElements();
+        }
+        auto action = rfl::json::read<ActionDataType>(actionData.data());
+        if (action)
+        {
+            ReflectFields->RevelationActionDatas = action.value();
+            ActionDatasToActions();
+        }
+    }
+    return result;
+}
+
+void RevelationSystem::FindRevelationsView()
+{
+    _revelationsView = GameObject::FindComponentWithTag<RevelationsView>(RevelationsView::TAG);
+}
+
+void RevelationSystem::ImGuiDrawElementTableEditor()
 {
 #ifdef _UMEDITOR
     constexpr const char* TABLE_CLEAR_KEY = (const char*)"clear table";
@@ -681,11 +864,18 @@ void RevelationSystem::ImGuiDrawPropertysEvent()
                                 {
                                     // 이미 있으면 데이터 및 이름 복사(액션은 유지)
                                     RevelationElement* revelation        = *idFindIter;
-                                    std::string        originElementName = revelation->ElementName;
-                                    std::string        originActionName  = revelation->ReflectFields->ActionName;
-                                    temp.ReflectFields->ActionName       = std::move(originActionName);
-                                    EraseElement(originElementName);
-                                    InsertElement(temp);                                  
+                                    if (revelation)
+                                    {
+                                        std::string originElementName  = revelation->ElementName;
+                                        std::string originActionName   = revelation->ReflectFields->ActionName;
+                                        temp.ReflectFields->ActionName = std::move(originActionName);
+                                        if (revelation->_action)
+                                        {
+                                            temp._action = std::move(revelation->_action);
+                                        }                                     
+                                        EraseElement(originElementName);
+                                        InsertElement(temp);      
+                                    }                                                                                                 
                                 }
                                 if (false == result)
                                 {

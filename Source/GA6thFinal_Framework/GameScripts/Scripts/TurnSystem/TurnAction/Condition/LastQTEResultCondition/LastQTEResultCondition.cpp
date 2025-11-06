@@ -54,7 +54,7 @@ void LastQTEResultCondition::DrawImguiEditor()
     &tooltips);
 }
 
-const std::string& LastQTEResultCondition::GetConditionInfo() const
+const std::string& LastQTEResultCondition::GetConditionInfo()
 {
     return conditionInfo;
 }
@@ -88,4 +88,9 @@ void LastQTEResultCondition::UpdateConditionInfo()
         conditionInfo = STR_NULL;
         break;
     }
+}
+
+bool LastQTEResultCondition::CheckEvaluate(CharacterBase* character)
+{
+    return false;
 }

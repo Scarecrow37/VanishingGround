@@ -15,13 +15,13 @@ Stage::Stage()
         {
             if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
             {
-                DragDropAsset::Data* data      = static_cast<DragDropAsset::Data*>(payLoad->Data);
-                File::Path           path      = data->GetPath();
-                const auto           extension = path.extension();
-
+                const DragDropAsset::Data*  data      = static_cast<DragDropAsset::Data*>(payLoad->Data);
+                const File::Path&           path      = data->GetPath();
+                const File::Guid&           guid      = data->GetGuid();
+                const File::Path            extension = path.extension();
                 if (extension == L".UmScene")
                 {
-                    ReflectFields->StagePath = UmFileSystem.GetGuidFromPath(path).string();
+                    ReflectFields->StageGuid = guid.string();
                 }
             }
             ImGui::EndDragDropTarget();
@@ -33,16 +33,21 @@ Stage::Stage()
         {
             if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
             {
-                const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
-                File::Path                 path = data->GetPath();
-                if (const auto extension = path.extension(); extension == L".inl")
+                const DragDropAsset::Data* data      = static_cast<DragDropAsset::Data*>(payLoad->Data);
+                const File::Path&          path      = data->GetPath();
+                const File::Guid&          guid      = data->GetGuid();
+                const File::Path           extension = path.extension();
+                if (extension == L".inl")
                 {
-                    ReflectFields->LightingPath = data->GetGuid().string();
+                    ReflectFields->LightingGuid = guid.string();
                 }
             }
             ImGui::EndDragDropTarget();
         }
     });
+
+    SetFocusInAudioID("-301000");
+    SetSubmitAudioID("-301010");
 }
 
 Stage::~Stage()
@@ -62,6 +67,40 @@ void Stage::UpdateData(const std::string& key, const File::Guid& enableImage, co
     _key = key;
 }
 
+void Stage::OnSelected() 
+{
+    if (auto* transitionComponent = SingletonComponent<SceneTransitionComponent>::GetInstance())
+    {
+        std::weak_ptr<GameObject> weakOwner = gameObject->GetWeakPtr();
+        transitionComponent->SceneTransitionFade("in", "out", [this, weakOwner]() {
+            GameObject* owner = weakOwner.lock().get();
+            assert(owner && "콜백으로 등록한 객체가 댕글링 포인터입니다.");
+            if (owner)
+            {
+                std::array<DropItemInfo, ARTIFACT_DROP_COUNT>& droptable = _dropItemInfos;
+
+                std::string stagePath   = StagePath;
+                std::string lighingPath = LightingPath;
+                if (stagePath == File::NULL_PATH)
+                {
+                    return;
+                }
+                UmSceneManager.LoadScene(UmFileSystem.GetPathFromGuid("8cdc8f64-00db-47e5-808e-4b33b30a9600").string());
+                UmSceneManager.LoadScene(stagePath, LoadSceneMode::ADDITIVE);
+                if (lighingPath != File::NULL_PATH)
+                {
+                    LoadRenderPassData(lighingPath);
+                }
+                if (auto instance = SingletonComponent<ItemDropSystem>::GetInstance(); instance)
+                {
+                    instance->StageClearCount = 0;
+                    instance->SetDropItem(droptable);
+                }
+            }
+        });
+    }
+}
+
 void Stage::FocusIn(FocusCallType callType)
 {
     Base::FocusIn(callType);
@@ -73,42 +112,14 @@ void Stage::FocusIn(FocusCallType callType)
 
 void Stage::Submit()
 {
-    if (!_stageEnable)
+    if (MapManager* mapManager = SingletonComponent<MapManager>::GetInstance())
     {
-        return;
-    }
-
-    std::string stagePath = UmFileSystem.GetPathFromGuid(ReflectFields->StagePath).string();
-    if (stagePath.empty())
-    {
-        return;
-    }
-
-    GameObject* transitionManager = SingletonObject<SceneTransitionComponent>::GetInstance();
-    if (transitionManager)
-    {
-        auto transitionComponent = transitionManager->GetComponent<SceneTransitionComponent>();
-        if (transitionComponent)
+        // 현재 스테이지 선택에 성공하면
+        if (mapManager->TrySelectStage(this))
         {
-            std::array<DropItemInfo, ARTIFACT_DROP_COUNT>& droptable = _dropItemInfos;
-            std::string                                    lightingPath = ReflectFields->LightingPath;
-            transitionComponent->SceneTransitionFade("in", "out", [stagePath, droptable, lightingPath]() 
-            { 
-                UmSceneManager.LoadScene(stagePath); 
-                if (auto instance = SingletonComponent<ItemDropSystem>::GetInstance(); instance)
-                {
-                    instance->StageClearCount = 0;
-                    instance->SetDropItem(droptable);
-
-                    if (!lightingPath.empty())
-                    {
-                        LoadRenderPassData(UmFileSystem.GetPathFromGuid(lightingPath).string());
-                    }
-                }
-            });
+            Base::Submit();
         }
     }
-    _stageEnable = false;
 }
 
 void Stage::Start()
@@ -119,7 +130,7 @@ void Stage::Start()
 
         for (int i = 0; i < ARTIFACT_DROP_COUNT; i++)
         {
-            _dropItemAssetIDs[i] = DropItemInfo::GetArtifactCategoryAssetID(_dropItemInfos[i].Category);
+            _dropItemAssetIDs[i] = DropItemInfo::GetArtifactCategoryAssetID(_dropItemInfos[i].Category, true);
         }
 
         if (MapManager* mapManager = SingletonComponent<MapManager>::GetInstance())
