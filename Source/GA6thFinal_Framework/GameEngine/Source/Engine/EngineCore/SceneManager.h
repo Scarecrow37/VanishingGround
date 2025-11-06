@@ -634,7 +634,6 @@ public:
         Input::Controller                               _inputController{&_inputAdapter};
         bool                                            _isConnect = false;
         std::array<Action, CONTROLLER_BUTTON_COUNT>     _actionTracker{Action::IDLE,};
-        std::array<bool, CONTROLLER_BUTTON_COUNT>       _actionChecker{false,};
 
         std::array<std::array<std::vector<std::pair<std::shared_ptr<bool>, std::function<void(const Input::Controller&)>>>, 
             ACTION_COUNT>,
@@ -644,8 +643,8 @@ public:
         std::deque<std::pair<bool*, std::weak_ptr<bool>>> _layerStack;
 
     private:
-        void UpdateTracker(Input::Controller::Button button);
-        void UpdateAnalogButtons();
+        void UpdateTracker(const Input::Controller::ButtonState& buttonState);
+        void CallInputReceiver(Input::Controller::Button button);
     };
 
 private:

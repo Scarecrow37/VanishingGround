@@ -106,10 +106,13 @@ private:
 private:
     void PreferencesKeyDown(const Input::Controller&);
     void InventoryKeyDown(const Input::Controller&);
+    void ScrollKeyUpdate(const Input::Controller& controller);
     void OpenPreferencesWindow();
     void OpenInventoryWindow();
 
     Stage* _lastFocusStage = nullptr;
     bool   _openPreferences = false;
     bool   _openInventory   = false;
+
+    float _scrollDir = 0.f;
 };

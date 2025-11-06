@@ -137,6 +137,7 @@ void MapManager::Awake()
 
         BindInputAction(ControllerButton::BACK, Action::PRESSED, this, &MapManager::PreferencesKeyDown);
         BindInputAction(ControllerButton::START, Action::PRESSED, this, &MapManager::InventoryKeyDown);
+        BindInputAction(ControllerButton::RIGHT_THUMB_STICK, Action::HELD, this, &MapManager::ScrollKeyUpdate);
     }
 }
 
@@ -144,17 +145,10 @@ void MapManager::Update()
 {
     if (_scroll)
     {
-        if (ImGui::IsKeyDown(ImGuiKey_GamepadRStickUp))
+        if (Mathf::Epsilon < _scrollDir || _scrollDir < -Mathf::Epsilon)
         {
-            _scroll->Scroll -= 1.f * UmTime.DeltaTime();
-        }
-        if (ImGui::IsKeyDown(ImGuiKey_GamepadRStickDown))
-        {
-            _scroll->Scroll += 1.f * UmTime.DeltaTime();
-        }
-        if (ImGui::IsKeyPressed(ImGuiKey_F2))
-        {
-            UmSceneManager.LoadScene(UmFileSystem.GetPathFromGuid(ReflectFields->MapScenePath).string());
+            _scroll->Scroll += _scrollDir * UmTime.DeltaTime();
+            _scrollDir = 0.f;
         }
     }
 
@@ -440,6 +434,26 @@ void MapManager::PreferencesKeyDown(const Input::Controller&)
 void MapManager::InventoryKeyDown(const Input::Controller&) 
 {
     OpenInventoryWindow();
+}
+
+void MapManager::ScrollKeyUpdate(const Input::Controller& controller)
+{
+    Input::Controller::ThumbStickAxis axis = controller.GetRightThumbStickAxis();
+    if (PreferencesManager* manager = SingletonComponent<PreferencesManager>::GetInstance())
+    {
+        if (manager->IsOpen())
+        {
+            return;
+        }
+    } 
+    if (InventoryUIManager* manager = SingletonComponent<InventoryUIManager>::GetInstance())
+    {
+        if (manager->gameObject->ActiveInHierarchy == true)
+        {
+            return;
+        }
+    }
+    _scrollDir = -axis.Y * axis.Magnitude;
 }
 
 void MapManager::OpenPreferencesWindow()
