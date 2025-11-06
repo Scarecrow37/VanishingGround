@@ -44,6 +44,20 @@ struct DropItemInfo
     static int GetArtifactIconID(DropItemInfo itemInfo);
 
     /// <summary>
+    /// 해당 아이템의 툴팁 ID들을 반환합니다.
+    /// </summary>
+    /// <param name="itemInfo">: 가져올 아이템</param>
+    /// <returns></returns>
+    static std::vector<int> GetArtifactTooltipIDs(DropItemInfo itemInfo);
+
+    /// <summary>
+    /// 해당 아이템의 툴팁 Description을 반환합니다.
+    /// </summary>
+    /// <param name="itemInfo">: 가져올 아이템</param>
+    /// <returns></returns>
+    static std::vector<std::string> GetArtifactTooltips(DropItemInfo itemInfo);
+
+    /// <summary>
     /// 해당 유물의 Description을 엑셀 DB에서 반환합니다.
     /// </summary>
     /// <param name="itemInfo :">아이템 정보</param>

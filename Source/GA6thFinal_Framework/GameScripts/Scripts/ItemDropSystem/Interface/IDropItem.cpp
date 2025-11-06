@@ -162,6 +162,38 @@ int DropItemInfo::GetArtifactIconID(DropItemInfo itemInfo)
     }
 }
 
+std::vector<int> DropItemInfo::GetArtifactTooltipIDs(DropItemInfo itemInfo)
+{
+    std::u8string_view dbName = GetDataBaseName(itemInfo.Category);
+    if (false == dbName.empty())
+    {
+        if (ExcelDataSystem* excelDataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
+        {
+            if (std::unique_ptr<ExcelDataBase> dataBase = excelDataSystem->FindExcelDataBase(dbName))
+            {
+                const std::string& name     = itemInfo.Name;
+                std::u8string_view u8Name   = (const char8_t*)name.data();
+                size_t rowIndex = dataBase->FindRowIndex(u8Name, u8"Name");
+                if (rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
+                {
+                    std::string_view ids = dataBase->FindData(rowIndex, u8"ToolTip");
+                    if (ids != ExcelDataBase::FIND_STR_FAIL)
+                    {
+                        std::istringstream iss(ids.data());
+                        return {std::istream_iterator<int>(iss), std::istream_iterator<int>()};
+                    }
+                }
+            }
+        }
+    }
+    return std::vector<int>();
+}
+
+std::vector<std::string> DropItemInfo::GetArtifactTooltips(DropItemInfo itemInfo)
+{
+    return std::vector<std::string>();
+}
+
 std::string DropItemInfo::GetArtifactDescription(DropItemInfo itemInfo)
 {
     if (ExcelDataSystem* excelDataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
