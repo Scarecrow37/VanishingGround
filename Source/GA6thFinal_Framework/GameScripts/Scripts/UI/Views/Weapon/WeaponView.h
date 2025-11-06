@@ -59,6 +59,15 @@ private:
     void FindIconUI();
     void FindNameUI();
 
+    void AddCallBack();
+    void ClearCallbackAll();
+
+    void FocusIn();
+    void FocusOut();
+
+    void ShowTooltips();
+    void HideTooltips();
+
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     std::array<int, 2> FadeInFrame{};
@@ -80,4 +89,6 @@ private:
 
     SingletonComponent<WeaponView> _singletonComponent;
     WeaponViewModel::Handle        _watchHandle;
+
+    std::vector<std::pair<UmDelegate<>*, uint64_t>> _keyCallbackHandels;
 };
