@@ -20,17 +20,14 @@ void GameOverState::OnStart()
 void GameOverState::OnEnter() 
 {
     UmLogger.Log(LogLevel::LEVEL_DEBUG, (const char*)u8"게임 오버!!!!");
-    UmTime.Invoke(GetFSM(), 2.0f, [this]() {
+    UmTime.Invoke(GetFSM(), 3.0f, [this]() {
         if (_turnMode)
         {
             if (Player* player = _turnMode->GetPlayer())
             {
-                if (false == player->gameObject->ActiveSelf)
+                if (GameOverManager* manager = SingletonComponent<GameOverManager>::GetInstance())
                 {
-                    if (GameOverManager* manager = SingletonComponent<GameOverManager>::GetInstance())
-                    {
-                        manager->ProcessGameOver();
-                    }
+                    manager->ProcessGameOver();
                 }
             }
         }

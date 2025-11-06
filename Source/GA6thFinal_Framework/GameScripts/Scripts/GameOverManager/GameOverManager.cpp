@@ -41,6 +41,14 @@ void GameOverManager::Update()
     }
 }
 
+void GameOverManager::ImGuiDrawPropertysEvent() 
+{
+    if (nullptr == _vanishedAnimation)
+    {
+        ImGui::Text("Null Animation");
+    }
+}
+
 void GameOverManager::ProcessGameOver() 
 {
     if (false == _isBeginProcess)
