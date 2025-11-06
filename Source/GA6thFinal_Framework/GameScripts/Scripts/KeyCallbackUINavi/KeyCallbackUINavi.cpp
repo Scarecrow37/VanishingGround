@@ -6,6 +6,42 @@ UMREAL_COMPONENT(KeyCallbackUINavi)
 KeyCallbackUINavi::KeyCallbackUINavi() = default;
 KeyCallbackUINavi::~KeyCallbackUINavi() = default;
 
+std::pair<UmDelegate<>*, UmDelegate<>::Handle> KeyCallbackUINavi::AddCallback(UmDelegate<>& listener, const std::function<void()>& callback)
+{
+    UmDelegate<>::Handle handel = listener.AddListener(callback);
+    return std::make_pair(&listener, handel);
+}
+
+std::pair<UmDelegate<>*, UmDelegate<>::Handle> KeyCallbackUINavi::AddCallbackFocusIn(
+    const std::string& key, const std::function<void()>& callback)
+{
+    return AddCallback(EventListenerMapFocusIn[key], callback);
+}
+
+std::pair<UmDelegate<>*, UmDelegate<>::Handle> KeyCallbackUINavi::AddCallbackFocusOut(
+    const std::string& key, const std::function<void()>& callback)
+{
+    return AddCallback(EventListenerMapFocusOut[key], callback);
+}
+
+std::pair<UmDelegate<>*, UmDelegate<>::Handle> KeyCallbackUINavi::AddCallbackSubmit(
+    const std::string& key, const std::function<void()>& callback)
+{
+    return AddCallback(EventListenerMapSubmit[key], callback);
+}
+
+std::pair<UmDelegate<>*, UmDelegate<>::Handle> KeyCallbackUINavi::AddCallbackShowTooltips(
+    const std::string& key, const std::function<void()>& callback)
+{
+    return AddCallback(EventListenerMapShowTooltips[key], callback);
+}
+
+std::pair<UmDelegate<>*, UmDelegate<>::Handle> KeyCallbackUINavi::AddCallbackHideTooltips(
+    const std::string& key, const std::function<void()>& callback)
+{
+    return AddCallback(EventListenerMapHideTooltips[key], callback);
+}
+
 void KeyCallbackUINavi::Added() 
 {
     SetFocusInAudioID("-901001");
