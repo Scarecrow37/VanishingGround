@@ -32,19 +32,25 @@ void ProclamationHUD::SetDescriptionText(int assetID, int damage, int count)
     }
 }
 
+void ProclamationHUD::FindUI() 
+{
+    if (nullptr == _descriptionPanel)
+    {
+        Transform::ForeachBFS(transform, [this](Transform* tr) {
+            GameObject& object = tr->gameObject;
+            if (object.CompareTag("Description"))
+            {
+                if (DescriptionPanel* descriptionPanel = object.GetComponent<DescriptionPanel>())
+                {
+                    _descriptionPanel = descriptionPanel;
+                }
+            }
+        });
+    }
+}
+
 void ProclamationHUD::Awake()
 {
     Component::Awake();
-
-    Transform::ForeachBFS(transform, [this](Transform* tr)
-    {
-        GameObject& object = tr->gameObject;
-        if (object.CompareTag("Description"))
-        {
-            if (DescriptionPanel* descriptionPanel = object.GetComponent<DescriptionPanel>())
-            {
-                _descriptionPanel = descriptionPanel;
-            }
-        }
-    });
+    FindUI();
 }
