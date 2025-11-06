@@ -5,6 +5,7 @@
 
 class PlayerStatsComponent;
 class FiniteStateMachine;
+class ParticleComponent;
 class Player : public CharacterBase
 {
     USING_PROPERTY(Player)
@@ -127,5 +128,8 @@ private:
     void HideTooltip();
 
     std::vector<std::pair<UmDelegate<>*, UmDelegate<>::Handle>> _callbacks;
+
+private:
+    ParticleComponent* _particle = nullptr;
 
 };

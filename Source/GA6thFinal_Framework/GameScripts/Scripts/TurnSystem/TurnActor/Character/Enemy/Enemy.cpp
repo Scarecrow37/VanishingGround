@@ -11,6 +11,7 @@
 #include "TokenHUD/TokenHUD.h"
 #include "TooltipSystem/TooltipSystem.h"
 #include "KeyCallbackUINavi/KeyCallbackUINavi.h"
+#include "Particle/ParticleComponent.h"
 
 //Condition
 #include "Condition/EnemyStartCondition.h"
@@ -301,6 +302,10 @@ void Enemy::Start()
         break;
     default:
         break;
+    }
+    if (Transform* child = transform->GetChild(0))
+    {
+        _particle = child->gameObject->GetComponent<ParticleComponent>();
     }
 }
 
@@ -627,7 +632,10 @@ void Enemy::ClearCallback()
 
 void Enemy::FocusIn()
 {
-
+    if (_particle)
+    {
+        _particle->PlayEffect("focus");
+    }
 }
 
 void Enemy::FocusOut()
@@ -635,6 +643,10 @@ void Enemy::FocusOut()
     if (TooltipSystem* system = SingletonComponent<TooltipSystem>::GetInstance())
     {
         system->Hide();
+    }
+    if (_particle)
+    {
+        _particle->StopEffect("focus");
     }
 }
 

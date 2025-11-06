@@ -15,6 +15,7 @@
 #include "Camera/UmCineMotion.h"
 #include "KeyCallbackUINavi/KeyCallbackUINavi.h"
 #include "TooltipSystem/TooltipSystem.h"
+#include "Particle/ParticleComponent.h"
 
 //Condition
 #include "Condition/PlayerStartCondition.h"
@@ -54,6 +55,10 @@ void Player::Awake()
 void Player::Start() 
 {
     AddCallback();
+    if (Transform* child = transform->GetChild(0))
+    {
+        _particle = child->gameObject->GetComponent<ParticleComponent>();
+    }
 }
 
 void Player::AddCallback() 
@@ -71,7 +76,10 @@ void Player::OnDestroy()
 
 void Player::FocusIn()
 {
-
+    if (_particle)
+    {
+        _particle->PlayEffect("focus");
+    }
 }
 
 void Player::FocusOut()
@@ -79,6 +87,10 @@ void Player::FocusOut()
     if (TooltipSystem* system = SingletonComponent<TooltipSystem>::GetInstance())
     {
         system->Hide();
+    }
+    if (_particle)
+    {
+        _particle->StopEffect("focus");
     }
 }
 

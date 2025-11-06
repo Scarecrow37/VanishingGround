@@ -12,6 +12,7 @@ class FSMState;
 class TurnAction;
 class ProclamationHUD;
 class UmCineMotion;
+class ParticleComponent;
 
 class Enemy : public CharacterBase
 {
@@ -151,4 +152,6 @@ private:
     void HideTooltip();
 
     std::vector<std::pair<UmDelegate<>*, UmDelegate<>::Handle>> _callbacks;
+
+    ParticleComponent* _particle = nullptr;
 };
