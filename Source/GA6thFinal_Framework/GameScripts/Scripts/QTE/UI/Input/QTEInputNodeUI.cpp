@@ -33,8 +33,11 @@ namespace QTE
                         {
                             if (Transform* judgeChild = child->GetChild(judge))
                             {
-                                ButtonImage[button][judge] =
-                                    judgeChild->gameObject->GetComponent<SpriteAnimationElement>();
+                                if (judgeChild->gameObject->CompareTag(BUTTON_JUDGE_TAG[judge]))
+                                {
+                                    ButtonImage[button][judge] =
+                                        judgeChild->gameObject->GetComponent<SpriteAnimationElement>();
+                                }
                             }
                         }
                     }
@@ -65,7 +68,10 @@ namespace QTE
         {
             for (int j = 0; j < JUDGE_COUNT; ++j)
             {
-                ButtonImage[i][j]->gameObject->ActiveSelf = false;
+                if (ButtonImage[i][j])
+                {
+                    ButtonImage[i][j]->gameObject->ActiveSelf = false;
+                }
             }
         }
         Active(false);
@@ -74,9 +80,6 @@ namespace QTE
     void InputNodeUI::Show(Input::Controller::Button button, QTE::ResultType result)
     {
         Active(true);
-
-        InputButton    = X;
-        InputJudge  = MISS;
 
         switch (button)
         {
