@@ -5,10 +5,12 @@ class GameOverManager : public Component, public InputReceiver
 {
     USING_PROPERTY(GameOverManager)
 
-public:
+private:
     void Awake() override;
     void Start() override;
     void Update() override;
+
+    void ImGuiDrawPropertysEvent() override;
 
 public:
     void ProcessGameOver();

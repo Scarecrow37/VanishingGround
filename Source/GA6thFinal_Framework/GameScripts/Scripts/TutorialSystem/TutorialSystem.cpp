@@ -63,6 +63,24 @@ void TutorialSystem::Update()
         Hide();
         _requestFind = false;
     }
+
+    Debugger()([this] {
+        // 아래는 디버그용 코드입니다.
+        if (ImGui::IsKeyDown(ImGuiKey_A))
+        {
+            if (const std::shared_ptr<HoldingProgressImageElement> confirm = _confirm.lock())
+            {
+                confirm->BeginHold();
+            }
+        }
+        if (ImGui::IsKeyReleased(ImGuiKey_A))
+        {
+            if (const std::shared_ptr<HoldingProgressImageElement> confirm = _confirm.lock())
+            {
+                confirm->EndHold();
+            }
+        }
+    });
 }
 
 void TutorialSystem::OnDestroy() 
