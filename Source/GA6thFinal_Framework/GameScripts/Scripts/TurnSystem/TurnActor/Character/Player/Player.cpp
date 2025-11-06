@@ -13,6 +13,8 @@
 #include "UI/Panels/Overlay/OverlayPanel.h"
 #include "TokenHUD/TokenHUD.h"
 #include "Camera/UmCineMotion.h"
+#include "KeyCallbackUINavi/KeyCallbackUINavi.h"
+#include "TooltipSystem/TooltipSystem.h"
 
 //Condition
 #include "Condition/PlayerStartCondition.h"
@@ -49,9 +51,61 @@ void Player::Awake()
     }
 }
 
-void Player::Update() 
+void Player::Start() 
+{
+    AddCallback();
+}
+
+void Player::AddCallback() 
+{
+    _callbacks.push_back(KeyCallbackUINavi::AddCallbackFocusIn("Player Navi", [this]() { FocusIn(); }));
+    _callbacks.push_back(KeyCallbackUINavi::AddCallbackFocusOut("Player Navi", [this]() { FocusOut(); }));
+    _callbacks.push_back(KeyCallbackUINavi::AddCallbackShowTooltips("Player Navi", [this]() { ShowTooltip(); }));
+    _callbacks.push_back(KeyCallbackUINavi::AddCallbackHideTooltips("Player Navi", [this]() { HideTooltip(); }));
+}
+
+void Player::OnDestroy() 
+{
+    ClearCallback();
+}
+
+void Player::FocusIn()
 {
 
+}
+
+void Player::FocusOut()
+{
+    if (TooltipSystem* system = SingletonComponent<TooltipSystem>::GetInstance())
+    {
+        system->Hide();
+    }
+}
+
+void Player::ShowTooltip()
+{
+    if (TooltipSystem* system = SingletonComponent<TooltipSystem>::GetInstance())
+    {
+        auto&  tokenInventory = GetTokenInventory();
+        std::vector<int> ids = tokenInventory.GetTokensTooltips();
+        system->Show(TooltipSystem::Group::PLAYER, ids);
+    }
+}
+
+void Player::HideTooltip()
+{
+    if (TooltipSystem* system = SingletonComponent<TooltipSystem>::GetInstance())
+    {
+        system->Hide();
+    }
+}
+
+void Player::ClearCallback() 
+{
+    for (auto& [delegate, handle] : _callbacks)
+    {
+        delegate->RemoveListener(handle);
+    }
 }
 
 void Player::SerializedReflectEvent() 

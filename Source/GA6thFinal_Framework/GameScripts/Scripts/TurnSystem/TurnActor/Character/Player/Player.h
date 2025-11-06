@@ -73,8 +73,9 @@ public:
     PlayerStatsComponent* GetPlayerStats();
 
 protected:
-    void Awake();
-    void Update();
+    void Awake() override;
+    void Start() override;
+    void OnDestroy() override;
 
     /// <summary>
     /// <para> 직렬화 직전 자동으로 호출되는 이벤트 함수입니다. </para>
@@ -115,4 +116,16 @@ private:
     void UnregisterTokenHUD(int tokenID);
 
     std::unordered_map<int, GameObject*> _tokenHUDTable;
+
+private:
+    void AddCallback();
+    void ClearCallback();
+
+    void FocusIn();
+    void FocusOut();
+    void ShowTooltip();
+    void HideTooltip();
+
+    std::vector<std::pair<UmDelegate<>*, UmDelegate<>::Handle>> _callbacks;
+
 };
