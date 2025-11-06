@@ -12,18 +12,10 @@ public:
     SpawnTokenPanel();
 
 public:
-    REFLECT_PROPERTY(FilePath, BeginPoint, EndPoint, BeginOpacity, EndOpacity, LifeTime, EasingFunctionType)
+    REFLECT_PROPERTY(FilePath, BeginOpacity, EndOpacity, LifeTime, EasingFunctionType)
 
     GETTER_ONLY(std::string, FilePath) { return _Guid.ToPath().string(); }
     PROPERTY(FilePath)
-
-    GETTER(POINT, BeginPoint) { return ReflectFields->BeginPoint; }
-    SETTER(POINT, BeginPoint) { ReflectFields->BeginPoint = value; }
-    PROPERTY(BeginPoint)
-
-    GETTER(POINT, EndPoint) { return ReflectFields->EndPoint; }
-    SETTER(POINT, EndPoint) { ReflectFields->EndPoint = value; }
-    PROPERTY(EndPoint)
 
     GETTER(float, BeginOpacity) { return ReflectFields->BeginOpacity; }
     SETTER(float, BeginOpacity) { ReflectFields->BeginOpacity = std::clamp(value, 0.0f, 1.0f); }

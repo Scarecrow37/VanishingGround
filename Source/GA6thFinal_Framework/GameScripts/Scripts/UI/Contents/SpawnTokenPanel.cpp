@@ -1,5 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "SpawnTokenPanel.h"
+#include "TokenElement.h"
 
 UMREAL_COMPONENT(SpawnTokenPanel)
 
@@ -27,15 +28,14 @@ std::weak_ptr<TokenElement> SpawnTokenPanel::MakeToken(int tokenID) const
     const std::shared_ptr<GameObject> child = NewGameObject(GameObject::Helper::GenerateUniqueName("Token Element"));
 
     TokenElement& tokenElement = child->AddComponent<TokenElement>();
-
-
+    // TODO
 }
 
 void SpawnTokenPanel::Reset()
 {
     UIComponent::Reset();
 
-    EraseChild()
+    EraseChild();
 }
 
 void SpawnTokenPanel::EraseChild() const
