@@ -235,7 +235,7 @@ namespace CombatUI
         {
             const EnemyType type = enemy->Type;
             const Vector3   scale = enemy->transform->Scale;
-            const Vector3   offset = Vector3(0.0f, 1.0f, 0.0f);
+            const Vector3   offset = Vector3(0.0f, 0.7f, 0.0f);
             switch (type)
             {
             case EnemyType::MONSTER_A:
