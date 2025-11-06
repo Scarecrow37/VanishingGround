@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "ItemDropSystem/Interface/IDropItem.h"
+#include "Stats/Weapon/WeaponStats.h"
 
 class ImageElement; 
 class InventoryItemFocusNavi : public UISFXNavigationComponent
@@ -13,6 +14,7 @@ public:
     ~InventoryItemFocusNavi() override;
 
     void SetItemInfo(const DropItemInfo& item);
+    void SetWeaponStats(const WeaponStats& stats);
 
 public:
     REFLECT_PROPERTY()
@@ -27,5 +29,6 @@ protected:
 
     ImageElement* _focusImage;
     DropItemInfo  _itemInfo;
+    WeaponStats   _weaponStats;
 };
 

@@ -10,7 +10,8 @@ InventoryItemFocusNavi::InventoryItemFocusNavi()
 {
     _itemInfo.Category = ArtifactDropType::SWORD;
     _itemInfo.ID       = 0;
-    _itemInfo.Name     = STR_NULL;  
+    _itemInfo.Name     = STR_NULL;
+    _weaponStats       = {};
 
     SetFocusInAudioID("-901001");
 }
@@ -28,6 +29,17 @@ void InventoryItemFocusNavi::FocusIn(FocusCallType callType)
         if (ItemInfoUIManager* infoManager = manager->GetItemInfoManager())
         {
             infoManager->SetItemInfoUI(_itemInfo);
+            ArtifactDropType category = _itemInfo.Category;
+            switch (category)
+            {
+            case ArtifactDropType::SWORD:
+            case ArtifactDropType::DAGGER:
+            case ArtifactDropType::WARHAMMER:
+                infoManager->SetWeaponStats(_weaponStats);
+                break;
+            default:
+                break;
+            }
         }
     }
 }
@@ -51,4 +63,9 @@ void InventoryItemFocusNavi::Awake()
 void InventoryItemFocusNavi::SetItemInfo(const DropItemInfo& item)
 {
     _itemInfo = item;
+}
+
+void InventoryItemFocusNavi::SetWeaponStats(const WeaponStats& stats)
+{
+    _weaponStats = stats;
 }
