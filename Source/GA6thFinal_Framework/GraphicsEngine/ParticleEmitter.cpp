@@ -175,19 +175,63 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
         }
         if (_particleEndFadeOnceFlag == true)
         {
-            if (_startOpacity != _endOpacity)
+            if (_startOpacity > _originEndOpacity)
             {
+                if (_fadeOutDuration > 0.f && _startOpacity > 0.f)
+                {
+                    for (UINT i = 0; i < _activeParticleCount; ++i)
+                    {
+                        float currentAge   = _particlePool[i].GetAge();
+                        float ageRatio     = (_particleLifetime > 0.f) ? (currentAge / _particleLifetime) : 0.f;
+                        float currentAlpha = _startOpacity + (_originEndOpacity - _startOpacity) * ageRatio;
+                        float newAge       = (currentAlpha / _startOpacity) * _fadeOutDuration;
+                        _particlePool[i].SetAge(newAge);
+                    }
+                    _particleLifetime = _fadeOutDuration;
+                    _endOpacity       = 0.f;
+                }
+                else
+                {
+                    for (UINT i = 0; i < _activeParticleCount; ++i)
+                    {
+                        _particlePool[i].SetAge(_particleLifetime);
+                    }
+                }
+            }
+            else if (_startOpacity < _originEndOpacity)
+            {
+                float maxCurrentAlpha = 0.f;
                 for (UINT i = 0; i < _activeParticleCount; ++i)
                 {
                     float currentAge   = _particlePool[i].GetAge();
                     float ageRatio     = (_particleLifetime > 0.f) ? (currentAge / _particleLifetime) : 0.f;
                     float currentAlpha = _startOpacity + (_originEndOpacity - _startOpacity) * ageRatio;
-
-                    float newAge = (_fadeOutDuration > 0.f) ? (currentAlpha / _startOpacity) * _fadeOutDuration : 0.f;
-                    _particlePool[i].SetAge(newAge);
+                    maxCurrentAlpha    = std::max(maxCurrentAlpha, currentAlpha);
                 }
-                _particleLifetime        = _fadeOutDuration;
-                _endOpacity              = 0.f;
+
+                if (maxCurrentAlpha > 0.f && _fadeOutDuration > 0.f)
+                {
+                    for (UINT i = 0; i < _activeParticleCount; ++i)
+                    {
+                        float currentAge   = _particlePool[i].GetAge();
+                        float ageRatio     = (_particleLifetime > 0.f) ? (currentAge / _particleLifetime) : 0.f;
+                        float currentAlpha = _startOpacity + (_originEndOpacity - _startOpacity) * ageRatio;
+
+                        // 현재 알파 비율만큼 age 설정 (현재 알파가 클수록 age가 0에 가까움)
+                        float newAge = _fadeOutDuration * (1.f - currentAlpha / maxCurrentAlpha);
+                        _particlePool[i].SetAge(newAge);
+                    }
+                    _startOpacity     = maxCurrentAlpha;
+                    _particleLifetime = _fadeOutDuration;
+                    _endOpacity       = 0.f;
+                }
+                else
+                {
+                    for (UINT i = 0; i < _activeParticleCount; ++i)
+                    {
+                        _particlePool[i].SetAge(_particleLifetime);
+                    }
+                }
             }
             else
             {
@@ -255,9 +299,11 @@ void ParticleEmitter::FlushTextureResource()
 
 void ParticleEmitter::Reset()
 {
-    _delayFlag = _activeFlag = false;
+    _delayFlag               = _activeFlag = false;
     _isSpawnBursted          = false;
     _endFlag                 = false;
+    _particleEndFadeOnceFlag = false;
+    _startOpacity            = _originStartOpacity;
     _endOpacity              = _originEndOpacity;
     _particleLifetime        = _originParticleLifetime;
     _delayTimer              = 0.f;

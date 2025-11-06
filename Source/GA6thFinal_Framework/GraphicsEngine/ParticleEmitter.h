@@ -20,7 +20,7 @@ public:
 
     UMPARTICLE_PROPERTY(bool, _removeFlag, RemoveFlag, false);
 
-    float _fadeOutDuration = 0.2f;
+    float _fadeOutDuration = 0.3f;
     float _fadeStartTime   = 0.f;
 
     UMPARTICLE_PROPERTY(SIZE_T, _maxParticles, MaxParticles, 10000);
@@ -64,7 +64,17 @@ public:
 
     UMPARTICLE_PROPERTY_REF(Vector3, _startColor, StartColor, Vector3(1, 1, 1));
     UMPARTICLE_PROPERTY_REF(Vector3, _endColor, EndColor, Vector3(1, 1, 1));
-    UMPARTICLE_PROPERTY(float, _startOpacity, StartOpacity, 1.f);
+
+private:
+    float _startOpacity       = 1.f;
+    float _originStartOpacity = 1.f;
+public:
+    float GetStartOpacity() { return _startOpacity; }
+    void SetStartOpacity(float value)
+    {
+        _startOpacity       = value;
+        _originStartOpacity = value;
+    }
 
 private:
     float _endOpacity       = 0.f;
