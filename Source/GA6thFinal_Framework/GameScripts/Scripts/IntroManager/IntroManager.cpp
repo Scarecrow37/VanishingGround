@@ -117,6 +117,22 @@ void IntroManager::Update()
         LoadNextScene();
         break;
     }
+
+    Debugger()([this] {
+        // 아래는 디버그용 코드입니다.
+        if (ImGui::IsKeyPressed(ImGuiKey_UpArrow))
+        {
+            SelectNormal();
+        }
+        else if (ImGui::IsKeyPressed(ImGuiKey_DownArrow))
+        {
+            SelectHard();
+        }
+        else if (ImGui::IsKeyPressed(ImGuiKey_A))
+        {
+            SkipStep();
+        }
+    });
 }
 
 float IntroManager::GetWaitDescriptionTime() const
@@ -294,6 +310,11 @@ void IntroManager::ResetFade()
 
 void IntroManager::SkipStep(const Input::Controller& controller)
 {
+    SkipStep();
+}
+
+void IntroManager::SkipStep()
+{
     switch (_step)
     {
     case Step::WAIT_INTRO_DESCRIPTION:
@@ -370,6 +391,11 @@ void IntroManager::SelectNormal()
 }
 
 void IntroManager::SelectHard(const Input::Controller& controller)
+{
+    SelectHard();
+}
+
+void IntroManager::SelectHard() 
 {
     if (_step == Step::WAIT_PROMPT)
     {
