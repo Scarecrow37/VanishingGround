@@ -8,7 +8,7 @@ UMREAL_COMPONENT(TooltipComponent)
 
 TooltipComponent::TooltipComponent() = default;
 
-void TooltipComponent::SetTooltip(const TooltipData& data) const
+void TooltipComponent::SetTooltip(const Tooltip::TooltipData& data) const
 {
     if (const auto image = _image.lock())
     {
@@ -57,7 +57,7 @@ void TooltipComponent::ImGuiDrawPropertysEvent()
 {
     Component::ImGuiDrawPropertysEvent();
 
-    static TooltipData data = {};
+    static Tooltip::TooltipData data = {};
     ImGui::InputInt("Image Asset Id", &data.ImageAssetId);
     ImGui::InputText("Title", &data.Title);
     ImGui::InputText("Description", &data.Description);

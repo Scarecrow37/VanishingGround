@@ -354,6 +354,9 @@
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyBossDeadClearAction.cpp" />
     <ClCompile Include="Scripts\UI\Contents\GlobalFontManager.cpp" />
     <ClCompile Include="Scripts\Utility\SceneGuid.cpp" />
+    <ClCompile Include="Scripts\KeyCallbackUINavi\KeyCallbackUINavi.cpp" />
+    <ClCompile Include="Scripts\UI\Contents\TooltipDescriptionPanel.cpp" />
+    <ClCompile Include="Scripts\UI\Contents\TooltipElement.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
@@ -727,6 +730,10 @@
     <ClInclude Include="Scripts\UI\Contents\GlobalFontManager.h" />
     <ClInclude Include="Scripts\Utility\SceneGuid.h" />
     <ClInclude Include="Scripts\Utility\SingletonHelper.h" />
+    <ClInclude Include="Scripts\KeyCallbackUINavi\KeyCallbackUINavi.h" />
+    <ClInclude Include="Scripts\UI\Contents\TooltipDescriptionPanel.h" />
+    <ClInclude Include="Scripts\UI\Contents\TooltipElement.h" />
+    <ClInclude Include="Scripts\UI\Contents\TooltipType.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
