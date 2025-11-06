@@ -8,7 +8,7 @@ namespace TokenObject
     {
         TOKEN_DATA(205000)
     private:
-        bool CanAdd(CharacterBase* owner) const override;
+        void OnPreTokenAdded(CharacterBase* owner, int tokenID, int& count) override;
         void OnTurnStart(CharacterBase* owner) override;
     };
 

@@ -102,7 +102,7 @@ protected:
     virtual void Awake() override;
     virtual void Start() override;
 
-    void InitAnimationCallback();
+    void InitializeAnimation();
 
 public:
     virtual void OnCombatStart() override;
