@@ -677,7 +677,7 @@
     <ClInclude Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.h" />
     <ClInclude Include="Scripts\MainMenu\CreditsBackButton.h" />
     <ClInclude Include="Scripts\BattleIntroUIController\BattleIntroUIController.h" />
-    <ClInclude Include="Scripts\Utility\AutoRotateComponent.h" />
+    <ClInclude Include="Scripts\Vinette\VinetteManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\QTE\Callback\Callback.cpp" />
@@ -1053,7 +1053,7 @@
     <ClCompile Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.cpp" />
     <ClCompile Include="Scripts\MainMenu\CreditsBackButton.cpp" />
     <ClCompile Include="Scripts\BattleIntroUIController\BattleIntroUIController.cpp" />
-    <ClCompile Include="Scripts\Utility\AutoRotateComponent.cpp" />
+    <ClCompile Include="Scripts\Vinette\VinetteManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

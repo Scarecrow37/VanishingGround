@@ -19,24 +19,34 @@ const File::Guid& WeaponModelManager::GetWeaponPrefabGuid(WeaponType type) const
     return File::NULL_GUID;
 }
 
-Vector3 WeaponModelManager::GetWeaponOffset(WeaponType type) const
+Vector3 WeaponModelManager::GetWeaponOffsetPosition(WeaponType type) const
 {
-    auto iter = _availableWeaponOffsetsTable.find(type);
-    if (iter != _availableWeaponOffsetsTable.end())
+    auto iter = _weaponOffsetPositionTable.find(type);
+    if (iter != _weaponOffsetPositionTable.end())
     {
         return iter->second;
     }
     return Vector3::Zero;
 }
 
-DirectX::SimpleMath::Quaternion WeaponModelManager::GetWeaponOriginPivotRotation(WeaponType type) const
+Vector3 WeaponModelManager::GetWeaponOffsetRotation(WeaponType type) const
 {
-    auto iter = _OriginPivotRotation.find(type);
-    if (iter != _OriginPivotRotation.end())
+    auto iter = _weaponOffsetRotationTable.find(type);
+    if (iter != _weaponOffsetRotationTable.end())
     {
         return iter->second;
     }
-    return Quaternion::Identity;
+    return Vector3::Zero;
+}
+
+float WeaponModelManager::GetWeaponOffsetDistance(WeaponType type) const
+{
+    auto iter = _weaponOffsetDistanceTable.find(type);
+    if (iter != _weaponOffsetDistanceTable.end())
+    {
+        return iter->second;
+    }
+    return 0.0f;
 }
 
 WeaponModelData WeaponModelManager::RequestAvailableWeapon(WeaponType type)
@@ -127,6 +137,8 @@ void WeaponModelManager::Start()
 {
     InitializeWeaponPool();
     UpdateOffsetPosition();
+    UpdateOffsetRotation();
+    UpdateOffsetDistance();
 }
 
 void WeaponModelManager::ImGuiDrawPropertysEvent()
@@ -158,6 +170,7 @@ void WeaponModelManager::ImGuiDrawPropertysEvent()
                     if (extension == L".UmPrefab")
                     {
                         guid = data->GetGuid();
+                        ReflectFields->WeaponPrefabGuidTable[name.data()] = guid.string();
                     }
                     else
                     {
@@ -168,12 +181,21 @@ void WeaponModelManager::ImGuiDrawPropertysEvent()
                 ImGui::EndDragDropTarget();
             }
 
-            ImGuiHelper::TextWithVerticalSeparator("Offset", 150.0f);
-            if (ImGui::DragFloat3("##offset", ReflectFields->WeaponPrefabOffsetTable[name.data()].data(), 1.0f))
+            ImGuiHelper::TextWithVerticalSeparator("Offset Position", 150.0f);
+            if (ImGui::DragFloat3("##position", ReflectFields->WeaponOffsetPositionTable[name.data()].data(), 1.0f))
             {
                 UpdateOffsetPosition();
             }
-
+            ImGuiHelper::TextWithVerticalSeparator("Offset Rotation", 150.0f);
+            if (ImGui::DragFloat3("##rotation", ReflectFields->WeaponOffsetRotationTable[name.data()].data(), 1.0f))
+            {
+                UpdateOffsetRotation();
+            }
+            ImGuiHelper::TextWithVerticalSeparator("Offset Distance", 150.0f);
+            if (ImGui::DragFloat("##distance", &ReflectFields->WeaponOffsetDistance[name.data()], 1.0f))
+            {
+                UpdateOffsetDistance();
+            }
             ImGui::PopID();
         }
         ImGui::TreePop();
@@ -198,15 +220,41 @@ void WeaponModelManager::ImGuiDrawPropertysEvent()
 
 void WeaponModelManager::UpdateOffsetPosition()
 {
-    _availableWeaponOffsetsTable.clear();
-    for (auto& [typeStr, offsetArray] : ReflectFields->WeaponPrefabOffsetTable)
+    _weaponOffsetPositionTable.clear();
+    for (auto& [typeStr, offsetArray] : ReflectFields->WeaponOffsetPositionTable)
     {
         auto type = rfl::string_to_enum<WeaponType>(typeStr);
         if (type)
         {
-            Vector3 offset;
-            offset = Vector3(offsetArray[0], offsetArray[1], offsetArray[2]);
-            _availableWeaponOffsetsTable[type.value()] = offset;
+            Vector3 offset = Vector3(offsetArray[0], offsetArray[1], offsetArray[2]);
+            _weaponOffsetPositionTable[type.value()] = offset;
+        }
+    }
+}
+
+void WeaponModelManager::UpdateOffsetRotation() 
+{
+    _weaponOffsetRotationTable.clear();
+    for (auto& [typeStr, offsetArray] : ReflectFields->WeaponOffsetRotationTable)
+    {
+        auto type = rfl::string_to_enum<WeaponType>(typeStr);
+        if (type)
+        {
+            Vector3 offset = Vector3(offsetArray[0], offsetArray[1], offsetArray[2]);
+            _weaponOffsetRotationTable[type.value()] = offset;
+        }
+    }
+}
+
+void WeaponModelManager::UpdateOffsetDistance() 
+{
+    _weaponOffsetDistanceTable.clear();
+    for (auto& [typeStr, offset] : ReflectFields->WeaponOffsetDistance)
+    {
+        auto type = rfl::string_to_enum<WeaponType>(typeStr);
+        if (type)
+        {
+            _weaponOffsetDistanceTable[type.value()] = offset;
         }
     }
 }
@@ -227,14 +275,15 @@ void WeaponModelManager::LoadWeaponInstances(WeaponType type, const File::Guid& 
         for (size_t i = 0; i < WEAPON_POOLING_SIZE; ++i)
         {
             GameObject* clone = GameObject::Instantiate(sharedPrefab.get());
-            if (clone)
+            if (clone && clone->transform->GetChild(0))
             {
+                GameObject& model = clone->transform->GetChild(0)->gameObject;
                 clone->transform->SetParent(transform, false);
                 clone->AddTag(rfl::enum_to_string(type));
                 clone->SetActive(false);
-                weaponPool.GameObjectPool[i]    = clone->GetWeakPtr();
-                weaponPool.AnimationPool[i]     = clone->GetComponent<AnimationComponent>();
-                weaponPool.ParticlePool[i]      = clone->GetComponent<ParticleComponent>();
+                weaponPool.GameObjectPool[i] = clone->GetWeakPtr();
+                weaponPool.AnimationPool[i]  = model.GetComponent<AnimationComponent>();
+                weaponPool.ParticlePool[i]   = model.GetComponent<ParticleComponent>();
                 weaponPool.AvailableIndices.insert(i);
             }
         }

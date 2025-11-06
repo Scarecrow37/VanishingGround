@@ -100,7 +100,7 @@ void CharacterBase::Awake()
     _particleComponent    = nullptr;
 
     FindComponent();
-    InitAnimationCallback();
+    InitializeAnimation();
 }
 
 void CharacterBase::Start() 
@@ -143,12 +143,17 @@ bool CharacterBase::FindComponent()
     return valid;
 }
 
-void CharacterBase::InitAnimationCallback() 
+void CharacterBase::InitializeAnimation()
 {
     if (_animationComponent)
     {
         _animationComponent->SetAnimationPostEventCallback(
             [this](const Timeline::EventContext* context) { OnNotifiedAnimationEvent(context); });
+
+        _animationComponent->SetNextAnimationFlags(ANIMATION_FLAG_USE_LOOP |
+                                                   ANIMATION_FLAG_RESET_FRAME|
+                                                   ANIMATION_FLAG_USE_BLEND);
+        _animationComponent->ChangeMainAnimation("Idle");
     }
 }
 
