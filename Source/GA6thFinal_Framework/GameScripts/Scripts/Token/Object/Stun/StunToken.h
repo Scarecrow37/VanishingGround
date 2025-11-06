@@ -11,9 +11,9 @@ namespace TokenObject
     {
         TOKEN_DATA(205002)
     private:
-        bool CanAdd(CharacterBase* owner) const override;
-        void OnTurnStart(CharacterBase* owner) override;
+        void OnPreTokenAdded(CharacterBase* owner, int tokenID, int& count) override;
         void OnTokenEnter(CharacterBase* owner, int tokenID) override;
+        void OnTurnStart(CharacterBase* owner) override;
         void OnTokenExit(CharacterBase* owner, int tokenID) override;
     };
 

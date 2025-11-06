@@ -68,6 +68,9 @@ private: // ITriggerType을(를) 통해 상속됨.
     /// <param name="source">호출한 CharacterBase 객체입니다.</param>
     virtual void OnTokenRemoved(CharacterBase* source, int tokenID) = 0;
 
+    virtual void OnPreTokenAdded(CharacterBase* source, int tokenID, int& count) = 0;
+    virtual void OnPreTokenRemoved(CharacterBase* source, int tokenID, int& count) = 0;
+
     /// <summary>객체가 토큰을 얻었을 때 호출됩니다.</summary>
     /// <param name="source">호출한 CharacterBase 객체입니다.</param>
     virtual void OnTokenEnter(CharacterBase* source, int tokenID) = 0;
