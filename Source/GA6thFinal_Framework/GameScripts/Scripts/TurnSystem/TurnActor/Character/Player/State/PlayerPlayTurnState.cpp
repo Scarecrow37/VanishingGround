@@ -594,6 +594,10 @@ void PlayerPlayTurnState::SetAttackEndTimeInvoke(float time)
         if (false == weakOwner.expired())
         {
             SetAttackEnd();
+            if (QTEUIManager* qteUI = SingletonComponent<QTEUIManager>::GetInstance())
+            {
+                qteUI->FadeInBattleGuideUI();
+            }
         }
     });
 }

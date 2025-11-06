@@ -3,6 +3,7 @@
 #include "UI/Elements/SpriteAnimation/SpriteAnimationElement.h"
 #include "UI/Panels/Overlay/OverlayPanel.h"
 #include "SceneTransition/SceneTransitionComponent.h"
+#include "Utility/SceneGuid.h"
 
 UMREAL_COMPONENT(GameOverManager)
 
@@ -40,6 +41,14 @@ void GameOverManager::Update()
     }
 }
 
+void GameOverManager::ImGuiDrawPropertysEvent() 
+{
+    if (nullptr == _vanishedAnimation)
+    {
+        ImGui::Text("Null Animation");
+    }
+}
+
 void GameOverManager::ProcessGameOver() 
 {
     if (false == _isBeginProcess)
@@ -50,7 +59,6 @@ void GameOverManager::ProcessGameOver()
             _vanishedAnimation->Setup();
             _vanishedAnimation->StartAnimation();
             _isBeginProcess = true;
-
             PushInputLayer();
         }
         else
@@ -70,9 +78,8 @@ void GameOverManager::TransitionTitleScene()
             assert(owner && "콜백으로 등록한 객체가 댕글링 포인터입니다.");
             if (owner)
             {
-                UmSceneManager.LoadScene(UmFileSystem.GetPathFromGuid("cd798e18-e5fd-421b-9b23-ef7bcfab15a0").string());
+                UmSceneManager.LoadScene(UmFileSystem.GetPathFromGuid(SceneGuid::TITLE).string());
                 _isBeginProcess = false;
-
                 PopInputLayer();
             }
         });

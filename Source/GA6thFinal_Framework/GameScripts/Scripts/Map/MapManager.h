@@ -26,8 +26,16 @@ public:
     void    SetFocusStage(Stage* stage);
     bool    TrySelectStage(Stage* stage);
     void    SetSelectStage(Stage* stage);
-    Stage*  GetCurrentSelectedStage();
-    Monster::SpawnID GetCurrentSpawnID();
+
+
+    /// <summary>현재 스테이지를 반환합니다.</summary>
+    bool IsRemainingStage() const;
+
+    /// <summary>현재 스테이지를 반환합니다.</summary>
+    Stage* GetCurrentSelectedStage();
+
+    /// <summary>현재 스테이지의 몬스터 SpawnID를 반환합니다.</summary>
+    Monster::SpawnID GetCurrentSpawnID() const;
 
 public:
     REFLECT_PROPERTY(MapScenePath, BackgroundImage, StageEnableImage, StageDisableImage, StageFocusImage, RewardPopupImage)
