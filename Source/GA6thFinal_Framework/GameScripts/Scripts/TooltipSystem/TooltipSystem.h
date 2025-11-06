@@ -8,15 +8,9 @@ class TooltipSystem : public Component
 {
     USING_PROPERTY(TooltipSystem)
 
-    static constexpr std::string_view TOOLTIP_GROUP_WEAPON            = "Weapon Tooltip Group";
-    static constexpr std::string_view TOOLTIP_GROUP_ACCESSORY         = "Accessory Tooltip Group";
-    static constexpr std::string_view TOOLTIP_GROUP_PLAYER            = "Player Tooltip Group";
-    static constexpr std::string_view TOOLTIP_GROUP_ENEMY_LEFT        = "Left Enemy Tooltip Group";
-    static constexpr std::string_view TOOLTIP_GROUP_ENEMY_MIDDLE      = "Middle Enemy Tooltip Group";
-    static constexpr std::string_view TOOLTIP_GROUP_ENEMY_RIGHT       = "Right Enemy Tooltip Group";
-    static constexpr std::string_view TOOLTIP_GROUP_REVELATION_UP     = "Up Revelation Tooltip Group";
-    static constexpr std::string_view TOOLTIP_GROUP_REVELATION_MIDDLE = "Middle Revelation Tooltip Group";
-    static constexpr std::string_view TOOLTIP_GROUP_REVELATION_DOWN   = "Down Revelation Tooltip Group";
+    static constexpr std::string_view TOOLTIP_GROUP_PLAYER     = "Player Tooltip Group";
+    static constexpr std::string_view TOOLTIP_GROUP_ENEMY      = "Enemy Tooltip Group";
+    static constexpr std::string_view TOOLTIP_GROUP_REVELATION = "Revelation Tooltip Group";
 
     static constexpr std::u8string_view DATA_TOOLTIP_SHEET_NAME                = u8"툴팁";
     static constexpr std::u8string_view DATA_TOOLTIP_COLUMN_KEY_ID             = u8"ID";
@@ -30,15 +24,9 @@ class TooltipSystem : public Component
 public:
     enum class Group
     {
-        WEAPON,
-        ACCESSORY,
         PLAYER,
-        ENEMY_LEFT,
-        ENEMY_MIDDLE,
-        ENEMY_RIGHT,
-        REVELATION_UP,
-        REVELATION_MIDDLE,
-        REVELATION_DOWN
+        ENEMY,
+        REVELATION
     };
 
 public:
