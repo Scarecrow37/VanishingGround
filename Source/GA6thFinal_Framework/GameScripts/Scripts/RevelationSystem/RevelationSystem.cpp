@@ -180,7 +180,9 @@ void RevelationSystem::RollRoundElement()
                                 if (uis[i].AnimationsController)
                                 {
                                     RevelationGrade garde = element->Grade;
-                                    uis[i].AnimationsController->StartAnimation(static_cast<size_t>(garde));
+                                    size_t gradeIndex = static_cast<size_t>(garde);
+                                    uis[i].AnimationsController->EnableAnimation(gradeIndex, true);
+                                    float duration = uis[i].AnimationsController->StartAnimation(gradeIndex);
                                     if (garde != RevelationGrade::EXTINCTION)
                                     {
                                         //일반 계시 발동 소리
@@ -191,6 +193,10 @@ void RevelationSystem::RollRoundElement()
                                         //소멸 계시 발동 소리
                                         UmAudio.Play("-401010");
                                     }
+                                    UmTime.Invoke(uis[i].AnimationsController, duration,[this, animation = uis[i].AnimationsController, gradeIndex] 
+                                    {
+                                        animation->EnableAnimation(gradeIndex, false);
+                                    });
                                 }
                             }
                         }

@@ -35,7 +35,7 @@ PlayerPlayTurnState::PlayerPlayTurnState()
 {
     _inputState               = InputState::NONE;
     _attackButtonHeldTime     = 0.f;
-    _attackButtonHeldWaitTime = 0.5f;
+    _attackButtonHeldWaitTime = 1.0f;
     _isDownAButton            = false;
     _isDownAKey               = false;
     _qteCallbackHandle        = 0;
@@ -62,6 +62,18 @@ void PlayerPlayTurnState::OnStart()
         QTE::Callback callback(GetPlayer().GetWeakPtr());
         // owner의 weak_ptr을 들고있으므로 람다 인자로 weak_ptr넣을 필요 X
         callback.OnFadeOutFinish = [this](const QTE::OverallResult& results) { SetAttack(); };
+        callback.OnFadeOutStart  = [this](const QTE::OverallResult& results) {
+            // 페이드 아웃 시작 시 연출 카메라 시작
+            if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+            {
+                if (UmCineMotion* battleCamera = mode->GetBattleCamera())
+                {
+                    battleCamera->SetMainCamera();
+                    battleCamera->ResetRail(true);
+                    battleCamera->StartRail(false);
+                }
+            }
+        };
         _qteCallbackHandle = system->RegisterCallback(callback);
     }
 }
@@ -161,8 +173,6 @@ void PlayerPlayTurnState::PressedButtonA(const Input::Controller& controller)
         {
             if (CombatUIManager* uiManager = SingletonComponent<CombatUIManager>::GetInstance())
                 uiManager->FadeOut(_attackButtonHeldWaitTime);
-
-            // TODO: a홀드 사운드 넣으니까 매우 이상함. 논의 필요.
             UmAudio.Stop(_hHoldAButtonSound);
             _hHoldAButtonSound = UmAudio.Play("-901007");
         }
@@ -269,8 +279,7 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
     if (QTEUIManager* qteUIManager = SingletonComponent<QTEUIManager>::GetInstance())
     {
         qteUIManager->SetQTEProgress(t);
-        const float volume = t * t;
-        UmAudio.SetVolume(_hHoldAButtonSound, volume);
+        UmAudio.SetVolume(_hHoldAButtonSound, t);
     }
 }
 
@@ -330,6 +339,7 @@ void PlayerPlayTurnState::SetAttack()
 
 void PlayerPlayTurnState::SetAttackEnd()
 {
+    // 연출 카메라 복원
     if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
     {
         if (UmCineMotion* camera = mode->GetBattleCamera())
@@ -432,23 +442,6 @@ void PlayerPlayTurnState::OnQTEFinish()
 
     if (qteSystem && weaponSystem && weaponModelManager)
     {
-        UmCineMotion* battleCamera = nullptr;
-        float         cameraDuration = 0.f;
-        if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
-        {
-            if (battleCamera = mode->GetBattleCamera())
-            {
-                cameraDuration = battleCamera->Duration;
-            }
-        }
-
-        if (battleCamera)
-        {
-            battleCamera->SetMainCamera();
-            battleCamera->ResetRail(true);
-            battleCamera->StartRail(false);
-        }
-
         QTE::OverallResult& results = qteSystem->GetQTEOverallResult();
         for (auto& result : results.NoteResults)
         {
@@ -472,7 +465,7 @@ void PlayerPlayTurnState::OnQTEFinish()
                                 const float noteTime  = note->Time;
                                 const float hitTime   = context->Time;
                                 const float noteDelay = note->WeaponAnimationDelay;
-                                float       delta     = noteTime - hitTime + noteDelay + animOffset + cameraDuration;
+                                float       delta     = noteTime - hitTime + noteDelay + animOffset;
                                 // 0보다 낮으면 0초로 맞추고 나머지를 해당 오프셋만큼 이동
                                 if (delta < 0)
                                 {
@@ -601,6 +594,10 @@ void PlayerPlayTurnState::SetAttackEndTimeInvoke(float time)
         if (false == weakOwner.expired())
         {
             SetAttackEnd();
+            if (QTEUIManager* qteUI = SingletonComponent<QTEUIManager>::GetInstance())
+            {
+                qteUI->FadeInBattleGuideUI();
+            }
         }
     });
 }

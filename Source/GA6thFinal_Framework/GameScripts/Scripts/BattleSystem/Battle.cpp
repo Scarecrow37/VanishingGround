@@ -14,6 +14,7 @@
 #include <Monster/Common/MonsterCommon.h>
 #include <Monster/System/MonsterSystem.h>
 #include <RevelationSystem/RevelationSystem.h>
+#include <Camera/UmCineMotion.h>
 
 void Battle::operator()(Player& attacker, EnemyTargetFlag targetFlag, QTE::NoteResult& result)
 {
@@ -246,6 +247,11 @@ void Battle::BattleStart(Enemy& attacker, Player& target)
 
         attacker.GetTokenInventory().NotifyPostEnemyAttackCalculateDamage(attackerData, targetData, damage);
         target.GetTokenInventory().NotifyPostPlayerHitCalculateDamage(attackerData, targetData, damage);
+
+        if (UmCineMotion* motion = turnMode->GetBattleCamera())
+        {
+            motion->BeginFeedBackShake(damage);
+        }
 
         target.TakeDamage(damage);
     }

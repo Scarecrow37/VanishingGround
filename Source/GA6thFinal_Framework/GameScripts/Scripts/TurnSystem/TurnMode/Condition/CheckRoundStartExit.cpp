@@ -27,5 +27,9 @@ void CheckRoundStartExit::OnStart()
 
 bool CheckRoundStartExit::Evaluate()
 {
-    return _turnMode->States->RoundStartPhase->IsPhaseEnd();
+    if (_turnMode)
+    {
+        return _turnMode->States->RoundStartPhase->IsPhaseEnd();
+    }
+    return false;
 }

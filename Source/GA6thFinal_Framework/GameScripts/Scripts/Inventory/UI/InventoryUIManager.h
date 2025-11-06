@@ -4,6 +4,7 @@
 class ItemInfoUIManager;
 class HorizontalPageUIManager;
 class ImageElement;
+class TextElement;
 class InventoryItemFocusNavi;
 class InventoryUIManager : public Component, public InputReceiver
 {
@@ -21,6 +22,7 @@ public:
     void UpdateRevelationUI(size_t startIndex = 0);
     void UpdateAccessoryUI(size_t startIndex = 0);
     void UpdateConsumable();
+    void UpdateBookInfo();
 
     void UpdateScroll(HorizontalPageUIManager* manager);
 
@@ -62,6 +64,9 @@ private:
     std::vector<ImageElement*>           _consumableUI;
     std::vector<InventoryItemFocusNavi*> _consumableNavi;
 
+    ImageElement* _bookImage = nullptr;
+    TextElement*  _bookName  = nullptr;
+
     std::weak_ptr<Component>   _lastFocus; //마지막으로 포커싱된 UI
 
 private:
@@ -70,6 +75,8 @@ private:
 
 private:
     size_t GetHorizontalPageCount(size_t artifactCount);
+    std::unordered_map<std::string, File::Guid>  _bookNameToImage;
 
+    void InitMaps();
 };
 

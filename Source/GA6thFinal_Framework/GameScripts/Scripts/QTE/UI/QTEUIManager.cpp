@@ -22,6 +22,7 @@ void QTEUIManager::OnQTEEnter()
 {
     _fieldUI.Active(true);
     _guideUI.Active(true);
+    _guideUI.Alpha(0.0f);
     _inputViewerUI.Active(true);
     _fieldUI.OnQTEEnter();
     _mainFader.SetFadeMode(Fader::FADE_IN);
@@ -41,6 +42,12 @@ void QTEUIManager::OnQTEEnter()
                 }
             }
         }
+    }
+
+    if (_battleGuideUI.Progress)
+    {
+        _battleGuideUI.Progress->SetElapsedTime(1.0f);
+        _battleGuideUI.FadeOut();
     }
 }
 
@@ -213,9 +220,6 @@ void QTEUIManager::Start()
         {
             system->ProcessQTEFadeInEndEvent();
             _mainFader.SetFadeMode(Fader::FADE_NONE);
-
-            SetUIAlpha(1.0f);
-            _battleGuideUI.Alpha(0.0f);
         }
     });
     _mainFader.SetOnFadeOutEndCallback([this]() {
@@ -228,9 +232,7 @@ void QTEUIManager::Start()
             _fieldUI.Active(false);
             _guideUI.Active(false);
             _inputViewerUI.Active(false);
-
             SetUIAlpha(0.0f);
-            _battleGuideUI.Alpha(1.0f);
         }
     });
     FindUIComponents();
@@ -249,13 +251,12 @@ void QTEUIManager::Update()
     case Fader::FADE_NONE:
         break;
     case Fader::FADE_IN: {
-        _guideUI.Alpha(factor);
-        _battleGuideUI.Alpha(1.0f - factor);
+        _guideUI.Alpha(std::min(factor, 0.8f));
         break;
     }
     case Fader::FADE_OUT: {
         SetUIAlpha(factor);
-        _battleGuideUI.Alpha(1.0f - factor);
+        _guideUI.Alpha(std::min(factor, 0.8f));
         break;
     }
     default:
@@ -363,6 +364,20 @@ void QTEUIManager::SetDefaultState()
     _guideUI.Active(false);
     _inputViewerUI.Active(false);
     _battleGuideUI.Active(true);
+}
+
+void QTEUIManager::FadeInBattleGuideUI() 
+{
+    _battleGuideUI.FadeIn();
+    if (_battleGuideUI.Progress)
+    {
+        _battleGuideUI.Progress->ResetProgress();
+    }
+}
+
+void QTEUIManager::FadeOutBattleGuideUI() 
+{
+    _battleGuideUI.FadeOut();
 }
 
 void QTEUIManager::FindUIComponents()

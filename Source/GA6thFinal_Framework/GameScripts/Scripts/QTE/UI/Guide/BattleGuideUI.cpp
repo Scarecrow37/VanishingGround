@@ -4,12 +4,14 @@
 #include "UI/Panels/Overlay/OverlayPanel.h"
 #include "UI/Elements/Image/ImageElement.h"
 #include "UI/Elements/Text/TextElement.h"
+#include "UI/Animations/FadeUIComponent/FadeUIComponent.h"
 
 void BattleGuideUI::MatchUIFromObject(GameObject& object)
 {
     if (object.CompareTag("Input Guide Panel"))
     {
         Overlay = object.GetComponent<OverlayPanel>();
+        Fader   = object.GetComponent<FadeUIComponent>();
     }
     else if (object.CompareTag("A Guide"))
     {
@@ -87,9 +89,30 @@ void BattleGuideUI::Alpha(float alpha)
     {
         if (text)
         {
-            Color old = text->Color;
-            old.w = alpha;
-            text->Color = old;
+            {
+                Color old = text->Color;
+                old.w = alpha;
+                text->Color = old;
+            }
+            {
+                Color old = text->OutlineColor;
+                old.w = alpha;
+                text->OutlineColor = old;
+            }
         }
+    }
+}
+void BattleGuideUI::FadeIn()
+{
+    if (Fader)
+    {
+        Fader->FadeIn();
+    }
+}
+void BattleGuideUI::FadeOut() 
+{
+    if (Fader)
+    {
+        Fader->FadeOut();
     }
 }

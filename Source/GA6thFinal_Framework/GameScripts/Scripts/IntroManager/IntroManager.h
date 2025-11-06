@@ -20,6 +20,14 @@ class IntroManager : public Component, public InputReceiver
         END
     };
 
+    static constexpr std::string_view TAG_INTRO_DESCRIPTION      = "Intro Description";
+    static constexpr std::string_view TAG_NORMAL_LEVEL_TEXT      = "Normal Level Text";
+    static constexpr std::string_view TAG_HARD_LEVEL_TEXT        = "Hard Level Text";
+    static constexpr std::string_view TAG_PROMPT_TEXT            = "Intro Prompt";
+    static constexpr std::string_view TAG_NORMAL_LEVEL_SELECTION = "Normal Level Selection";
+    static constexpr std::string_view TAG_HARD_LEVEL_SELECTION   = "Hard Level Selection";
+
+    static constexpr std::u8string_view SHEET_NAME                            = u8"텍스트";
     static constexpr std::u8string_view COLUMN_KEY_ID                         = u8"ID";
     static constexpr std::u8string_view COLUMN_KEY_CONTENT                    = u8"Content";
     static constexpr std::u8string_view BOOK_SELECT_INTRO_DESC_ID             = u8"803000";
@@ -54,9 +62,7 @@ public:
 
 protected:
     void Awake() override;
-    void Start() override;
     void Update() override;
-    void Reset() override;
 
 private:
     float GetWaitDescriptionTime() const;
@@ -67,11 +73,16 @@ private:
     float GetFadePromptTime() const;
 
     void LoadNextScene() const;
+    void FindComponents();
+    std::unique_ptr<ExcelDataBase> SetupData();
+    void                           SetupComponent(const std::unique_ptr<ExcelDataBase>& data);
+    void                           ResetFade();
 
     void SkipStep(const Input::Controller& controller);
     void SelectNormal(const Input::Controller& controller);
     void SelectNormal();
     void SelectHard(const Input::Controller& controller);
+    void SelectThumbStick(const Input::Controller& controller);
 
     template <typename T>
     static T* GetElement(const std::string& tag);
@@ -91,12 +102,12 @@ private:
     bool  _isLevelSelected;
     bool  _isSelectHard;
 
-    FadeDescriptionPanel* _introDescription;
-    FadeTextElement*      _normalLevelText;
-    FadeTextElement*      _hardLevelText;
-    FadeTextElement*      _promptText;
-    FadeImageElement*     _normalSelection;
-    FadeImageElement*     _hardSelection;
+    std::weak_ptr<FadeDescriptionPanel> _introDescription;
+    std::weak_ptr<FadeTextElement>      _normalLevelText;
+    std::weak_ptr<FadeTextElement>      _hardLevelText;
+    std::weak_ptr<FadeTextElement>      _promptText;
+    std::weak_ptr<FadeImageElement>     _normalSelection;
+    std::weak_ptr<FadeImageElement>     _hardSelection;
 };
 
 template <typename T>

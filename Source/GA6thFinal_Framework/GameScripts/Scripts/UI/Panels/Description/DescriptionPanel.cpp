@@ -115,7 +115,7 @@ struct ParseData
     }
 };
 
-DescriptionPanel::DescriptionPanel()
+DescriptionPanel::DescriptionPanel() : _fontWeight(0.5f)
 {
     FontPath.SetInputAutoEvent([this]() {
         if (ImGui::BeginDragDropTarget())
@@ -158,6 +158,12 @@ void DescriptionPanel::SetOpacity(const float opacity)
     UpdateAlpha();
 }
 
+void DescriptionPanel::SetFontWeight(const float fontWeight)
+{
+    _fontWeight = fontWeight;
+    UpdateContent();
+}
+
 void DescriptionPanel::DeserializedReflectEvent()
 {
     HorizontalPanel::DeserializedReflectEvent();
@@ -193,7 +199,12 @@ void DescriptionPanel::UpdateContent()
     {
         EraseChild();
         MakeChild();
+        if (UIRoot* root = Root)
+        {
+            root->SortViewOrder();
+        }
         InvalidateMeasure();
+        InvalidateArrange();
     }
 }
 
@@ -224,9 +235,16 @@ void DescriptionPanel::MakeChild()
 
     for (const std::vector<ElementData> elementData = ParseData()(text); const auto& [Type, Data] : elementData)
     {
+        if (Type == ElementType::BREAK)
+        {
+            breakNext = true;
+            continue;
+        }
+
         const std::shared_ptr<GameObject> child =
             NewGameObject(GameObject::Helper::GenerateUniqueName("Description Child"));
         child->transform->SetParent(transform, true);
+
         if (breakNext)
         {
             if (HorizontalPanelSlot* slot = child->GetComponent<HorizontalPanelSlot>())
@@ -235,6 +253,7 @@ void DescriptionPanel::MakeChild()
             }
             breakNext = false;
         }
+
         switch (Type)
         {
         case ElementType::TEXT: {
@@ -247,6 +266,7 @@ void DescriptionPanel::MakeChild()
             color.w                    = ReflectFields->Alpha;
             element.Color              = color;
             element.FontScale          = ReflectFields->FontScale;
+            element.FontWeight         = _fontWeight;
             element.SetArtificial(true);
         }
         break;
@@ -265,9 +285,8 @@ void DescriptionPanel::MakeChild()
             imageChild->transform->SetParent(child->transform, true);
         }
         break;
-        case ElementType::BREAK: {
-            breakNext = true;
-        }
+        default:
+            break;
         }
     }
 }

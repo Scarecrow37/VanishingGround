@@ -11,6 +11,7 @@ public:
     virtual ~SkeletalMeshRenderer() override;
 
 public:
+    const Matrix* GetBoneMatrixFromMappingKey(const std::string& key);
 
 protected:
     void Reset() override;    
@@ -29,7 +30,9 @@ public:
 
 private:
     File::Guid _Guid;
+    std::unordered_map<std::string, const Matrix*> _boneMatrixMappingTable;
     REFLECT_FIELDS_BEGIN(MeshComponent)
+    std::unordered_map<std::string, std::string> BoneKeyMap;
     REFLECT_FIELDS_END(SkeletalMeshRenderer)
     bool _isDirtyFlag = false;
 };

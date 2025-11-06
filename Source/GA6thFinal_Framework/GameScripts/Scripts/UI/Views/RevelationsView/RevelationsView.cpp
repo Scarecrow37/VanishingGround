@@ -76,9 +76,14 @@ void RevelationsView::Start()
                         if (0 <= index && index < _revelationUis.size())
                         {
                             if (_revelationUis[index].AnimationsController)
-                            {
+                            {                             
                                 _revelationUis[index].AnimationsController->EnableAnimation(4, true);
-                                _revelationUis[index].AnimationsController->StartAnimation(4);
+                                float duration = _revelationUis[index].AnimationsController->StartAnimation(4);
+                                UmTime.Invoke(_revelationUis[index].AnimationsController, duration,
+                                [ani = _revelationUis[index].AnimationsController]
+                                {
+                                    ani->EnableAnimation(4, false);
+                                });                                
                             }
                         }     
                     }                 
@@ -133,13 +138,25 @@ void RevelationsView::Start()
                     //첫 등장 소리 재생
                     UmAudio.Play("-431000");
                     startAnimation->Enable = true;
+                    if (auto end = _endAnimation.lock())
+                    {
+                        end->Enable = false;
+                    }
                     startAnimation->StartAnimation();
                     if (auto fade = _textsFade.lock())
                     {
                         float time = startAnimation->Duration;
-                        UmTime.Invoke(fade.get(), time, [fadeText = fade.get()]() 
+                        UmTime.Invoke(fade.get(), time, [fadeText = fade.get(), startAni = _startAnimation, endAni = _endAnimation]() 
                         {
                             fadeText->FadeIn();
+                            if (auto start = startAni.lock())
+                            {
+                                start->Enable = false;
+                            }
+                            if (auto end = endAni.lock())
+                            {
+                                end->Enable = true;
+                            }
                         });
 
                         //소멸 계시 등장시
@@ -154,6 +171,10 @@ void RevelationsView::Start()
                 if (auto reloadAnimation = _reloadAnimation.lock())
                 {
                     reloadAnimation->Enable = true;
+                    if (auto end = _endAnimation.lock())
+                    {
+                        end->Enable = false;
+                    }
                     if (auto fade = _textsFade.lock())
                     {
                         float aniTime  = reloadAnimation->Duration;
@@ -170,9 +191,17 @@ void RevelationsView::Start()
                             }
                         });
 
-                        UmTime.Invoke(fade.get(), fadeTime + aniTime, [fadeText = fade.get()]() 
+                        UmTime.Invoke(fade.get(), fadeTime + aniTime,[fadeText = fade.get(), endAni = _endAnimation, reloadAni = _reloadAnimation]() 
                         {   
                             fadeText->FadeIn();
+                            if (auto image = endAni.lock())
+                            {
+                                image->Enable = true;
+                            }
+                            if (auto reload = reloadAni.lock())
+                            {
+                                reload->Enable = false;
+                            }
                         });
 
                         //소멸 계시 등장시
@@ -200,6 +229,16 @@ void RevelationsView::Start()
     if (auto start = _startAnimation.lock())
     {
         start->Enable = false;
+    }
+    for (auto& animation : _revelationUis)
+    {
+        if (animation.AnimationsController)
+        {
+            for (int i = 0; i < animation.AnimationsController->transform->ChildCount; i++)
+            {
+                animation.AnimationsController->EnableAnimation(static_cast<size_t>(i), false);
+            }           
+        }        
     }
     gameObject->ActiveSelf = false;
 }
@@ -255,6 +294,13 @@ void RevelationsView::FindRevelationUIs()
                     _reloadAnimation = animation->GetWeakPtrAs<SpriteAnimationElement>();
                 }
             }
+            else if (object.CompareTag("End"))
+            {
+                if (ImageElement* animation = object.GetComponent<ImageElement>())
+                {
+                    _endAnimation = animation->GetWeakPtrAs<ImageElement>();
+                }
+            }            
         });
     }
 }

@@ -32,13 +32,17 @@ bool ChainCondition::Evaluate()
 
     for (const auto& target : targetList)
     {
+        if (target->IsDead())
+        {
+            return false;
+        }
+
         int targetChainCount = target->ChainCount;
         if (false == CheckEvaluate(targetChainCount))
         {
             return false;
         }
     }
-
     return true;
 }
 
@@ -185,10 +189,15 @@ bool ChainCondition::CheckEvaluate(CharacterBase* character)
     {
         if (character)
         {
+            if (character->IsDead())
+            {
+                return false;
+            }
+
             if (CharacterStats* stats = character->GetCharacterStats())
             {
                 auto& element    = system->GetCurrentWeaponElement();
-                int   startCount = stats->CurrentChainCount;
+                int   startCount = stats->CurrentChainCount + 1;
                 int   endCount   = startCount + element.Stats.AttackCount;
                 for (int count = startCount; count <= endCount; ++count)
                 {

@@ -28,6 +28,11 @@ bool TokenCondition::Evaluate()
     int tokenID = ReflectFields->TokenType;
     for (const auto& target : targetList)
     {
+        if (target->IsDead())
+        {
+            return false;
+        }
+
         int targetTokenCount = target->GetTokenInventory().GetTokenStackFromID(tokenID);
         if (false == CheckOperation(targetTokenCount))
         {
@@ -168,6 +173,11 @@ bool TokenCondition::CheckEvaluate(CharacterBase* character)
 {
     if (character)
     {
+        if (character->IsDead())
+        {
+            return false;
+        }
+
         int tokenID          = ReflectFields->TokenType;
         int targetTokenCount = character->GetTokenInventory().GetTokenStackFromID(tokenID);
         return CheckOperation(targetTokenCount);

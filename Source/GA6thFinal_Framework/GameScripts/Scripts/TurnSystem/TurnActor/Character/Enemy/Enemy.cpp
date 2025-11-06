@@ -144,6 +144,13 @@ void Enemy::Dead()
     {
         turnMode->ApplyActions([this](TurnAction& action) { action.OnEnemyDead(*this); });
     }
+    if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        if (auto HUD = combatUIManager->CharacterHUDGroup.EnemyActionPanel[static_cast<int>(_spawnPoint)])
+        {
+            HUD->gameObject->ActiveSelf = false;
+        }
+    }
 }
 
 void Enemy::TakeDamage(int damage, const bool playAnim) 
@@ -183,13 +190,7 @@ void Enemy::TakeDamage(const int damage, const QTE::NoteResult& result, const bo
     GameObject& owner = gameObject;
     std::string spawnPoint = Monster::SpawnPointToString(SpawnPoint);
     ParticleComponent* particle = GetParticleComponent();
-    if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
-    {
-        if (UmCineMotion* motion =  mode->GetBattleCamera())
-        {
-            motion->BeginFeedBackShake(damage);
-        }       
-    }
+
     if (true == IsDead() || false == result.IsHit())
     {
         std::string msg = std::format("{} {}{}", spawnPoint, owner.ToString(), (const char*)u8" 대한 공격 빗나감.");
@@ -204,6 +205,13 @@ void Enemy::TakeDamage(const int damage, const QTE::NoteResult& result, const bo
         UmLogger.Message(LogLevel::LEVEL_TRACE, msg);
         particle->StopEffect("criticalhit");
         particle->PlayEffect("criticalhit");
+        if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+        {
+            if (UmCineMotion* motion = mode->GetBattleCamera())
+            {
+                motion->BeginFeedBackShake(damage);
+            }
+        }
         _isCriticalDamage = true;
         break;
     }
@@ -378,18 +386,14 @@ void Enemy::OnCombatStart()
 
     if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
     {
-        if (auto HUD = combatUIManager->CharacterHUDGroup.EnemyHUDPanel[static_cast<int>(_spawnPoint)])
+        if (auto HUD = combatUIManager->CharacterHUDGroup.EnemyActionPanel[static_cast<int>(_spawnPoint)])
         {
-            Transform::ForeachBFS(HUD->transform, [this](Transform* tr) {
-                GameObject& object = tr->gameObject;
-                if (object.CompareTag("Proclamation HUD"))
-                {
-                    if (auto proclamationHUD = object.GetComponent<ProclamationHUD>())
-                    {
-                        _proclamationHUD = proclamationHUD;
-                    }
-                }
-            });
+            HUD->gameObject->ActiveSelf = true;
+            if (auto proclamationHUD = HUD->GetComponent<ProclamationHUD>())
+            {
+                _proclamationHUD = proclamationHUD;
+                _proclamationHUD->FindUI();
+            }
         }
     }    
 }
