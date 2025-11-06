@@ -9,14 +9,6 @@ class TooltipComponent : public Component
 {
     USING_PROPERTY(TooltipComponent)
 
-    static constexpr const char* TAG_PANEL_OBJECT          = "Tooltip Panel";
-    static constexpr const char* TAG_IMAGE_COMPONENT       = "Tooltip Image";
-    static constexpr const char* TAG_TITLE_COMPONENT       = "Tooltip Title";
-    static constexpr const char* TAG_DESCRIPTION_COMPONENT = "Tooltip Description";
-
-public:
-
-
 public:
     TooltipComponent();
 
