@@ -10,23 +10,23 @@ namespace TokenObject
     REGISTER_TOKEN(Poison)
     REGISTER_TOKEN(PoisonGrant)
     REGISTER_TOKEN(PoisonResistance)
-
-    bool Poison::CanAdd(CharacterBase* owner) const
+    
+    void Poison::OnPreTokenAdded(CharacterBase* owner, int tokenID, int& count)
     {
-        if (owner && false == owner->IsDead())
+        if (owner && false == owner->IsDead() || count <= 0)
         {
             auto& tokenInventory = owner->GetTokenInventory();
-            if (tokenInventory.HasTokenFromID(PoisonResistance::ID))
+            int   numResistance  = tokenInventory.GetTokenStackFromID(PoisonResistance::ID);
+            if (numResistance > 0)
             {
-                tokenInventory.RemoveTokenStackFromID(PoisonResistance::ID);
-                return false;
-            }
-            else
-            {
-                return true;
+                // 실제로 상쇄되는 개수
+                int reduced = std::min(count, numResistance);
+                // 토큰 감소
+                count -= reduced;
+                // 저항 소모
+                tokenInventory.RemoveTokenStackFromID(PoisonResistance::ID, reduced);
             }
         }
-        return false;
     }
     void Poison::OnTurnStart(CharacterBase* owner) 
     {
