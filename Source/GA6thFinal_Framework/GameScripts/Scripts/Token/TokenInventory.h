@@ -56,6 +56,9 @@ public:
     /// <summary>CharacterBase가 토큰 스택을 잃었을 때 호출됩니다.</summary>
     void NotifyTokenRemoved(int tokenID);
 
+    void NotifyPreTokenAdded(int tokenID, int& count);
+    void NotifyPreTokenRemoved(int tokenID, int& count);
+
     /// <summary>CharacterBase가 토큰이 생겼을 때 호출됩니다.</summary>
     void NotifyTokenEnter(int tokenID);
 
