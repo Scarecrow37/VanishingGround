@@ -243,7 +243,7 @@ namespace CombatUI
             case EnemyType::MONSTER_B:
                 return Vector3(0.0f, 1.5f, 0.0f) * scale + offset;
             case EnemyType::MONSTER_C:
-                return Vector3(0.0f, 2.7f, 0.0f) * scale + offset;
+                return Vector3(0.0f, 2.65f, 0.0f) * scale + offset;
             default:
                 break;
             }
