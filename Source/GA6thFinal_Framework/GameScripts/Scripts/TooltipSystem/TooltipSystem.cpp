@@ -23,6 +23,7 @@ void TooltipSystem::Show(const Group group, const std::span<const int> ids) cons
     {
         if (const auto sharedGroup = _tooltipGroups.at(group).lock())
         {
+            sharedGroup->Hide();
             for (const int id : ids)
             {
                 sharedGroup->Show(id, _tooltips.at(id));
