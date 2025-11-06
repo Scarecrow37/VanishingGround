@@ -4,6 +4,7 @@
 class GridPanel;
 class ImageElement;
 class DescriptionPanel;
+class FadeUIComponent;
 class AccessoriesView : public Component
 {
     USING_PROPERTY(AccessoriesView)
@@ -60,7 +61,7 @@ private:
     void HideTooltip(size_t index);
 
 private:
-    std::weak_ptr<GameObject>       _focusInfoUIObject;
+    std::weak_ptr<FadeUIComponent>  _focusInfoUIFade;
     std::weak_ptr<DescriptionPanel> _focusInfoDescription;
 };
 
