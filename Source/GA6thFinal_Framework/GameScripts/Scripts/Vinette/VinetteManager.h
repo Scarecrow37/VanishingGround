@@ -27,7 +27,7 @@ protected:
     float Duration = 0.5f;
     REFLECT_FIELDS_END(VinetteManager)
 private:
-    SingletonComponent<VinetteManager> _singletoneComponent{this};
+    SingletonComponent<VinetteManager> _singletonComponent{this};
     OverlayPanel*           _vinetteOverlay     = nullptr;
     FadeImageElement*       _hitVinette         = nullptr;
     FadeImageElement*       _healVinette        = nullptr;

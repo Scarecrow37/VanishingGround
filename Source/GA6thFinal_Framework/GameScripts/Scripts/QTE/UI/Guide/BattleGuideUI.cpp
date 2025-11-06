@@ -76,11 +76,11 @@ void BattleGuideUI::MatchUIFromObject(GameObject& object)
                 GameObject& child = curr->gameObject;
                 if (child.CompareTag("Image"))
                 {
-                    ImageList[RT] = child.GetComponent<ImageElement>();
+                    ImageList[START] = child.GetComponent<ImageElement>();
                 }
                 else if (child.CompareTag("Text"))
                 {
-                    TextList[RT] = child.GetComponent<TextElement>();
+                    TextList[START] = child.GetComponent<TextElement>();
                 }
             }
         });

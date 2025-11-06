@@ -7,7 +7,7 @@ UMREAL_COMPONENT(VinetteManager)
 
 void VinetteManager::Awake() 
 {
-    _singletoneComponent.TrySingleTon();
+    _singletonComponent.TrySingleTon();
 
     _vinetteOverlay         = gameObject->GetComponent<OverlayPanel>();
     const int childCount    = gameObject->transform->GetChildCount();

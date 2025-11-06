@@ -13,7 +13,7 @@ namespace TokenObject
     
     void Poison::OnPreTokenAdded(CharacterBase* owner, int tokenID, int& count)
     {
-        if (owner && false == owner->IsDead() || count <= 0)
+        if (owner && false == owner->IsDead() && count > 0)
         {
             auto& tokenInventory = owner->GetTokenInventory();
             int   numResistance  = tokenInventory.GetTokenStackFromID(PoisonResistance::ID);
