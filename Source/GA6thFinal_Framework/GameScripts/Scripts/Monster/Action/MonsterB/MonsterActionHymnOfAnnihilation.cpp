@@ -48,6 +48,13 @@ namespace Monster
             const int tokenID = TokenObject::ProphecyDoom::ID;
             if (Enemy* owner = GetOwnerEnemy())
             {
+                // 사망 애니메이션 재생 X
+                EnemyDeadState* deadState = owner->GetFSMStates().Dead;
+                if (deadState)
+                {
+                    deadState->SetDontChangeAnimation(true);
+                }
+
                 ActionParam damage = GetActionParam(1);
                 TokenInventory& tokenInventory = owner->GetTokenInventory();
                 // 종말 예언 토큰을 소지할 시 데미지 증가
@@ -65,11 +72,6 @@ namespace Monster
                 }
                 ProcessBattle(damage.Param);
                 owner->TakeDamage(owner->HP, false);
-                EnemyDeadState* deadState = owner->GetFSMStates().Dead;
-                if (deadState)
-                {
-                    deadState->SetDontChangeAnimation(true);
-                }
             }
             SetActionEnd();
         }

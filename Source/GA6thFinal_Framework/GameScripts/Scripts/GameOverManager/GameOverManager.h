@@ -1,5 +1,10 @@
 ﻿#pragma once
 #include "Utility/SingletonHelper.h"
+#include "Utility/FadeHelper.h"
+
+class OverlayPanel;
+class ImageElement;
+class SpriteAnimationElement;
 
 class GameOverManager : public Component, public InputReceiver
 {
@@ -26,7 +31,10 @@ protected:
 private:
     SingletonComponent<GameOverManager> _singletoneComponent{this};
 
-    bool                          _isBeginProcess       = false;
-    class OverlayPanel*           _vanishedOverlay      = nullptr;
-    class SpriteAnimationElement* _vanishedAnimation    = nullptr;
+    bool                        _isBeginProcess       = false;
+    OverlayPanel*               _vanishedOverlay      = nullptr;
+    ImageElement*               _vanishedBackground   = nullptr;
+    SpriteAnimationElement*     _vanishedAnimation    = nullptr;
+
+    Fader _backgroundFader;
 };
