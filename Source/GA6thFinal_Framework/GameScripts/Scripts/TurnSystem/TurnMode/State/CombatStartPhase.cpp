@@ -152,6 +152,7 @@ void CombatStartPhase::OnStart()
     }
     ResetCharacterStats();
     RegisterEnemiesHUD();
+    RegisterEnemiesNavi();
     RegisterEnemiesHP();
     RegisterEnemiesChain();
 
@@ -351,6 +352,37 @@ void CombatStartPhase::RegisterEnemiesHUD()
     SetHUDObject(Monster::SpawnPoint::Left, "Left Monster HUD");
     SetHUDObject(Monster::SpawnPoint::Middle, "Middle Monster HUD");
     SetHUDObject(Monster::SpawnPoint::Right, "Right Monster HUD");
+}
+
+void CombatStartPhase::RegisterEnemiesNavi() 
+{
+    auto DisableNavi = [](Monster::SpawnPoint point) 
+    {
+        std::string tag;
+        switch (point)
+        {
+        case Monster::SpawnPoint::Left:
+            tag = "Enemy Left Panel UI Navi";
+            break;
+        case Monster::SpawnPoint::Middle:
+            tag = "Enemy Middle Panel UI Navi";
+            break;
+        case Monster::SpawnPoint::Right:
+            tag = "Enemy Right Panel UI Navi";
+            break;
+        default:
+            break;
+        }
+
+        if (auto navi = GameObject::FindComponentWithTag<KeyCallbackUINavi>(tag).lock())
+        {
+            navi->Enable = false;
+        }
+    };
+
+    DisableNavi(Monster::SpawnPoint::Left);
+    DisableNavi(Monster::SpawnPoint::Middle);
+    DisableNavi(Monster::SpawnPoint::Right);
 }
 
 void CombatStartPhase::RegisterEnemiesHP() const
