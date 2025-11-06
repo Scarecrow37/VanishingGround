@@ -195,17 +195,14 @@ void DescriptionPanel::Awake()
 
 void DescriptionPanel::UpdateContent()
 {
-    if (const bool enableInHierarchy = EnableInHierarchy; enableInHierarchy)
+    EraseChild();
+    MakeChild();
+    if (UIRoot* root = Root)
     {
-        EraseChild();
-        MakeChild();
-        if (UIRoot* root = Root)
-        {
-            root->SortViewOrder();
-        }
-        InvalidateMeasure();
-        InvalidateArrange();
+        root->SortViewOrder();
     }
+    InvalidateMeasure();
+    InvalidateArrange();
 }
 
 void DescriptionPanel::EraseChild() const
