@@ -16,15 +16,12 @@ public:
     REFLECT_PROPERTY()
 
 public:
+    void FindComponents();
+
     void SetTooltip(int id) const;
 
 protected:
-    void Awake() override;
-
     void ImGuiDrawPropertysEvent() override;
-
-private:
-    void FindComponents();
 
 protected:
     REFLECT_FIELDS_BEGIN(HorizontalPanel)

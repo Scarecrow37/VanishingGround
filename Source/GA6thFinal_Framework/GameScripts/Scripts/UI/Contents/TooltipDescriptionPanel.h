@@ -1,34 +1,39 @@
 ﻿#pragma once
 #include "UI/Panels/Horizontal/HorizontalPanel.h"
 
-class ImageElement;
-class TextElement;
-class DescriptionPanel;
+class TooltipElement;
 
 class TooltipDescriptionPanel : public HorizontalPanel
 {
     USING_PROPERTY(TooltipDescriptionPanel)
 
-    using TooltipElements = std::tuple<std::weak_ptr<ImageElement>, std::weak_ptr<TextElement>, std::weak_ptr<DescriptionPanel>>;
-
 public:
     TooltipDescriptionPanel();
 
 public:
-    REFLECT_PROPERTY()
+    REFLECT_PROPERTY(TooltipElementPrefab)
+
+    GETTER_ONLY(std::string, TooltipElementPrefab)
+    {
+        return File::Guid(ReflectFields->TooltipElementPrefabGuid).ToPath().string();
+    }
+    PROPERTY(TooltipElementPrefab)
 
 public:
-    void AddTooltip(int id);
-    void SetTooltips(std::span<const int> ids);
+    void SetTooltip(int id);
     void SetTooltips(std::initializer_list<int> ids);
+    void SetTooltips(std::span<const int> ids);
+
+protected:
+    void Reset() override;
+    void ImGuiDrawPropertysEvent() override;
 
 private:
-    TooltipElements CreateTooltipElements();
-    void ClearTooltips();
+    std::weak_ptr<TooltipElement> CreateTooltipElements();
+    void                          ClearTooltips() const;
 
 protected:
     REFLECT_FIELDS_BEGIN(HorizontalPanel)
-    float TooltipHeight = 24.0f;
-    float TooltipSpace  = 4.0f;
+    std::string TooltipElementPrefabGuid;
     REFLECT_FIELDS_END(TooltipDescriptionPanel)
 };
