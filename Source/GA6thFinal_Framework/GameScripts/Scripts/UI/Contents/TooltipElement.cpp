@@ -34,13 +34,6 @@ void TooltipElement::SetTooltip(const int id) const
     }
 }
 
-void TooltipElement::Awake()
-{
-    HorizontalPanel::Awake();
-
-    FindComponents();
-}
-
 void TooltipElement::ImGuiDrawPropertysEvent()
 {
     HorizontalPanel::ImGuiDrawPropertysEvent();
@@ -52,6 +45,11 @@ void TooltipElement::ImGuiDrawPropertysEvent()
     if (ImGui::Button("Set Tooltip"))
     {
         SetTooltip(tooltipId);
+    }
+
+    if (_isDebug)
+    {
+        
     }
 }
 
