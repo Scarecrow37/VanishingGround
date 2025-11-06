@@ -410,12 +410,15 @@ void RevelationsView::ClearRevelationUIs()
 
 void RevelationsView::AddCallback()
 {
-    for (size_t i = 0; i < 4; i++)
+    std::string key; 
+    for (size_t i = 0; i < 3; i++)
     {
-        _callbacks.push_back(KeyCallbackUINavi::AddCallbackFocusIn("Revelation Navi 0", [&]() { FocusIn(i); }));
-        _callbacks.push_back(KeyCallbackUINavi::AddCallbackFocusOut("Revelation Navi 0", [&]() { FocusOut(i); }));
-        _callbacks.push_back(KeyCallbackUINavi::AddCallbackShowTooltips("Revelation Navi 0", [&]() { ShowTooltip(i); }));
-        _callbacks.push_back(KeyCallbackUINavi::AddCallbackHideTooltips("Revelation Navi 0", [&]() { HideToolTip(i); }));
+        key = "Revelation Navi ";
+        key += std::to_string(i);
+        _callbacks.push_back(KeyCallbackUINavi::AddCallbackFocusIn(key, [&]() { FocusIn(i); }));
+        _callbacks.push_back(KeyCallbackUINavi::AddCallbackFocusOut(key, [&]() { FocusOut(i); }));
+        _callbacks.push_back(KeyCallbackUINavi::AddCallbackShowTooltips(key, [&]() { ShowTooltip(i); }));
+        _callbacks.push_back(KeyCallbackUINavi::AddCallbackHideTooltips(key, [&]() { HideToolTip(i); }));
     }
 }
 
@@ -459,7 +462,7 @@ void RevelationsView::ShowTooltip(size_t index)
     {
         if (RevelationSystem* revelationSystem = SingletonComponent<RevelationSystem>::GetInstance())
         {
-            auto& elements = revelationSystem->GetPlayerElementList();
+            auto& elements = revelationSystem->GetRoundElementList();
             if (index < elements.size())
             {
                 if (auto& element = elements[index])
