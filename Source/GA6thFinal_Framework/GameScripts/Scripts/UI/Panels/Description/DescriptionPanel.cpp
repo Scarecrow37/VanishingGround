@@ -193,16 +193,36 @@ void DescriptionPanel::Awake()
     UpdateContent();
 }
 
+void DescriptionPanel::Update()
+{
+    HorizontalPanel::Update();
+
+    if (_invalidateLater)
+    {
+        InvalidateMeasure();
+        InvalidateArrange();
+        _invalidateLater = false;
+    }
+}
+
 void DescriptionPanel::UpdateContent()
 {
     EraseChild();
     MakeChild();
-    if (UIRoot* root = Root)
+    if (const UIRoot* root = Root)
     {
         root->SortViewOrder();
     }
-    InvalidateMeasure();
-    InvalidateArrange();
+
+    if (const bool enableInHierarchy = EnableInHierarchy; true == enableInHierarchy)
+    {
+        InvalidateMeasure();
+        InvalidateArrange();
+    }
+    else
+    {
+        _invalidateLater = true;
+    }
 }
 
 void DescriptionPanel::EraseChild() const
