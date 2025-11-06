@@ -271,6 +271,7 @@ void InventoryUIManager::UpdateWeaponUI()
             if (i < _weaponsNavi.size())
             {
                 _weaponsNavi[i]->SetItemInfo(info);
+                _weaponsNavi[i]->SetWeaponStats(weapon.Stats);
                 _weaponsNavi[i]->Enable = true;
             }
         }
