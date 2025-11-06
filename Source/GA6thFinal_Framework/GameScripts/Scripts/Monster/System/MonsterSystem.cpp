@@ -6,6 +6,7 @@
 #include "Stats/Enemy/EnemyStats.h"
 #include "Particle/ParticleComponent.h"
 #include "ExcelDataSystem/ExcelDataSystem.h"
+#include "KeyCallbackUINavi/KeyCallbackUINavi.h"
 
 UMREAL_COMPONENT(MonsterSystem)
 
@@ -99,6 +100,30 @@ bool MonsterSystem::SpawnMonsterFromSpawnID(SpawnID spawnID, Difficulty difficul
                 if (SpawnMonsterFromSpawnID(spawnID, spawnPointType, difficulty))
                 {
                     ++succeed;
+                }
+                else
+                {
+                    auto DisableNavi = [](const std::string& tag) 
+                    {
+                        if (auto navi = GameObject::FindComponentWithTag<KeyCallbackUINavi>(tag).lock())
+                        {
+                            navi->Enable = false;
+                        }
+                    };
+                    switch (spawnPointType)
+                    {
+                    case Monster::SpawnPoint::Left:
+                        DisableNavi("Enemy Left Panel UI Navi");
+                        break;
+                    case Monster::SpawnPoint::Middle:
+                        DisableNavi("Enemy Middle Panel UI Navi");
+                        break;
+                    case Monster::SpawnPoint::Right:
+                        DisableNavi("Enemy Right Panel UI Navi");
+                        break;
+                    default:
+                        break;
+                    }
                 }
             }
         }
