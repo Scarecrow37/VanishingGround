@@ -118,7 +118,7 @@ void TooltipGroupComponent::Start()
 {
     Component::Start();
 
-Hide();
+    Hide();
 }
 
 void TooltipGroupComponent::ImGuiDrawPropertysEvent()

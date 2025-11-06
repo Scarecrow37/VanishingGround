@@ -59,5 +59,5 @@ private:
 
     std::unordered_set<int> _activeTooltipIds;
 
-    bool _isFadingOut;
+    bool _isFadingOut = true;
 };
