@@ -2,6 +2,9 @@
 #include "CombatUIManager.h"
 #include "Preferences/PreferencesManager.h"
 #include "Inventory/UI/InventoryUIManager.h"
+#include "ItemDropSystem/UI/ItemDropUIRootManager.h"
+#include "AccessorySystem/AccessorySystem.h"
+#include "KeyCallbackUINavi/KeyCallbackUINavi.h"
 
 UMREAL_COMPONENT(CombatUIManager)
 
@@ -45,6 +48,7 @@ void CombatUIManager::Awake()
 {
     BindInputAction(ControllerButton::BACK,  Action::PRESSED, this, &CombatUIManager::PreferencesKeyDown);  // 옵션 창 키 바인딩
     BindInputAction(ControllerButton::START, Action::PRESSED, this, &CombatUIManager::InventoryKeyDown);    // 인벤 창 키 바인딩
+    BindInputAction(ControllerButton::RIGHT_SHOULDER, Action::PRESSED, this, &CombatUIManager::ChangeFocusKeyDown); // 포커스 변경
     _singletonComponent.TrySingleTon();  
 }
 
@@ -101,6 +105,33 @@ void CombatUIManager::DeserializedReflectEvent()
 {
 }
 
+bool CombatUIManager::CheckCombatUIInput()
+{
+    if (InventoryUIManager* manager = SingletonComponent<InventoryUIManager>::GetInstance())
+    {
+        if (manager->gameObject->ActiveInHierarchy == true)
+        {
+            return false;
+        }
+    }
+    if (PreferencesManager* manager = SingletonComponent<PreferencesManager>::GetInstance())
+    {
+        if (manager->IsOpen())
+        {
+            return false;
+        }
+    }
+    if (ItemDropUIRootManager* itemDropUIRootManager = SingletonComponent<ItemDropUIRootManager>::GetInstance())
+    {
+        if (itemDropUIRootManager->gameObject->ActiveSelf)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 void CombatUIManager::PreferencesKeyDown(const Input::Controller&) 
 {
     bool isOpen = true;
@@ -127,12 +158,51 @@ void CombatUIManager::InventoryKeyDown(const Input::Controller&)
         isOpen = manager->IsOpen() == false;
     }
 
-     if (isOpen)
+    if (isOpen)
     {
         if (InventoryUIManager* manager = SingletonComponent<InventoryUIManager>::GetInstance())
         {
             UINavigationComponent* lastFocus = GetLastFocusNaviFromObjectName("UI Root");
             manager->OpenInventory(lastFocus);
+        }
+    }
+}
+
+void CombatUIManager::ChangeFocusKeyDown(const Input::Controller&)
+{
+    if (CheckCombatUIInput())
+    {
+        if (_isFocusAccessories == false)
+        {
+            if (AccessorySystem* system = SingletonComponent<AccessorySystem>::GetInstance())
+            {
+                size_t itemCount = system->GetPlayerAccessoryItems().size();
+                if (0 < itemCount)
+                {
+                    if (auto naviPanel = GameObject::FindWithTag("Accessories Horizontal Navis Panel").lock())
+                    {
+                        if (Transform* child = naviPanel->transform->GetChild(0))
+                        {
+                            if (KeyCallbackUINavi* navi = child->gameObject->GetComponent<KeyCallbackUINavi>())
+                            {
+                                navi->Focus();
+                                _isFocusAccessories = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }   
+        else
+        {
+            if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
+            {
+                if (auto focusNavi = GameObject::FindComponentWithTag<KeyCallbackUINavi>("Weapon Panel UI Navi").lock())
+                {
+                    focusNavi->Focus();
+                    _isFocusAccessories = false;
+                }
+            }
         }
     }
 }

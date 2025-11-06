@@ -50,8 +50,16 @@ protected:
     void DeserializedReflectEvent() override;
 
 private:
+    bool CheckCombatUIInput();
+
     void PreferencesKeyDown(const Input::Controller&);
     void InventoryKeyDown(const Input::Controller&);
+    void ChangeFocusKeyDown(const Input::Controller&);
+
+private:
+    bool _isFocusAccessories = false;
+
+private:
     UINavigationComponent* GetLastFocusNaviFromObjectName(const std::string& uiRootObjectName);
 
 public:

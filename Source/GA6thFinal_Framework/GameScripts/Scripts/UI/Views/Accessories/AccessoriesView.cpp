@@ -4,6 +4,9 @@
 #include "UI/Elements/Image/ImageElement.h"
 #include "Utility/SingletonHelper.h"
 #include "AccessorySystem/AccessorySystem.h"
+#include "KeyCallbackUINavi/KeyCallbackUINavi.h"
+#include "UI/Panels/Description/DescriptionPanel.h"
+#include "TooltipSystem/TooltipSystem.h"
 
 UMREAL_COMPONENT(AccessoriesView)
 
@@ -27,11 +30,13 @@ void AccessoriesView::Awake()
 void AccessoriesView::Start() 
 {
     Watch();
+    AddCallback();
 }
 
 void AccessoriesView::OnDestroy() 
 {
     Blind();
+    ClearCallback();
 }
 
 void AccessoriesView::FindChildElements()
@@ -57,21 +62,40 @@ void AccessoriesView::FindChildElements()
 
     if (_accessoriesGridPanel)
     {
-        std::vector<GameObject*> frames = _accessoriesGridPanel->transform->FindDFSwithTag("Frame");
-        for (auto& frame : frames)
+        size_t frameIndex = 0;
+        size_t iconIndex = 0;
+        size_t focusIndex = 0;
+        Transform::ForeachDFS(_accessoriesGridPanel->transform, [&](Transform* curr) 
         {
-            auto& ui = _uiElements.emplace_back();
-            ui.Frame = frame->GetComponent<ImageElement>();
-        }
-
-        std::vector<GameObject*> icons = _accessoriesGridPanel->transform->FindDFSwithTag("Icon");
-        for (size_t i = 0; i < icons.size(); ++i)
-        {
-            if (i < _uiElements.size())
+            GameObject& object = curr->gameObject;
+            if (object.CompareTag("Frame"))
             {
-                _uiElements[i].Icon = icons[i]->GetComponent<ImageElement>();
+                if (_uiElements.size() <= frameIndex)
+                {
+                    _uiElements.resize(frameIndex + 1);
+                }
+                _uiElements[frameIndex].Frame = object.GetComponent<ImageElement>();
+                ++frameIndex;
             }
-        }
+            else if (object.CompareTag("Icon"))
+            {
+                if (_uiElements.size() <= frameIndex)
+                {
+                    _uiElements.resize(frameIndex + 1);
+                }
+                _uiElements[iconIndex].Icon = object.GetComponent<ImageElement>();
+                ++iconIndex;
+            }
+            else if (object.CompareTag("Focus"))
+            {
+                if (_uiElements.size() <= focusIndex)
+                {
+                    _uiElements.resize(focusIndex + 1);
+                }
+                _uiElements[focusIndex].Focus = object.GetComponent<ImageElement>();
+                ++focusIndex;
+            }
+        });
     }
 }
 
@@ -95,9 +119,10 @@ void AccessoriesView::Watch()
         _handle = UmWatcher.Watch<AccessoriesViewModel, std::vector<AccessoriesUIData>>(
         VIEW_KEY, [this](const std::vector<AccessoriesUIData>& value) 
         {
+            size_t playerAccessoriesCount = value.size();
             for (size_t i = 0; i <_uiElements.size(); ++i)
             {
-                if (i < value.size())
+                if (i < playerAccessoriesCount)
                 {
                     const AccessoriesUIData& uiData = value[i];
                     if (_uiElements[i].Icon)
@@ -124,6 +149,27 @@ void AccessoriesView::Watch()
                     } 
                 }
             }
+
+            if (auto naviPanel = GameObject::FindWithTag("Accessories Horizontal Navis Panel").lock())
+            {
+                for (int i = 0; i < naviPanel->transform->ChildCount; i++)
+                {
+                    if (Transform* child = naviPanel->transform->GetChild(i))
+                    {
+                        if (KeyCallbackUINavi* navi = child->gameObject->GetComponent<KeyCallbackUINavi>())
+                        {
+                            if (i < playerAccessoriesCount)
+                            {
+                                navi->Enable = true;
+                            }
+                            else
+                            {
+                                navi->Enable = false;
+                            }
+                        }
+                    }
+                }
+            }
         });       
 
         if (AccessorySystem* system = SingletonComponent<AccessorySystem>::GetInstance())
@@ -140,5 +186,107 @@ void AccessoriesView::Blind()
     if (_accessoriesGridPanel)
     {
         UmWatcher.Blind<AccessoriesViewModel>(VIEW_KEY, _handle);
+    }
+}
+
+void AccessoriesView::AddCallback()
+{
+    std::string key;
+    for (size_t i = 0; i < 15; i++)
+    {
+        key = "Accessories Panel Navi ";
+        key += std::to_string(i);
+        _callbacks.push_back(KeyCallbackUINavi::AddCallbackFocusIn(key, [this, i]() { FocusIn(i); }));
+        _callbacks.push_back(KeyCallbackUINavi::AddCallbackFocusOut(key, [this, i]() { FocusOut(i); }));
+        _callbacks.push_back(KeyCallbackUINavi::AddCallbackShowTooltips(key, [this, i]() { ShowTooltip(i); }));
+        _callbacks.push_back(KeyCallbackUINavi::AddCallbackHideTooltips(key, [this, i]() { HideTooltip(i); }));
+    }
+    _focusInfoUIObject    = GameObject::Find("Focus Info UI Panel");
+    _focusInfoDescription = GameObject::FindComponentWithTag<DescriptionPanel>("Focus Info UI Description Panel");
+}
+
+void AccessoriesView::ClearCallback()
+{
+    for (auto& [delegate, handel] : _callbacks)
+    {
+        delegate->RemoveListener(handel);
+    }
+}
+
+void AccessoriesView::FocusIn(size_t index)
+{
+    if (index < _uiElements.size())
+    {
+        if (_uiElements[index].Focus)
+        {
+            _uiElements[index].Focus->Enable = true;       
+        }
+    }
+    if (AccessorySystem* system = SingletonComponent<AccessorySystem>::GetInstance())
+    {
+        if (auto description = _focusInfoDescription.lock())
+        {
+            auto&        accessory   = system->GetPlayerAccessoryItems()[index];
+            DropItemInfo info        = accessory.GetItemInfo();
+            description->Description = DropItemInfo::GetArtifactDescription(info);
+        }
+    }
+    if (TooltipSystem* tooltipSystem = SingletonComponent<TooltipSystem>::GetInstance())
+    {
+        tooltipSystem->Hide();
+    }
+}
+
+void AccessoriesView::FocusOut(size_t index)
+{
+    if (index < _uiElements.size())
+    {
+        if (_uiElements[index].Focus)
+        {
+            _uiElements[index].Focus->Enable = false;
+        }
+    }
+    if (auto description = _focusInfoDescription.lock())
+    {
+        description->Description = "";
+    }
+    if (TooltipSystem* tooltipSystem = SingletonComponent<TooltipSystem>::GetInstance())
+    {
+        tooltipSystem->Hide();
+    }
+}
+
+void AccessoriesView::ShowTooltip(size_t index)
+{
+    if (AccessorySystem* accessorySystem = SingletonComponent<AccessorySystem>::GetInstance())
+    {
+        if (TooltipSystem* tooltipSystem = SingletonComponent<TooltipSystem>::GetInstance())
+        {
+            auto& accessories = accessorySystem->GetPlayerAccessoryItems();
+            if (index < accessories.size())
+            {
+                DropItemInfo info = accessories[index].GetItemInfo();
+                std::vector<int> tooltips = DropItemInfo::GetArtifactTooltipIDs(info);
+                tooltipSystem->Show(TooltipSystem::Group::ACCESSORY, tooltips);
+            }          
+        }
+    }
+
+    if (auto object = _focusInfoUIObject.lock())
+    {
+        object->SetActive(true);
+    }
+}
+
+void AccessoriesView::HideTooltip(size_t index)
+{
+    if (TooltipSystem* tooltipSystem = SingletonComponent<TooltipSystem>::GetInstance())
+    {
+        tooltipSystem->Hide();
+    }
+
+    if (auto object = _focusInfoUIObject.lock())
+    {
+        object->SetActive(false);
     }
 }
