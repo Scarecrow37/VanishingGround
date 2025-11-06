@@ -181,6 +181,7 @@ void WeaponView::Start()
 void WeaponView::OnDestroy() 
 {
     UmWatcher.Blind<WeaponViewModel>("Weapon", _watchHandle);
+    ClearCallbackAll();
 }
 
 void WeaponView::FindElements()
@@ -385,12 +386,11 @@ void WeaponView::ShowTooltips()
     {
         if (WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance())
         {
-            auto& weapon = weaponSystem->GetCurrentWeaponElement();
-            DropItemInfo item = weapon.GetItemInfo();
+            auto&            weapon = weaponSystem->GetCurrentWeaponElement();
+            DropItemInfo     item   = weapon.GetItemInfo();
             std::vector<int> ids    = item.GetArtifactTooltipIDs(item);
 
-            //TODO: Span 이후 추가 예정
-            tooltipSystem->Show(TooltipSystem::Group::WEAPON, {11100, 123123});
+            tooltipSystem->Show(TooltipSystem::Group::WEAPON, ids);
         }
     }
 }
