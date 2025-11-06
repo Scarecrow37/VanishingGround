@@ -480,8 +480,8 @@ void QTESystem::UpdateQTETrack()
     else
     {
         // 시간이 모두 경과했거나, 모든 노트를 처리한 경우 QTE 종료
-        StopQTE();
         ProcessQTEExitEvent();
+        StopQTE();
     }
 }
 
@@ -636,6 +636,11 @@ void QTESystem::ProcessQTEEnterEvent()
 
 void QTESystem::ProcessQTEExitEvent() 
 {
+    if (_currState == QTE::STATE_FADE_OUT)
+    {
+        return;
+    }
+
     UmAudio.FadeIn();
 
     _overallResult.UpdateResult(); // 결과 갱신
@@ -684,6 +689,7 @@ void QTESystem::ProcessQTEFadeOutEndEvent()
 void QTESystem::ProcessQTEPlayingEvent() 
 {
     UpdateQTETrack();
+
     QTEUIManager* uiManager = SingletonComponent<QTEUIManager>::GetInstance();
     if (uiManager)
     {
