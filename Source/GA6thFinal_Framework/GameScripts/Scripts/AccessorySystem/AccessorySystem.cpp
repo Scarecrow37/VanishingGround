@@ -18,6 +18,12 @@ AccessorySystem::~AccessorySystem()
 
 }
 
+void AccessorySystem::ClearPlayerAccessoryItems() 
+{
+    _playerAccessoryItemSet.clear();
+    _playerAccessoryItems.clear();
+}
+
 bool AccessorySystem::EquipAccessory(const AccessoryElement& accessory)
 {
     auto [iter, result] = _playerAccessoryItemSet.insert(accessory.AccessoryID);

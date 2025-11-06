@@ -31,8 +31,9 @@ namespace Input
         try
         {
             _state = _adapter->ReceiveState(_id);
-            _queue = _adapter->ReceiveQueue(_id);
+            ButtonQueue queue = _adapter->ReceiveQueue(_id);
             UpdateStickBias();
+            _queue = UpdateQueue(queue);
             UpdateVibration();
         }
         catch (const DeviceNotConnectedException&)
@@ -139,6 +140,42 @@ namespace Input
         if (_nextVibration.Duration.count() <= 0) return;
         Vibrate(_nextVibration.LeftMotorSpeed, _nextVibration.RightMotorSpeed, _nextVibration.Duration);
         _nextVibration = ControllerTypes::VIBRATION_EMPTY;
+    }
+
+    Controller::ButtonQueue Controller::UpdateQueue(ButtonQueue& queue) const
+    {
+        ButtonQueue updatedQueue;
+
+        for (unsigned int buttonFlag = 0x000001; buttonFlag <= Button::RIGHT_THUMB_STICK; buttonFlag = buttonFlag << 1)
+        {
+            Button button = static_cast<Button>(buttonFlag);
+            if (std::ranges::any_of(queue, [button](const ButtonState& buttonState) { return buttonState.Button == button; }))
+            {
+                continue;
+            }
+
+            if (IsButtonDown(button))
+            {
+                ButtonState buttonState{};
+                buttonState.Button = button;
+                buttonState.Flag   = StateFlag::STATE_REPEAT;
+
+                if (button == Button::LEFT_THUMB_STICK)
+                {
+                    buttonState.Bias = GetLeftStickBias();
+                }
+                else if (button == Button::RIGHT_THUMB_STICK)
+                {
+                    buttonState.Bias = GetRightStickBias();
+                }
+
+                updatedQueue.push_back(buttonState);
+            }
+        }
+
+        std::ranges::move(queue, std::back_inserter(updatedQueue));
+
+        return updatedQueue;
     }
 
 } // namespace Input

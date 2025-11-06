@@ -199,6 +199,10 @@ void DescriptionPanel::UpdateContent()
     {
         EraseChild();
         MakeChild();
+        if (UIRoot* root = Root)
+        {
+            root->SortViewOrder();
+        }
         InvalidateMeasure();
         InvalidateArrange();
     }

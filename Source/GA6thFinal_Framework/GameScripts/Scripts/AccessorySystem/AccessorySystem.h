@@ -73,6 +73,8 @@ public:
     /// <returns></returns>
     const MVVM::Model<std::vector<AccessoryElement>>& GetPlayerAccessoryItems() const { return _playerAccessoryItems; }
 
+    void ClearPlayerAccessoryItems();
+
     /// <summary>
     /// 플레이어에게 장신구를 장착합니다 (중복된 장신구는 장착 불가능합니다.)
     /// </summary>

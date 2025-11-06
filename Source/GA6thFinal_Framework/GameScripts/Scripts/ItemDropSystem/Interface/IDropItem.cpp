@@ -69,10 +69,10 @@ int DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType type, bool isMapSc
             id = 460014;
             break;
         case ArtifactDropType::ACCESSORY:
-            id = 460015;
+            id = 460016;
             break;
         case ArtifactDropType::REVELATION:
-            id = 460016;
+            id = 460015;
             break;
         case ArtifactDropType::ERASE_REVELATION:
             id = 460017;
@@ -152,11 +152,11 @@ int DropItemInfo::GetArtifactIconID(DropItemInfo itemInfo)
     case ArtifactDropType::SWORD:
         return -201002;
     case ArtifactDropType::ACCESSORY:
-        return DropItemInfo::GetArtifactCategoryAssetID(itemInfo.Category, false);
+        return DropItemInfo::GetArtifactCategoryAssetID(itemInfo.Category, true);
     case ArtifactDropType::REVELATION:
         return GetRevelationDefaultIcon(itemInfo);
     case ArtifactDropType::ERASE_REVELATION:
-        return DropItemInfo::GetArtifactCategoryAssetID(itemInfo.Category, false);
+        return DropItemInfo::GetArtifactCategoryAssetID(itemInfo.Category, true);
     default:
         return 0;
     }

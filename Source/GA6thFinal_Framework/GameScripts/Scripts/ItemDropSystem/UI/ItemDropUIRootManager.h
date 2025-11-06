@@ -9,6 +9,9 @@ class WeaponChangeUIManager;
 class RestartStageNavi;
 class EraseRevelationUIManager;
 class ReturnToMapNavi;
+class TextElement;
+class DescriptionPanel;
+class ImageElement;
 class ItemDropUIRootManager : public Component, public InputReceiver
 {
     USING_PROPERTY(ItemDropUIRootManager)
@@ -75,6 +78,11 @@ public:
     /// </summary>
     void AutoFocus(bool checkInputDir = true);
 
+    /// <summary>
+    /// 스토리 정보를 갱신합니다.
+    /// </summary>
+    void UpdateStory();
+
 public:
     REFLECT_PROPERTY(
     )
@@ -108,6 +116,14 @@ private:
     std::weak_ptr<EraseRevelationUIManager>   _eraseRevelationUIManager;
     std::weak_ptr<RestartStageNavi>           _restartNavi;
     std::weak_ptr<ReturnToMapNavi>            _returnToMapNavi;
+
+    struct StoryPanel
+    {
+        std::weak_ptr<TextElement>      Title;
+        std::weak_ptr<DescriptionPanel> Description;
+        std::weak_ptr<ImageElement>     Image;
+    }
+    _storyPanel;
 
     enum class InputDir
     {
