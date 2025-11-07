@@ -4,6 +4,7 @@
 #include "QTE/Common/QTECommon.h"
 #include "QTE/Result/QTEResult.h"
 #include "WeaponModel/WeaponModelData.h"
+#include "Monster/Common/MonsterCommon.h"
 class Enemy;
 
 /*
@@ -57,6 +58,7 @@ private:
     void BattleOnHitEvent(QTE::NoteResult& result);
 
     Battle::EnemyTargetFlag_ GetAttackTargetFromButton(unsigned int button) const;
+    Monster::SpawnPoint GetSpawnPointFromButton(unsigned int button) const;
 
 private:
     InputState _inputState;

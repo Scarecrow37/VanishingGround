@@ -3,7 +3,6 @@
 class FadeImageElement;
 class FadeTextElement;
 class FadeDescriptionPanel;
-class FadeImageElement;
 class ExcelDataBase;
 
 class IntroManager : public Component, public InputReceiver

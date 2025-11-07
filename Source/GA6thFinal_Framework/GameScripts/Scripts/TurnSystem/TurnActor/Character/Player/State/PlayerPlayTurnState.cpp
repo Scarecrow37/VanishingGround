@@ -13,6 +13,7 @@
 #include <WeaponSystem/WeaponSystem.h>
 #include <WeaponModel/WeaponModelManager.h>
 #include "AccessorySystem/AccessorySystem.h"
+#include "Monster/System/MonsterSystem.h"
 
 #include <TurnSystem/TurnSystemHelper.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
@@ -397,6 +398,27 @@ void PlayerPlayTurnState::BattleOnHitEvent(QTE::NoteResult& result)
     }
 }
 
+Monster::SpawnPoint PlayerPlayTurnState::GetSpawnPointFromButton(unsigned int button) const
+{
+    Monster::SpawnPoint spawnPoint;
+    switch (button)
+    {
+    case Input::Controller::Button::X:
+        spawnPoint = Monster::SpawnPoint::Left;
+        break;
+    case Input::Controller::Button::Y:
+        spawnPoint = Monster::SpawnPoint::Middle;
+        break;
+    case Input::Controller::Button::B:
+        spawnPoint = Monster::SpawnPoint::Right;
+        break;
+    default: // 없으면 LEFT로 기본 설정
+        spawnPoint = Monster::SpawnPoint::Left;
+        break;
+    }
+    return spawnPoint;
+}
+
 Battle::EnemyTargetFlag_ PlayerPlayTurnState::GetAttackTargetFromButton(unsigned int button) const
 {
     Battle::EnemyTargetFlag_ target;
@@ -556,12 +578,10 @@ void PlayerPlayTurnState::SetWeaponModelTransform(WeaponModelData& modelData, QT
     if (weaponModelManager)
     {
         // 무기 모델의 위치 설정
-        Battle::EnemyTargetFlag_ target  = GetAttackTargetFromButton(noteResult.PressedButton);
-        auto                     enemies = Battle::GetTargetsFromFlags(target);
-        if (false == enemies.empty())
+        if (MonsterSystem* monsterSystem = SingletonComponent<MonsterSystem>::GetInstance())
         {
-            Enemy* enemy = enemies.front();
-            if (enemy)
+            Monster::SpawnPoint target = GetSpawnPointFromButton(noteResult.PressedButton);
+            if (auto spawnPoint = monsterSystem->GetSpawnPointObject(target).lock().get())
             {
                 if (GameObject& player = GetPlayer().gameObject)
                 {
@@ -571,21 +591,22 @@ void PlayerPlayTurnState::SetWeaponModelTransform(WeaponModelData& modelData, QT
                         const Vector3 offsetRotation = weaponModelManager->GetWeaponOffsetRotation(modelData.Type);
                         const float   offsetDistance = weaponModelManager->GetWeaponOffsetDistance(modelData.Type);
 
-                        const Vector3 enemyPosition = enemy->transform->GetWorldPosition();
-                        const Vector3 enemyForward  = enemy->transform->Forward * offsetDistance;
+                        const Vector3 enemyPosition = spawnPoint->transform->GetWorldPosition();
+                        const Vector3 enemyForward  = spawnPoint->transform->Forward * offsetDistance;
                         gameObject->transform->SetWorldPosition(enemyPosition + enemyForward + offsetPosition);
 
                         Quaternion addRotation = Quaternion::Identity;
                         if (modelData.Type != WeaponType::WARHAMMER)
                         {
-                            const Vector3 randomAdded = Vector3(Random::Range(-20.0f, 20.0f), Random::Range(-20.0f, 20.0f), 0.f);
-                            addRotation = Quaternion::CreateFromYawPitchRoll(randomAdded);
+                            const Vector3 randomAdded = Vector3(Random::Range(-XM_1DIVPI, XM_1DIVPI),
+                                                                Random::Range(-XM_1DIVPI, XM_1DIVPI), 0.f);
+                            addRotation               = Quaternion::CreateFromYawPitchRoll(randomAdded);
                         }
-                    
+
                         gameObject->transform->Rotation *= addRotation;
                         gameObject->transform->EulerAngle += offsetRotation;
 
-                        gameObject->transform->Scale = enemy->transform->Scale;
+                        gameObject->transform->Scale = spawnPoint->transform->Scale;
                     }
                 }
             }
