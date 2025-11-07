@@ -1,4 +1,5 @@
 ﻿#include "pch.h"
+#include "minidumpapiset.h"
 using namespace Global;
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -125,62 +126,71 @@ void Application::UnInitialize()
 
 void Application::Run()
 {
-    while (!_isQuit)
+#ifndef _UMEDITOR
+    try
+#endif
     {
-        if (PeekMessage(&_msg, NULL, 0, 0, PM_REMOVE))
+        while (!_isQuit)
         {
-            if (_msg.message == WM_QUIT)
+            if (PeekMessage(&_msg, NULL, 0, 0, PM_REMOVE))
             {
-                Quit();
-                break;
+                if (_msg.message == WM_QUIT)
+                {
+                    Quit();
+                    break;
+                }
+                TranslateMessage(&_msg);
+                DispatchMessage(&_msg);
             }
-            TranslateMessage(&_msg); 
-            DispatchMessage(&_msg);
-        }
-        else
-        {
-            // Time System Update
-            ETimeSystem::Engine::TimeSystemUpdate();
-            float deltaTime = engineCore->Time.DeltaTime();
-
-            // Imgui begin
-            _imguiDX12Module->ImguiBegin();
-
-            // Debugger Window
-            Global::engineCore->DebuggerWindow.Update();
-
-            // Editor Update
-            if constexpr (true == Application::IsEditor())
+            else
             {
-                _filesystemModule->Update();
-                Global::editorModule->Update();
-                Global::engineCore->UpdateIsPlay(); //에디터 업데이트 이후 플레이 여부 갱신 해야함
+                // Time System Update
+                ETimeSystem::Engine::TimeSystemUpdate();
+                float deltaTime = engineCore->Time.DeltaTime();
+
+                // Imgui begin
+                _imguiDX12Module->ImguiBegin();
+
+                // Debugger Window
+                Global::engineCore->DebuggerWindow.Update();
+
+                // Editor Update
+                if constexpr (true == Application::IsEditor())
+                {
+                    _filesystemModule->Update();
+                    Global::editorModule->Update();
+                    Global::engineCore->UpdateIsPlay(); // 에디터 업데이트 이후 플레이 여부 갱신 해야함
+                }
+
+                // AnimationUpdate
+                Global::engineCore->Graphics.UpdateAnimation(deltaTime);
+
+                // Scene Logic Update
+                ESceneManager::Engine::SceneUpdate();
+
+                // User Interface Update
+                // TODO: Erase Magic Number Resolution
+                Global::engineCore->UserInterface.Update({1920, 1080});
+
+                // CameraUpdate, RenderQueueUpdate, Render
+                Global::engineCore->Graphics.Update(deltaTime);
+                Global::engineCore->Graphics.Render();
+
+                // Scene Final Update
+                ESceneManager::Engine::SceneFinalUpdate();
+
+                _imguiDX12Module->ImguiEnd();
+
+                Global::engineCore->Graphics.Flip();
             }
-
-            // AnimationUpdate
-            Global::engineCore->Graphics.UpdateAnimation(deltaTime);
-
-            // Scene Logic Update
-            ESceneManager::Engine::SceneUpdate();
-
-            // User Interface Update
-            // TODO: Erase Magic Number Resolution
-            Global::engineCore->UserInterface.Update({1920, 1080});
-
-            // CameraUpdate, RenderQueueUpdate, Render
-            Global::engineCore->Graphics.Update(deltaTime);
-            Global::engineCore->Graphics.Render();
-
-            // Scene Final Update
-            ESceneManager::Engine::SceneFinalUpdate();
-
-
-            _imguiDX12Module->ImguiEnd();
-
-            Global::engineCore->Graphics.Flip();
-
-
         }
+    }
+#ifndef _UMEDITOR
+    catch (const std::exception& ex)
+#endif
+    {
+        UmLogger.Log(LogLevel::LEVEL_FATAL, ex.what());
+        CreateMiniDump(nullptr, MiniDumpWithFullMemory | MiniDumpWithThreadInfo);
     }
 }
 
