@@ -132,7 +132,7 @@ void QTESystem::ResetState()
     _fadeState          = {};
     _callbackHandler    = {};
     _overallResult      = {};
-    _nextKeyEvent       = {nullptr, Input::ControllerTypes::UNDEFINED};
+    _nextKeyEvent.clear();
 
     ReflectFields->QTESpeedScale = 1.0f;
 }
@@ -444,12 +444,20 @@ void QTESystem::UpdateQTETrack()
         {
             PressedQTEButton(); // 최대 일격 판정 시간이 지나갔는데 버튼을 누르지 않은 경우, MISS 처리
         }
-        auto& [controller, button] = _nextKeyEvent;
-        if (controller)
+
+        if (false == _nextKeyEvent.empty())
         {
-            PressedQTEButton(button);
-            controller = nullptr;
+            for (auto& [controller, button] : _nextKeyEvent)
+            {
+                if (controller)
+                {
+                    PressedQTEButton(button);
+                    controller = nullptr;
+                }
+            }
+            _nextKeyEvent.clear();
         }
+      
         Debugger()([this] {
             if (ImGui::IsKeyPressed(ImGuiKey_LeftArrow, false))
             {
@@ -570,7 +578,7 @@ void QTESystem::PressedButtonX(const Input::Controller& controller)
     // Handle button X pressed
     if (CanPressQTEButton())
     {
-        _nextKeyEvent = {&controller, _keyBinder.GetKeyX()};
+        _nextKeyEvent.emplace_back(&controller, _keyBinder.GetKeyX());
     }
 }
 
@@ -580,7 +588,7 @@ void QTESystem::PressedButtonY(const Input::Controller& controller)
     // Handle button Y pressed
     if (CanPressQTEButton())
     {
-        _nextKeyEvent = {&controller, _keyBinder.GetKeyY()};
+        _nextKeyEvent.emplace_back(&controller, _keyBinder.GetKeyY());
     }
 }
 
@@ -590,7 +598,7 @@ void QTESystem::PressedButtonB(const Input::Controller& controller)
     // Handle button B pressed
     if (CanPressQTEButton())
     {
-        _nextKeyEvent = {&controller, _keyBinder.GetKeyB()};
+        _nextKeyEvent.emplace_back(&controller, _keyBinder.GetKeyB());
     }
 }
 

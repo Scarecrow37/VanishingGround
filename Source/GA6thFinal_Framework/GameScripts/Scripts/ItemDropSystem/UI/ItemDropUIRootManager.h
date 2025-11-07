@@ -91,7 +91,6 @@ protected:
     REFLECT_FIELDS_BEGIN(Component)
     REFLECT_FIELDS_END(ItemDropUIRootManager)
 
-    void DeserializedReflectEvent() override;
     void ImGuiDrawPropertysEvent() override;
 
     void Reset() override;
