@@ -8,7 +8,7 @@ UMREAL_COMPONENT(TooltipComponent)
 
 TooltipComponent::TooltipComponent() = default;
 
-void TooltipComponent::SetTooltip(const TooltipData& data) const
+void TooltipComponent::SetTooltip(const Tooltip::TooltipData& data) const
 {
     if (const auto image = _image.lock())
     {
@@ -26,6 +26,7 @@ void TooltipComponent::SetTooltip(const TooltipData& data) const
     if (const auto title = _title.lock())
     {
         title->Text  = data.Title;
+        title->Color = data.TitleColor;
     }
 
     if (const auto description = _description.lock())
@@ -57,7 +58,7 @@ void TooltipComponent::ImGuiDrawPropertysEvent()
 {
     Component::ImGuiDrawPropertysEvent();
 
-    static TooltipData data = {};
+    static Tooltip::TooltipData data = {};
     ImGui::InputInt("Image Asset Id", &data.ImageAssetId);
     ImGui::InputText("Title", &data.Title);
     ImGui::InputText("Description", &data.Description);
@@ -81,47 +82,23 @@ void TooltipComponent::ImGuiDrawPropertysEvent()
 
 void TooltipComponent::FindComponents()
 {
-    if (const Transform* imageTransform = transform->FindWithTag(TAG_IMAGE_COMPONENT))
-    {
-        const GameObject& imageObject = imageTransform->gameObject;
-        if (const ImageElement* imageComponentRaw = imageObject.GetComponent<ImageElement>())
+    Transform::ForeachBFS(transform, [this](const Transform* childTransform, const int depth) {
+        if (depth == 1)
         {
-            _image = imageComponentRaw->GetWeakPtrAs<ImageElement>();
+            const GameObject& childObject = childTransform->gameObject;
+            if (const ImageElement* imageComponentRaw = childObject.GetComponent<ImageElement>())
+            {
+                _image = imageComponentRaw->GetWeakPtrAs<ImageElement>();
+            }
+            else if (const TextElement* textComponentRaw = childObject.GetComponent<TextElement>())
+            {
+                _title = textComponentRaw->GetWeakPtrAs<TextElement>();
+            }
+            else if (const DescriptionPanel* descriptionComponentRaw = childObject.GetComponent<DescriptionPanel>())
+            {
+                _description = descriptionComponentRaw->GetWeakPtrAs<DescriptionPanel>();
+            }
         }
-    }
-
-    if (_image.expired())
-    {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, "Fail to find tooltip image component.");
-    }
-
-
-    if (const Transform* titleTransform = transform->FindWithTag(TAG_TITLE_COMPONENT))
-    {
-        const GameObject&  titleObject       = titleTransform->gameObject;
-        if (const TextElement* titleComponentRaw = titleObject.GetComponent<TextElement>())
-        {
-            _title = titleComponentRaw->GetWeakPtrAs<TextElement>();
-        }
-    }
-
-    if (_title.expired())
-    {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, "Fail to find tooltip title text component.");
-    }
-
-    if (const Transform* descriptionTransform = transform->FindWithTag(TAG_DESCRIPTION_COMPONENT))
-    {
-        const GameObject&      descriptionObject = descriptionTransform->gameObject;
-        if (const DescriptionPanel* descriptionComponentRaw = descriptionObject.GetComponent<DescriptionPanel>())
-        {
-            _description = descriptionComponentRaw->GetWeakPtrAs<DescriptionPanel>();
-        }
-    }
-
-    if (_description.expired())
-    {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, "Fail to find tooltip description panel component.");
-    }
+    });
 }
 

@@ -1,5 +1,7 @@
 ﻿#pragma once
-#include "Scripts/UI/Contents/TooltipComponent.h"
+#include "Scripts/UI/Contents/TooltipType.h"
+
+class TooltipComponent;
 
 class TooltipColumnComponent : public Component
 {
@@ -7,7 +9,7 @@ class TooltipColumnComponent : public Component
 
     static constexpr size_t MAX_TOOLTIP_COUNT = 4;
 
-    struct Tooltip
+    struct TooltipAndActive
     {
         std::weak_ptr<TooltipComponent> Component;
         bool                            IsActive;
@@ -21,7 +23,7 @@ public:
 
 public:
     bool IsFull() const;
-    void Show(const TooltipComponent::TooltipData& data);
+    void Show(const Tooltip::TooltipData& data);
     void Hide();
 
 protected:
@@ -37,5 +39,5 @@ protected:
     REFLECT_FIELDS_END(TooltipColumnComponent)
 
 private:
-    std::vector<Tooltip> _tooltips;
+    std::vector<TooltipAndActive> _tooltips;
 };

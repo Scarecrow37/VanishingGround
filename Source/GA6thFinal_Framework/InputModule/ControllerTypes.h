@@ -31,7 +31,6 @@ namespace Input::ControllerTypes
 
     enum StateFlag : unsigned char
     {
-        STATE_UNCHANGED = 0,
         STATE_DOWN,
         STATE_UP,
         STATE_REPEAT

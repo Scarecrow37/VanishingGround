@@ -175,11 +175,6 @@ void ItemDropUIRootManager::UpdateStory()
     }
 }
 
-void ItemDropUIRootManager::DeserializedReflectEvent()
-{
-    
-}
-
 void ItemDropUIRootManager::ImGuiDrawPropertysEvent()
 {
     auto CheckWeakPtrText = [](const auto& weakPtr) 

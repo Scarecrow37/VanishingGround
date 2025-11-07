@@ -20,9 +20,12 @@ LogOutput::~LogOutput() = default;
 
 void LogOutput::Update() 
 {
-    UpdateKeboread();
-    DrawShowLog();
-    DrawLogSetting();
+    Debugger dbg;
+    dbg([this]() 
+    {
+        DrawShowLog();
+        DrawLogSetting();
+    }); 
 }
 
 void LogOutput::DrawShowLog() 
@@ -82,13 +85,5 @@ void LogOutput::DrawLogSetting()
             globalScale = std::clamp(globalScale, 0.1f, 10.f);            
         }
         ImGui::End();
-    }
-}
-
-void LogOutput::UpdateKeboread() 
-{
-    if (ImGui::IsKeyReleased(ImGuiKey_F3))
-    {
-        _isShowSetting = !_isShowSetting;
     }
 }

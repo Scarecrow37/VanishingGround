@@ -253,9 +253,10 @@ namespace Input
         void Vibrate(const ControllerTypes::Vibration& vibration);
 
     private:
-        void UpdateStickBias();
-        void UpdateVibration();
-        ButtonQueue UpdateQueue(ButtonQueue& queue) const;
+        void        UpdateStickBias(const ButtonQueue& queue);
+        void        UpdateVibration();
+        ButtonQueue UpdateQueue(ButtonQueue& queue);
+        void        UpdateQueueState(const ButtonQueue& queue);
 
         /// <summary>
         /// 컨트롤러의 진동을 지정된 모터 속도와 지속 시간으로 활성화합니다.
@@ -269,10 +270,14 @@ namespace Input
         const Adapter* _adapter;
 
         ID          _id;
+
         State       _state;
+
         ButtonQueue _queue;
+        unsigned int _queueState;
+
         StickBias   _leftStickBias;
-        StickBias   _rightStickBias;
+        StickBias    _rightStickBias;
 
         ControllerTypes::Vibration _nextVibration;
         std::mutex              _vibrationMutex;

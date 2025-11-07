@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Utility/SingletonHelper.h"
 
-class SceneTransitionComponent : public Component
+class SceneTransitionComponent : public Component, public InputReceiver
 {
     // easetype, easefunctype, threshold
     using EasingPreset = std::tuple<UINT, UINT, float>;
@@ -83,7 +83,7 @@ public:
     bool IsFadeOut() const;
     void SceneTransitionFade(std::string_view inPreset, std::string_view outPreset, std::function<void(void)> callback);
 
-
+    void InputVoid(const Input::Controller&);
 
 private:
     SingletonComponent<SceneTransitionComponent> _singletonComponent{this};
@@ -93,4 +93,6 @@ private:
     std::function<void(void)> _fadeCallBackFunction;
     bool                      _transitionLock = false;
     bool                      _fadeEndFlag    = false;
+
+    bool _inputlock = false;
 };

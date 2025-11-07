@@ -94,6 +94,12 @@ public:
 
     void NotifyRollRandomSpeed(int& randomSpeed);
 
+    /// <summary>
+    /// 현재 존재하는 토큰들의 툴팁 ID를 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    std::vector<int> GetTokensTooltips();
+
 public:
     void RemoveAllToken();
 

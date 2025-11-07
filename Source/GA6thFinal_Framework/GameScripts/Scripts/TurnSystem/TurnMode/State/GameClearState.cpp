@@ -20,6 +20,18 @@ void GameClearState::OnAwake() {}
 void GameClearState::OnEnter()
 {
     UmLogger.Log(LogLevel::LEVEL_DEBUG, u8"게임 클리어!");
+    auto ItemDropPlay = [this]() 
+    {
+        if (ItemDropSystem* system = SingletonComponent<ItemDropSystem>::GetInstance())
+        {
+            system->PlayItemDropUISequence();
+        }
+        if (_revelationSystem)
+        {
+            _revelationSystem->RemoveAllExtinctionElements();
+        }
+    };
+
     // 엔딩 분기 확인
     if (MapManager* mapManager = SingletonComponent<MapManager>::GetInstance())
     {
@@ -27,14 +39,7 @@ void GameClearState::OnEnter()
         const bool remaining = mapManager->IsRemainingStage();
         if (remaining)
         {
-            if (ItemDropSystem* system = SingletonComponent<ItemDropSystem>::GetInstance())
-            {
-                system->PlayItemDropUISequence();
-            }
-            if (_revelationSystem)
-            {
-                _revelationSystem->RemoveAllExtinctionElements();
-            }
+            ItemDropPlay();
         }
         // 남은 스테이지가 없다면 엔딩
         else
@@ -54,6 +59,10 @@ void GameClearState::OnEnter()
                 }
             });
         }
+    }
+    else
+    {
+        ItemDropPlay();
     }
 }
 
