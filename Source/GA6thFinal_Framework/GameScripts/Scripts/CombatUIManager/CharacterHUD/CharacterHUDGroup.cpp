@@ -2,6 +2,7 @@
 #include "CharacterHUDGroup.h"
 
 #include <UI/Panels/Overlay/OverlayPanel.h>
+#include <UI/Animations/FadeImageElement/FadeImageElement.h>
 #include <Camera/UmCineMotion.h>
 
 #include <TurnSystem/TurnMode/TurnMode.h>
@@ -54,6 +55,12 @@ namespace CombatUI
                         {
                             EnemySpawnHealPanel[i] = curr->gameObject->GetComponent<SpawnDamagePanel>();
                         }
+                        // 포커스 HUD
+                        else if (curr->gameObject->CompareTag(MONSTER_FOCUS_HUD[i]))
+                        {
+                            FocusEnemyHUDPanel[i] = curr->gameObject->GetComponent<OverlayPanel>();
+                            FocusEnemyHUDFade[i]  = curr->gameObject->GetComponent<FadeUIComponent>();
+                        }
                         else if (curr->gameObject->CompareTag(MONSTER_SPAWN_TOKEN_HUD[i]))
                         {
                             EnemySpawnTokenPanel[i] = curr->gameObject->GetComponent<SpawnTokenPanel>();
@@ -62,6 +69,11 @@ namespace CombatUI
                     if (curr->gameObject->CompareTag("Player HUD"))
                     {
                         PlayerHUDPanel = curr->gameObject->GetComponent<OverlayPanel>();
+                    }
+                    else if (curr->gameObject->CompareTag("Player Focus HUD"))
+                    {
+                        FocusPlayerHUDPanel = curr->gameObject->GetComponent<OverlayPanel>();
+                        FocusPlayerHUDFade  = curr->gameObject->GetComponent<FadeUIComponent>();
                     }
                     else if (curr->gameObject->CompareTag("Player Spawn Damage UI"))
                     {
@@ -298,5 +310,47 @@ namespace CombatUI
             return Vector3(0.0f, 2.0f, 0.0f) * scale + offset;
         }
         return Vector3();
+    }
+    void CharacterHUDGroup::MonsterFocusIn(Monster::SpawnPoint spawnPoint, const float duration) 
+    {
+        int spawnIndex = static_cast<int>(spawnPoint);
+        if (FocusEnemyHUDFade[spawnIndex])
+        {
+            if (FocusEnemyHUDPanel[spawnIndex] && EnemyHUDPanel[spawnIndex])
+            {
+                FocusEnemyHUDPanel[spawnIndex]->Point = EnemyHUDPanel[spawnIndex]->Point;
+            }
+            FocusEnemyHUDFade[spawnIndex]->FadeDuration = duration;
+            FocusEnemyHUDFade[spawnIndex]->FadeIn();
+        }
+    }
+    void CharacterHUDGroup::MonsterFocusOut(Monster::SpawnPoint spawnPoint, const float duration) 
+    {
+        int spawnIndex = static_cast<int>(spawnPoint);
+        if (FocusEnemyHUDFade[spawnIndex])
+        {
+            FocusEnemyHUDFade[spawnIndex]->FadeDuration = duration;
+            FocusEnemyHUDFade[spawnIndex]->FadeOut();
+        }
+    }
+    void CharacterHUDGroup::PlayerFocusIn(const float duration) 
+    {
+        if (FocusPlayerHUDFade)
+        {
+            if (FocusPlayerHUDPanel && PlayerHUDPanel)
+            {
+                FocusPlayerHUDPanel->Point = PlayerHUDPanel->Point;
+            }
+            FocusPlayerHUDFade->FadeDuration = duration;
+            FocusPlayerHUDFade->FadeIn();
+        }
+    }
+    void CharacterHUDGroup::PlayerFocusOut(const float duration) 
+    {
+        if (FocusPlayerHUDFade)
+        {
+            FocusPlayerHUDFade->FadeDuration = duration;
+            FocusPlayerHUDFade->FadeOut();
+        }
     }
 } // namespace CombatUI

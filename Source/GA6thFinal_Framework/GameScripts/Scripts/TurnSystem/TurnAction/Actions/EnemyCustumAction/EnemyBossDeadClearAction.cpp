@@ -11,11 +11,11 @@ void EnemyBossDeadClearAction::OnEnemyDead(Enemy& enemy)
     if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
     {
         const auto& enemies = turnMode->GetEnemies();
-        for (auto& enemy : enemies)
+        for (auto& instance : enemies)
         {
-            if (enemy)
+            if (instance && instance != &enemy)
             {
-                enemy->Dead();
+                instance->Dead();
             }
         }
     }

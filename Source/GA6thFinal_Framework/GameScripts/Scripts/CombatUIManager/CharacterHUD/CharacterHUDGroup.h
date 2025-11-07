@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <CombatUIManager/UIGroup.h>
+#include <Monster/Common/MonsterCommon.h>
 
 class OverlayPanel;
 class ImageElement;
@@ -13,11 +14,11 @@ namespace CombatUI
 {
     struct CharacterHUDGroup : public UIGroup
     {
-        GameObject*         Root            = nullptr;
-        OverlayPanel*       Overlay         = nullptr;
+        GameObject*         Root                            = nullptr;
+        OverlayPanel*       Overlay                         = nullptr;
 
-        FadeUIComponent*    FadeUI          = nullptr;
-        OverlayPanel*       PlayerHUDPanel  = nullptr;
+        FadeUIComponent*    FadeUI                          = nullptr;
+        OverlayPanel*       PlayerHUDPanel                  = nullptr;
 
         OverlayPanel*       EnemyHUDPanel[3]                = {nullptr, nullptr, nullptr}; // Left, Middle, Right
         OverlayPanel*       EnemyActionPanel[3]             = {nullptr, nullptr, nullptr}; // Left, Middle, Right
@@ -35,6 +36,11 @@ namespace CombatUI
         SpawnDamagePanel*   EnemySpawnCriticalDamage[3]     = {nullptr, nullptr, nullptr};
         SpawnTokenPanel*    EnemySpawnTokenPanel[3]         = {nullptr, nullptr, nullptr};
 
+        OverlayPanel*       FocusEnemyHUDPanel[3]           = {nullptr, nullptr, nullptr};
+        FadeUIComponent*    FocusEnemyHUDFade[3]            = {nullptr, nullptr, nullptr};
+        OverlayPanel*       FocusPlayerHUDPanel             = nullptr;
+        FadeUIComponent*    FocusPlayerHUDFade              = nullptr;
+
         bool FindUI() override;
         bool IsValid() const override;
         void ActiveUI(bool active) override;
@@ -47,6 +53,11 @@ namespace CombatUI
 
         Vector3 GetHeadOffset(Enemy* enemy);
         Vector3 GetHeadOffset(Player* player);
+
+        void MonsterFocusIn(Monster::SpawnPoint spawnPoint, const float duration = 0.5f);
+        void MonsterFocusOut(Monster::SpawnPoint spawnPoint, const float duration = 0.5f);
+        void PlayerFocusIn(const float duration = 0.5f);
+        void PlayerFocusOut(const float duration = 0.5f);
 
     private:
         inline static constexpr std::array<const char*, 3> MONSTER_HUD = {
@@ -66,6 +77,9 @@ namespace CombatUI
         };
         inline static constexpr std::array<const char*, 3> MONSTER_SPAWN_TOKEN_HUD = {
             "Left Spawn Token UI", "Middle Spawn Token UI", "Right Spawn Token UI"
+        };
+        inline static constexpr std::array<const char*, 3> MONSTER_FOCUS_HUD = {
+            "Left Focus HUD", "Middle Focus HUD", "Right Focus HUD"
         };
 
         inline static LONG MONSTER_HUD_SPACE_X = 0;
