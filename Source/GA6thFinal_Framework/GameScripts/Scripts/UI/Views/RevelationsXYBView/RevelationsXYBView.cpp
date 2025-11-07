@@ -165,12 +165,10 @@ void RevelationsXYBView::UpdateUI()
                     };
                     
                     //왼쪽 적
-                    bool showTutorial = false;
                     bool result = false; // 판단 결과
                     if (auto leftEnemy = monsterSystem->GetSpawnedEnemyFromSpawnPoint(Monster::SpawnPoint::Left).lock())
                     {
                         result = CheckCondition(leftEnemy.get());
-                        showTutorial |= result;
                     }
                     _disable.SetLeftEnable(!result);
                     _enable.SetLeftEnable(result);            
@@ -180,7 +178,6 @@ void RevelationsXYBView::UpdateUI()
                     if (auto middleEnemy = monsterSystem->GetSpawnedEnemyFromSpawnPoint(Monster::SpawnPoint::Middle).lock())
                     {
                         result = CheckCondition(middleEnemy.get());
-                        showTutorial |= result;
                     }
                     _disable.SetMiddleEnable(!result);
                     _enable.SetMiddleEnable(result);    
@@ -190,19 +187,9 @@ void RevelationsXYBView::UpdateUI()
                     if (auto rightEnemy = monsterSystem->GetSpawnedEnemyFromSpawnPoint(Monster::SpawnPoint::Right).lock())
                     {
                         result = CheckCondition(rightEnemy.get());
-                        showTutorial |= result;
                     }
                     _disable.SetRightEnable(!result);
                     _enable.SetRightEnable(result);    
-
-                    //튜토리얼
-                    if (showTutorial)
-                    {
-                        if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
-                        {
-                            system->Show(805904); //계시 튜토리얼
-                        }
-                    }
                 }
                 else
                 {

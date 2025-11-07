@@ -78,6 +78,15 @@ void TurnListEmptyState::OnEnter()
         UpdateCharacterDead();
     }
 
+    // 튜토리얼
+    if (_turnMode->IsCurrentTurnActiveRevelation)
+    {
+        if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
+        {
+            system->Show(805904); // 계시 튜토리얼
+        }
+    }
+
     _turnMode->FinishCurrentTurn();
     UmLogger.Message(LogLevel::LEVEL_DEBUG, (const char*)u8"턴 리스트를 확인합니다.");
 }
