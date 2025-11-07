@@ -43,7 +43,7 @@ void TokenHUD::SetupTokenHUD(const File::Guid& guid, MVVM::Model<int>& tokenStac
     _key = key;
 }
 
-void TokenHUD::OnDestroy()
+void TokenHUD::RemoveTokenHUD()
 {
     if (!_key.empty())
     {

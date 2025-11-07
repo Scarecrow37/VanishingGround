@@ -6,6 +6,7 @@
 class PlayerStatsComponent;
 class FiniteStateMachine;
 class ParticleComponent;
+class TokenHUD;
 class Player : public CharacterBase
 {
     USING_PROPERTY(Player)
@@ -116,7 +117,7 @@ private:
     void RegisterTokenHUD(int tokenID);
     void UnregisterTokenHUD(int tokenID);
 
-    std::unordered_map<int, GameObject*> _tokenHUDTable;
+    std::unordered_map<int, TokenHUD*> _tokenHUDTable;
 
 private:
     void AddCallback();

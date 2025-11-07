@@ -13,7 +13,10 @@ void EnemyBossDeadClearAction::OnEnemyDead(Enemy& enemy)
         const auto& enemies = turnMode->GetEnemies();
         for (auto& enemy : enemies)
         {
-            enemy->TakeDamage(999, false);
+            if (enemy)
+            {
+                enemy->Dead();
+            }
         }
     }
 }
