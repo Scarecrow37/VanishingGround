@@ -60,6 +60,10 @@ namespace CombatUI
                         {
                             FocusEnemyHUDPanel[i] = curr->gameObject->GetComponent<OverlayPanel>();
                             FocusEnemyHUDFade[i]  = curr->gameObject->GetComponent<FadeUIComponent>();
+                            if (FocusEnemyHUDPanel[i])
+                            {
+                                FocusEnemyHUDPanel[i]->gameObject->ActiveSelf = false;
+                            }
                         }
                         else if (curr->gameObject->CompareTag(MONSTER_SPAWN_TOKEN_HUD[i]))
                         {
@@ -74,6 +78,10 @@ namespace CombatUI
                     {
                         FocusPlayerHUDPanel = curr->gameObject->GetComponent<OverlayPanel>();
                         FocusPlayerHUDFade  = curr->gameObject->GetComponent<FadeUIComponent>();
+                        if (FocusPlayerHUDPanel)
+                        {
+                            FocusPlayerHUDPanel->gameObject->ActiveSelf = false;
+                        }
                     }
                     else if (curr->gameObject->CompareTag("Player Spawn Damage UI"))
                     {
@@ -187,6 +195,33 @@ namespace CombatUI
             point.y     = std::max(point.y, (LONG)100);
             PlayerHUDPanel->Point = point;
         }
+
+
+        //////////////////////
+        //  Focus Panel     //
+        //////////////////////
+        if (MonsterSystem* system = SingletonComponent<MonsterSystem>::GetInstance())
+        {
+            for (int i = 0; i < 3; ++i)
+            {
+                Monster::SpawnPoint spawnPoint = static_cast<Monster::SpawnPoint>(i);
+                if (auto enemy = system->GetSpawnedEnemyFromSpawnPoint(spawnPoint).lock())
+                {
+                    if (FocusEnemyHUDFade[i])
+                    {
+                        if (FocusEnemyHUDPanel[i] && EnemyHUDPanel[i])
+                        {
+                            FocusEnemyHUDPanel[i]->Point = EnemyHUDPanel[i]->Point;
+                        }
+                    }
+                }
+            }
+        }
+        if (FocusPlayerHUDPanel && PlayerHUDPanel)
+        {
+            FocusPlayerHUDPanel->Point = PlayerHUDPanel->Point;
+        }
+
     }
 
     bool CharacterHUDGroup::RefreshCharactersUIPosition()
@@ -318,6 +353,7 @@ namespace CombatUI
         {
             if (FocusEnemyHUDPanel[spawnIndex] && EnemyHUDPanel[spawnIndex])
             {
+                FocusEnemyHUDPanel[spawnIndex]->gameObject->ActiveSelf = true;
                 FocusEnemyHUDPanel[spawnIndex]->Point = EnemyHUDPanel[spawnIndex]->Point;
             }
             FocusEnemyHUDFade[spawnIndex]->FadeDuration = duration;
@@ -331,6 +367,8 @@ namespace CombatUI
         {
             FocusEnemyHUDFade[spawnIndex]->FadeDuration = duration;
             FocusEnemyHUDFade[spawnIndex]->FadeOut();
+            auto& fade = FocusEnemyHUDFade[spawnIndex];
+            UmTime.Invoke(fade, fade->FadeDuration, [fade]() { fade->gameObject->ActiveSelf = false; });
         }
     }
     void CharacterHUDGroup::PlayerFocusIn(const float duration) 
@@ -339,6 +377,7 @@ namespace CombatUI
         {
             if (FocusPlayerHUDPanel && PlayerHUDPanel)
             {
+                FocusPlayerHUDPanel->gameObject->ActiveSelf = true;
                 FocusPlayerHUDPanel->Point = PlayerHUDPanel->Point;
             }
             FocusPlayerHUDFade->FadeDuration = duration;
@@ -351,6 +390,8 @@ namespace CombatUI
         {
             FocusPlayerHUDFade->FadeDuration = duration;
             FocusPlayerHUDFade->FadeOut();
+            auto& fade = FocusPlayerHUDFade;
+            UmTime.Invoke(fade, fade->FadeDuration, [fade]() { fade->gameObject->ActiveSelf = false; });
         }
     }
 } // namespace CombatUI
