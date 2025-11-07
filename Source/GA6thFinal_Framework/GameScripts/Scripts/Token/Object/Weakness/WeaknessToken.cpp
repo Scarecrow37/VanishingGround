@@ -18,9 +18,14 @@ namespace TokenObject
     {
         const int   tokenID     = GetTokenID();
         const int   param       = GetTokenParam(0);
-        damage = ContentMath::CeilPercentage(damage, 100 - param);
-
         auto& tokenInventory = attackerData.Source.GetTokenInventory();
+        // 자신보다 높은 등급 토큰이 존재하면 return
+        for (int i = tokenID; i < Weakness3::ID; ++i)
+        {
+            if (tokenInventory.HasTokenFromID(i))
+                return;
+        }
+        damage = ContentMath::CeilPercentage(damage, 100 - param);
         tokenInventory.RemoveTokenStackFromID(tokenID);
 
         UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(attackerData.Source));
@@ -30,9 +35,14 @@ namespace TokenObject
     {
         const int   tokenID     = GetTokenID();
         const int   param       = GetTokenParam(0);
-        damage = ContentMath::CeilPercentage(damage, 100 - param);
-
         auto& tokenInventory = attackerData.Source.GetTokenInventory();
+        // 자신보다 높은 등급 토큰이 존재하면 return
+        for (int i = tokenID; i < Weakness3::ID; ++i)
+        {
+            if (tokenInventory.HasTokenFromID(i))
+                return;
+        }
+        damage = ContentMath::CeilPercentage(damage, 100 - param);
         tokenInventory.RemoveTokenStackFromID(tokenID);
 
         UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(attackerData.Source));

@@ -188,6 +188,17 @@ public:
 
     inline const std::vector<TokenID>& GetValidTokenList() const { return _vaildTokenVector; }
 
+    /// <summary>
+    /// 갯수만큼 사용 가능한 토큰이 존재하는지 확인합니다.
+    /// (현재 턴에 얻은 토큰이 제외된 실제 토큰 카운트입니다.)
+    /// </summary>
+    bool IsAvailableTokenFromID(int tokenID, int tokenCount = 1);
+
+    /// <summary>
+    /// 현재 턴에 얻은 토큰을 업데이트합니다.
+    /// </summary>
+    void UpdateAvailableToken();
+
 private:
     /// <summary>
     /// 해당 토큰에 대한 업데이트를 수행합니다.
@@ -202,7 +213,9 @@ private:
     bool CheckValidTokenFromID(TokenID tokenID);
 
 private:
-    CharacterBase&                                _owner;            // 해당 매니저를 소유한 CharacterBase 인스턴스
-    std::vector<TokenID>                          _vaildTokenVector; // 유효한 토큰 ID 리스트(쌓인 순서대로)
-    std::unordered_map<TokenID, MVVM::Model<int>> _tokenTable;       // 모든 토큰 테이블 (스택 카운트가 0인 토큰도 포함)
+    CharacterBase&                                _owner;               // 해당 매니저를 소유한 CharacterBase 인스턴스
+    std::vector<TokenID>                          _vaildTokenVector;    // 유효한 토큰 ID 리스트(쌓인 순서대로)
+    std::unordered_map<TokenID, MVVM::Model<int>> _validtokenTable;     // 모든 토큰 테이블
+
+    std::unordered_map<TokenID, int>              _waitAvailableTokenTable;
 };

@@ -14,10 +14,19 @@ namespace TokenObject
 
     void Armor::OnPostPlayerHitCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData, int& damage) 
     {
+       
         const int   tokenID = GetTokenID();
         const int   param   = GetTokenParam(0);
-        damage              = ContentMath::CeilPercentage(damage, 100 -param);
         TokenInventory& tokenInventory = targetData.Source.GetTokenInventory();
+
+        // 자신보다 높은 등급 토큰이 존재하면 return
+        for (int i = tokenID; i < Armor3::ID; ++i)
+        {
+            if (tokenInventory.HasTokenFromID(i))
+                return;
+        }
+
+        damage  = ContentMath::CeilPercentage(damage, 100 -param);
         tokenInventory.RemoveTokenStackFromID(tokenID);
         UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(targetData.Source));
     }
