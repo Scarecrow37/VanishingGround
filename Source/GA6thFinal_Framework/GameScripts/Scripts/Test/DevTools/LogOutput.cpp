@@ -6,8 +6,7 @@ UMREAL_COMPONENT(LogOutput)
 
 LogOutput::LogOutput()
 {
-    _isShowLog     = true;
-    _isShowSetting = false;
+    _isShowLog     = false;
 
     ReflectFields->LogColorTable[LogLevel::LEVEL_TRACE]   = ImGuiHelper::ImVec4ToArray(DEBUG_COLOR_TRACE);
     ReflectFields->LogColorTable[LogLevel::LEVEL_DEBUG]   = ImGuiHelper::ImVec4ToArray(DEBUG_COLOR_DEBUG);
