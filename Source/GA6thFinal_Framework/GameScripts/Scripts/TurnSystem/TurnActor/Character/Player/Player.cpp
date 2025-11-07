@@ -446,11 +446,10 @@ void Player::RegisterTokenHUD(int tokenID)
                                 {
                                     if (const TokenData* tokenData = tokenSystem->GetTokenDataFromID(tokenID))
                                     {
-                                        std::string key = std::format("Player_Token_{}", tokenID);
-                                        tokenHUD->SetupTokenHUD(UmFileSystem.GetGuidFromAssetID(tokenData->ImageID),
-                                                                model, key);
-                                        _tokenHUDTable.emplace(tokenID, prefab.get());
-                                        model.Notify();
+                                        static uint64_t TOKEN_HUD_COUNT = 0;
+                                        std::string key = std::format("Player_Token_{}_{}", tokenID, TOKEN_HUD_COUNT++);
+                                        tokenHUD->SetupTokenHUD(UmFileSystem.GetGuidFromAssetID(tokenData->ImageID), model, key);
+                                        _tokenHUDTable.emplace(tokenID, tokenHUD);
                                         prefab->transform->SetParent(object.transform);
                                     }
                                 }
@@ -468,7 +467,8 @@ void Player::UnregisterTokenHUD(int tokenID)
     auto it = _tokenHUDTable.find(tokenID);
     if (it != _tokenHUDTable.end())
     {
-        GameObject::Destroy(it->second);
+        it->second->RemoveTokenHUD();
+        GameObject::Destroy(it->second->gameObject);
         _tokenHUDTable.erase(it);
     }
 }
