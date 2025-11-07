@@ -181,7 +181,7 @@ private:
     QTE::KeyBinder                  _keyBinder;                                 // QTE 키 바인딩 처리
     QTE::CallbackHandler            _callbackHandler;                           // QTE 콜백 처리
     QTE::OverallResult              _overallResult;                             // QTE 최종 결과
-    ControllerState                 _nextKeyEvent = {nullptr, Input::ControllerTypes::UNDEFINED};
+    std::vector<ControllerState>    _nextKeyEvent;
 
     float                           _currTime           = 0.0f;                 // QTE 타이머
     float                           _totalTime          = 0.0f;                 // QTE 최대 시간
