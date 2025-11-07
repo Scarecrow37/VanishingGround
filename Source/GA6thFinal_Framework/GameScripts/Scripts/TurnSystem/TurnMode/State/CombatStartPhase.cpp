@@ -212,10 +212,6 @@ void CombatStartPhase::OnExit()
     if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
     {
         combatUIManager->CharacterHUDGroup.ActiveUI(true);
-        if (auto focusNavi = GameObject::FindComponentWithTag<KeyCallbackUINavi>("Weapon Panel UI Navi").lock())
-        {
-            focusNavi->Focus();
-        }
     }
 
     if (ItemDropSystem* itemDropSystem = SingletonComponent<ItemDropSystem>::GetInstance())

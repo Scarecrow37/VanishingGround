@@ -139,6 +139,10 @@ void WeaponView::Start()
                             {
                                 system->Show(805901);
                             }
+                            if (auto focusNavi = GameObject::FindComponentWithTag<KeyCallbackUINavi>("Weapon Panel UI Navi").lock())
+                            {
+                                focusNavi->Focus();
+                            }
                         });
                     }
                 }
