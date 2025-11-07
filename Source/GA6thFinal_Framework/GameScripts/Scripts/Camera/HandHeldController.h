@@ -3,7 +3,7 @@ class HandHeldController : public Component
 {
     USING_PROPERTY(HandHeldController)
 public:
-    REFLECT_PROPERTY(Intensity, Frequency, Interval)
+    REFLECT_PROPERTY(Intensity, Frequency)
     GETTER(float, Intensity) { return ReflectFields->ShakeIntensity; }
     SETTER(float, Intensity) 
     { 
@@ -26,17 +26,6 @@ public:
         isDirty                       = true;
     }
     PROPERTY(Frequency)
-    GETTER(float, Interval) { return ReflectFields->ShakeInterval; }
-    SETTER(float, Interval) 
-    { 
-        ReflectFields->ShakeInterval = value; 
-        if (_mainCam)
-        {
-            _mainCam->SetHandHeldInterval(value);
-        }
-        isDirty                      = true;
-    }
-    PROPERTY(Interval)
 
 public:
     HandHeldController();
@@ -46,7 +35,6 @@ protected:
     REFLECT_FIELDS_BEGIN(Component)
     float ShakeIntensity = 0.03f;
     float ShakeFrequency = 0.25f;
-    float ShakeInterval  = 0.1f;
     REFLECT_FIELDS_END(HandHeldController)
 
     void Start() override;

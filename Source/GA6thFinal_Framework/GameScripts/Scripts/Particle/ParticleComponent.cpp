@@ -150,6 +150,14 @@ void ParticleComponent::ImGuiDrawPropertysEvent()
             StopEffect(_currentEffectKey);
         }
     }
+    ImGui::SameLine();
+    if (ImGui::Button("Delete Current Effect"))
+    {
+        if (IS_EDITOR)
+        {
+            DeleteEffect(_currentEffectKey);
+        }
+    }
 
     if (ImGui::Button("Play All Effect"))
     {
@@ -183,25 +191,25 @@ void ParticleComponent::Start()
     FollowBoneMatrix();
 }
 
-//void ParticleComponent::Update()
-//{
-//    if (ImGui::IsKeyPressed(ImGuiKey_K))
-//    {
-//        PlayEffect("focus");
-//    }
-//    if (ImGui::IsKeyPressed(ImGuiKey_L))
-//    {
-//        StopEffect("focus");
-//    }
-//    if (ImGui::IsKeyPressed(ImGuiKey_N))
-//    {
-//        StopEffect("buff");
-//    }
-//    if (ImGui::IsKeyPressed(ImGuiKey_M))
-//    {
-//        StopEffect("debuff");
-//    }
-//}
+void ParticleComponent::Update()
+{
+    if (ImGui::IsKeyPressed(ImGuiKey_K))
+    {
+        PlayEffect("focus");
+    }
+    if (ImGui::IsKeyPressed(ImGuiKey_L))
+    {
+        StopEffect("focus");
+    }
+    if (ImGui::IsKeyPressed(ImGuiKey_N))
+    {
+        StopEffect("buff");
+    }
+    if (ImGui::IsKeyPressed(ImGuiKey_M))
+    {
+        StopEffect("debuff");
+    }
+}
 
 void ParticleComponent::LoadParticle(const std::string& keyString)
 {
@@ -363,6 +371,46 @@ void ParticleComponent::SetAnimator(class Animator* animator)
     for (auto& keyString : ReflectFields->EffectNameTable)
     {
         FollowBoneMatrix(keyString);
+    }
+}
+
+void ParticleComponent::DeleteEffect(const std::string& key)
+{
+    // ParticleManager에서 이펙트 삭제
+    UmParticleManager->SetActiveFlag(this, key, false);
+    UmParticleManager->DeleteEffect(this, key, "Game");
+    
+    // EffectNameTable에서 제거
+    auto it = std::find(ReflectFields->EffectNameTable.begin(), ReflectFields->EffectNameTable.end(), key);
+    if (it != ReflectFields->EffectNameTable.end())
+    {
+        ReflectFields->EffectNameTable.erase(it);
+    }
+    
+    // 모든 맵에서 제거
+    ReflectFields->GuidMap.erase(key);
+    ReflectFields->AttachFlagMap.erase(key);
+    ReflectFields->BoneNameMap.erase(key);
+    ReflectFields->TranslationMap.erase(key);
+    ReflectFields->RotationMap.erase(key);
+    ReflectFields->ScaleMap.erase(key);
+    
+    // 벡터 맵에서 제거
+    _positionVector.erase(key);
+    _rotationVector.erase(key);
+    _scaleVector.erase(key);
+    
+    // 현재 선택된 이펙트가 삭제된 경우 다른 이펙트로 변경
+    if (_currentEffectKey == key)
+    {
+        if (!ReflectFields->EffectNameTable.empty())
+        {
+            _currentEffectKey = ReflectFields->EffectNameTable[0];
+        }
+        else
+        {
+            _currentEffectKey = "-";
+        }
     }
 }
 

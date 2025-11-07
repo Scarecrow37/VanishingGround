@@ -78,7 +78,6 @@ public:
 
     void SetHandHeldIntensity(float intensity) { _handHeldIntensity = intensity; }
     void SetHandHeldFrequency(float frequency) { _handHeldFrequency = frequency; }
-    void SetHandHeldInterval(float interval) { _handHeldInterval = interval; }
 
 protected:
     void DrawRail();
@@ -120,8 +119,6 @@ protected:
     inline constexpr static float _railSpeedScale = 1.5f;
 
     bool  _handheldShakeFlag     = false;
-    float _handheldShakeTimer    = 0.f;
-    float _handHeldInterval      = 1.f;
     float _handHeldIntensity     = 0.f;
     float _handHeldFrequency     = 0.f;
 

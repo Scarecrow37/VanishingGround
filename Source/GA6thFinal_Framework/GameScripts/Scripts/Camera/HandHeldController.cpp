@@ -11,7 +11,6 @@ void HandHeldController::Start()
 {
     if (_mainCam = GetComponent<UmCineMotion>())
     {
-        _mainCam->SetHandHeldInterval(ReflectFields->ShakeInterval);
         _mainCam->SetHandHeldIntensity(ReflectFields->ShakeIntensity);
         _mainCam->SetHandHeldFrequency(ReflectFields->ShakeFrequency);
         _mainCam->BeginHandHeldShake();
@@ -22,7 +21,6 @@ void HandHeldController::Update()
 {
     if (isDirty && _mainCam)
     {
-        _mainCam->SetHandHeldInterval(ReflectFields->ShakeInterval);
         _mainCam->SetHandHeldIntensity(ReflectFields->ShakeIntensity);
         _mainCam->SetHandHeldFrequency(ReflectFields->ShakeFrequency);
         _mainCam->BeginHandHeldShake();
@@ -34,7 +32,6 @@ void HandHeldController::OnDrawDebug()
 {
     if (isDirty && _mainCam)
     {
-        _mainCam->SetHandHeldInterval(ReflectFields->ShakeInterval);
         _mainCam->SetHandHeldIntensity(ReflectFields->ShakeIntensity);
         _mainCam->SetHandHeldFrequency(ReflectFields->ShakeFrequency);
         _mainCam->BeginHandHeldShake();
@@ -46,7 +43,6 @@ void HandHeldController::OnDrawDebugSelected()
 {
     if (isDirty && _mainCam)
     {
-        _mainCam->SetHandHeldInterval(ReflectFields->ShakeInterval);
         _mainCam->SetHandHeldIntensity(ReflectFields->ShakeIntensity);
         _mainCam->SetHandHeldFrequency(ReflectFields->ShakeFrequency);
         _mainCam->BeginHandHeldShake();

@@ -108,6 +108,7 @@ public:
     void StopEffect(const std::string& key);
     void StopAll();
     void ClearEffectList();
+    void DeleteEffect(const std::string& key);
     void RegisterEffectFromGuid(const File::Path& filepath, const std::string& key);
     void RegisterEffectFromGuid(const File::Guid& fileguid, const std::string& key);
     void FollowBoneMatrix(const std::string& key);
@@ -138,7 +139,7 @@ protected:
     void Start() override;
 
 
- // void Update() override;
+  void Update() override;
 
 private:
     void LoadParticle(const std::string& keyString);

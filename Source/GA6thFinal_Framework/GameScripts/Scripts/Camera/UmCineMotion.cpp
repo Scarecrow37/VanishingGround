@@ -11,7 +11,6 @@ void UmCineMotion::OnDrawDebug()
     RefreshGuizmo();
 #endif
     CameraComponent::OnDrawDebug();
-    HandHeldShakeLoop();
     if (false == UmCore->IsPlay())
     {
         RunRail();
@@ -25,8 +24,6 @@ void UmCineMotion::OnDrawDebugSelected()
     RefreshGuizmo();
 #endif
     CameraComponent::OnDrawDebugSelected();
-    HandHeldShakeLoop();
-
     DrawRail();
 
 #ifdef _UMEDITOR
@@ -37,7 +34,6 @@ void UmCineMotion::OnDrawDebugSelected()
 
     if (false == UmCore->IsPlay())
     {
-        HandHeldShakeLoop();
         RunRail();
         Shake();
         ApplyTransform();
@@ -52,8 +48,6 @@ void UmCineMotion::Update()
 #ifdef _UMEDITOR
     RefreshGuizmo();
 #endif
-
-    HandHeldShakeLoop();
     RunRail();
     Shake();
     ApplyTransform();
@@ -460,7 +454,8 @@ void UmCineMotion::BeginFeedBackShake(int feedbackValue)
 }
 void UmCineMotion::BeginHandHeldShake() 
 {
-    _handheldShakeFlag                = true;
+    constexpr float loopDuration = -1;
+    BeginShake(loopDuration, _handHeldIntensity, _handHeldFrequency);
 }
 void UmCineMotion::StopShake()
 {
@@ -634,19 +629,6 @@ void UmCineMotion::GetShakeOffset()
     _shakeAmount *= _shakeIntensity * envelope;
     _shakeOffset = _shakeDirection * _shakeAmount;
 }
-void UmCineMotion::HandHeldShakeLoop() 
-{
-    if (_handheldShakeFlag)
-    {
-        _handheldShakeTimer += UmTime.DeltaTime();
-        if (_handheldShakeTimer >= _handHeldInterval)
-        {
-            _handheldShakeTimer               = 0.f;
-            constexpr float handHeldDuration  = -1.f;
-            BeginShake(handHeldDuration, _handHeldIntensity, _handHeldFrequency);
-        }
-    }
-}
 float UmCineMotion::EaseTimeStep(float step)
 {
     float curStep = Mathf::Ease((Mathf::EaseType)ReflectFields->EaseType,
@@ -666,7 +648,7 @@ void UmCineMotion::ApplyTransform()
     // Shake 적용 또는 리셋
     if (_shakeFlag && _shakeTargetPos != Vector3::Zero)
     {
-        auto cameraMatrix = _camera->GetWorldMatrix();
+        auto cameraMatrix = transform->GetWorldMatrix();
         cameraMatrix *= Matrix::CreateTranslation(_shakeTargetPos);
         _camera->SetWorldMatrix(cameraMatrix);
     }
