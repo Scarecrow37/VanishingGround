@@ -169,7 +169,7 @@ void Device::Execute()
     commandController->ExecuteCommand(CommandQueueType::GRAPHICS_QUEUE, _commandList.Get());
 }
 
-void Device::UpdateBuffer(ComPtr<ID3D12Resource>& buffer, const void* data, UINT size)
+void Device::UpdateBuffer(ComPtr<ID3D12Resource>& buffer, const void* data, UINT64 size)
 {
     HRESULT hr = S_OK;
 
