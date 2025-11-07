@@ -152,6 +152,4 @@ private:
     void HideTooltip();
 
     std::vector<std::pair<UmDelegate<>*, UmDelegate<>::Handle>> _callbacks;
-
-    ParticleComponent* _particle = nullptr;
 };

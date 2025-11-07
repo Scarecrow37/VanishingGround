@@ -129,7 +129,4 @@ private:
 
     std::vector<std::pair<UmDelegate<>*, UmDelegate<>::Handle>> _callbacks;
 
-private:
-    ParticleComponent* _particle = nullptr;
-
 };

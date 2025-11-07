@@ -303,10 +303,6 @@ void Enemy::Start()
     default:
         break;
     }
-    if (Transform* child = transform->GetChild(0))
-    {
-        _particle = child->gameObject->GetComponent<ParticleComponent>();
-    }
 }
 
 CharacterStats* Enemy::GetCharacterStats()
@@ -632,9 +628,9 @@ void Enemy::ClearCallback()
 
 void Enemy::FocusIn()
 {
-    if (_particle)
+    if (ParticleComponent* particle = GetParticleComponent())
     {
-        _particle->PlayEffect("focus");
+        particle->PlayEffect("focus");
     }
 }
 
@@ -644,9 +640,9 @@ void Enemy::FocusOut()
     {
         system->Hide();
     }
-    if (_particle)
+    if (ParticleComponent* particle = GetParticleComponent())
     {
-        _particle->StopEffect("focus");
+        particle->StopEffect("focus");
     }
 }
 
