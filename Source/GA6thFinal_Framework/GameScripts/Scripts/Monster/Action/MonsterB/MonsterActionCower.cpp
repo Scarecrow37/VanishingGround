@@ -35,7 +35,7 @@ namespace Monster
             }
             {   // 대상: Player
                 TokenParam tokenParam = GetTokenParam(2);
-                auto       weakTarget = GetTargetFromString("Player");
+                auto       weakTarget = GetTargetFromString("Self");
                 if (auto target = weakTarget.lock())
                 {
                     TokenInventory& tokenInventory = target->GetTokenInventory();
