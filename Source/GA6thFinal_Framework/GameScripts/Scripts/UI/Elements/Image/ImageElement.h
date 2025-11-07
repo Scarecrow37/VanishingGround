@@ -8,6 +8,14 @@ class ImageElement : public DrawUIComponent, public IOpacity
     USING_PROPERTY(ImageElement)
 
 public:
+    struct CallbackParameters
+    {
+        SIZE ResourceSize;
+    };
+
+    using ResourceLoadedCallback = std::function<void(const CallbackParameters&)>;
+
+public:
     ImageElement();
     ImageElement(const ImageElement&)            = delete;
     ImageElement& operator=(const ImageElement&) = delete;
@@ -108,6 +116,8 @@ public:
 
     void SetOpacity(float opacity) override;
 
+    void BindResourceLoadedCallback(ResourceLoadedCallback callback);
+
 protected:
     void  Reset() override;
     void  DeserializedReflectEvent() override;
@@ -147,4 +157,5 @@ private:
     SIZE                             _spriteOriginSize;
     File::Guid                       _Guid;
 
+    ResourceLoadedCallback _resourceLoadedCallback;
 };

@@ -6,6 +6,7 @@ class OverlayPanel;
 class ImageElement;
 class FadeUIComponent;
 class SpawnDamagePanel;
+class SpawnTokenPanel;
 class Player;
 class Enemy;
 
@@ -28,10 +29,12 @@ namespace CombatUI
 
         SpawnDamagePanel*   PlayerSpawnHealPanel            = nullptr;
         SpawnDamagePanel*   PlayerSpawnDamagePanel          = nullptr;
+        SpawnTokenPanel*    PlayerSpawnTokenPanel           = nullptr;
 
         SpawnDamagePanel*   EnemySpawnHealPanel[3]          = {nullptr, nullptr, nullptr};
         SpawnDamagePanel*   EnemySpawnDamagePanel[3]        = {nullptr, nullptr, nullptr};
         SpawnDamagePanel*   EnemySpawnCriticalDamage[3]     = {nullptr, nullptr, nullptr};
+        SpawnTokenPanel*    EnemySpawnTokenPanel[3]         = {nullptr, nullptr, nullptr};
 
         OverlayPanel*       FocusEnemyHUDPanel[3]           = {nullptr, nullptr, nullptr};
         FadeUIComponent*    FocusEnemyHUDFade[3]            = {nullptr, nullptr, nullptr};
@@ -71,6 +74,9 @@ namespace CombatUI
         };
         inline static constexpr std::array<const char*, 3> MONSTER_SPAWN_HEAL_HUD = {
             "Left Spawn Heal UI", "Middle Spawn Heal UI", "Right Spawn Heal UI"
+        };
+        inline static constexpr std::array<const char*, 3> MONSTER_SPAWN_TOKEN_HUD = {
+            "Left Spawn Token UI", "Middle Spawn Token UI", "Right Spawn Token UI"
         };
         inline static constexpr std::array<const char*, 3> MONSTER_FOCUS_HUD = {
             "Left Focus HUD", "Middle Focus HUD", "Right Focus HUD"

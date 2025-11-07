@@ -34,6 +34,7 @@
 // TurnAction
 #include "TurnSystem/TurnAction/TurnActionFactory.h"
 #include "ProclamationHUD/ProclamationHUD.h"
+#include "UI/Contents/SpawnTokenPanel.h"
 
 UMREAL_COMPONENT(Enemy)
 
@@ -475,6 +476,16 @@ void Enemy::OnKill(CharacterBase* destination)
 void Enemy::OnTokenAdded(const int tokenID)
 {
     Base::OnTokenAdded(tokenID);
+
+    if (const CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        Monster::SpawnPoint spawnPoint = SpawnPoint;
+        const size_t        index      = static_cast<size_t>(spawnPoint);
+        if (SpawnTokenPanel* spawnTokenPanel = combatUI->CharacterHUDGroup.EnemySpawnTokenPanel[index])
+        {
+            spawnTokenPanel->EnqueueToken(tokenID);
+        }
+    }
 }
 
 void Enemy::OnTokenRemoved(const int tokenID)
@@ -540,10 +551,10 @@ void Enemy::RegisterTokenHUD(int tokenID)
                                 {
                                     if (const TokenData* tokenData = tokenSystem->GetTokenDataFromID(tokenID))
                                     {
-                                        std::string key = std::format("Enemy_{}_Token_{}", monsterIndex, tokenID);
+                                        static uint64_t TOKEN_HUD_COUNT = 0;
+                                        std::string     key = std::format("Enemy_{}_Token_{}_{}", monsterIndex, tokenID, TOKEN_HUD_COUNT++);
                                         tokenHUD->SetupTokenHUD(UmFileSystem.GetGuidFromAssetID(tokenData->ImageID), model, key);
-                                        _tokenHUDTable.emplace(tokenID, prefab.get());
-                                        model.Notify();
+                                        _tokenHUDTable.emplace(tokenID, tokenHUD);
                                         prefab->transform->SetParent(object.transform);
                                     }
                                 }
@@ -561,7 +572,8 @@ void Enemy::UnregisterTokenHUD(int tokenID)
     auto it = _tokenHUDTable.find(tokenID);
     if (it != _tokenHUDTable.end())
     {        
-        GameObject::Destroy(it->second);
+        it->second->RemoveTokenHUD();
+        GameObject::Destroy(it->second->gameObject);
         _tokenHUDTable.erase(it);
     }
 }

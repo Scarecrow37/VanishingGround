@@ -13,6 +13,7 @@ class TurnAction;
 class ProclamationHUD;
 class UmCineMotion;
 class ParticleComponent;
+class TokenHUD;
 
 class Enemy : public CharacterBase
 {
@@ -105,7 +106,7 @@ public:
     void SetMonsterHUD(GameObject* HUD);
 
 private:
-    std::unordered_map<int, GameObject*> _tokenHUDTable;
+    std::unordered_map<int, TokenHUD*>   _tokenHUDTable;
     GameObject*                          _monsterHUD       = nullptr;
     ProclamationHUD*                     _proclamationHUD  = nullptr;
     bool                                 _isCriticalDamage = false;
