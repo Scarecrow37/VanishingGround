@@ -1,56 +1,89 @@
 ﻿#include "pchScripts.h"
 #include "SpawnTokenPanel.h"
 #include "TokenElement.h"
+#include "Token/TokenSystem.h"
+#include "Utility/SingletonHelper.h"
 
+class TokenSystem;
 UMREAL_COMPONENT(SpawnTokenPanel)
 
-SpawnTokenPanel::SpawnTokenPanel() : _newColor(DEFAULT_COLOR)
-{
-    FilePath.SetInputAutoEvent([this]() {
-        if (ImGui::BeginDragDropTarget())
-        {
-            if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
-            {
-                const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
-                if (const auto extension = data->GetPath().extension(); extension == L".png")
-                {
-                    _Guid               = data->GetGuid();
-                    ReflectFields->Guid = _Guid.string();
-                }
-            }
-            ImGui::EndDragDropTarget();
-        }
-    });
-}
+SpawnTokenPanel::SpawnTokenPanel() = default;
 
-std::weak_ptr<TokenElement> SpawnTokenPanel::MakeToken(int tokenID) const
+std::weak_ptr<TokenElement> SpawnTokenPanel::MakeToken(const int tokenID)
 {
     std::weak_ptr<TokenElement> weakTokenElement;
 
-    if (const std::shared_ptr<GameObject> child = UmGameObjectFactory.DeserializeToGuid(_Guid))
+    if (TokenSystem* tokenSystem = SingletonComponent<TokenSystem>::GetInstance())
     {
-        child->transform->SetParent(transform, true);
-        TokenElement& tokenElement = child->AddComponent<TokenElement>();
+        if (const TokenData* tokenData = tokenSystem->GetTokenDataFromID(tokenID))
+        {
+            weakTokenElement = GetTokenElement();
+            if (const std::shared_ptr<TokenElement> tokenElement = weakTokenElement.lock())
+            {
+                tokenElement->gameObject->SetActive(true);
 
-        const SIZE size = Size;
+                const SIZE                    size       = Size;
+                const POINT                   beginPoint = POINT{.x = 0, .y = size.cy};
+                constexpr POINT               endPoint   = POINT{.x = 0, .y = 0};
+                const TokenElement::SetupData data{
+                    .BeginPoint   = beginPoint,
+                    .EndPoint     = endPoint,
+                    .BeginOpacity = BeginOpacity,
+                    .EndOpacity   = EndOpacity,
+                    .Duration     = LifeTime,
+                    .TokenName    = tokenData->Name,
+                    .NameColor    = GetTokenColor(tokenID),
+                    .IconGuid     = UmFileSystem.GetGuidFromAssetID(tokenData->ImageID),
+                };
 
-        const POINT     beginPoint = POINT{.x = 0, .y = size.cy};
-        constexpr POINT endPoint   = POINT{.x = 0, .y = 0};
-
-        const TokenElement::SetupData data{
-            .BeginPoint = beginPoint, .EndPoint = endPoint, .BeginOpacity = BeginOpacity, .EndOpacity = EndOpacity};
-
-        tokenElement.Setup(data);
-
-        weakTokenElement = tokenElement.GetWeakPtrAs<TokenElement>();
+                tokenElement->Setup(data);
+            }
+        }
     }
 
     return weakTokenElement;
 }
 
+struct DragDropEvent
+{
+    bool operator()(File::Guid& out) const
+    {
+        bool result = false;
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
+            {
+                const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
+                const File::Path&          path = data->GetPath();
+                if (const File::Path extension = path.extension(); extension == L".UmPrefab")
+                {
+                    result = true;
+                    out    = path.ToGuid();
+                }
+                else
+                {
+                    UmLogger.Log(LogLevel::LEVEL_WARNING,
+                                 reinterpret_cast<const char*>(u8"프리팹은 .UmPrefab 파일만 지정할 수 있습니다."));
+                }
+            }
+            ImGui::EndDragDropTarget();
+        }
+        return result;
+    }
+};
+
 void SpawnTokenPanel::Reset()
 {
     UIComponent::Reset();
+
+    TokenElementPrefab.SetInputAutoEvent([this]() {
+        if (File::Guid dragDropGuid; DragDropEvent()(dragDropGuid))
+        {
+            ReflectFields->TokenElementPrefabGuid = dragDropGuid.string();
+        }
+    });
+
+    _elapsedTime = CycleTime;
 
     EraseChild();
 }
@@ -72,6 +105,84 @@ void SpawnTokenPanel::EraseChild() const
         GameObject::Destroy(child);
     }
     children.clear();
+}
+
+Color SpawnTokenPanel::GetTokenColor(const int tokenID) const
+{
+    Color                color{};
+    const TokenColorMap& tokenColors = ReflectFields->TokenColors;
+    ArrayColor           arrayColor;
+
+    try
+    {
+        arrayColor = tokenColors.at(tokenID);
+    }
+    catch (...)
+    {
+        arrayColor = DEFAULT_COLOR;
+        UmLogger.Log(LogLevel::LEVEL_INFO, u8"토큰에 부여된 색이 없습니다. 기본색으로 대체합니다.");
+    }
+
+    std::ranges::copy(arrayColor, &color.x);
+
+    return color;
+}
+
+std::weak_ptr<TokenElement> SpawnTokenPanel::GetTokenElement()
+{
+    const int childCount = transform->GetChildCount();
+    for (int i = 0; i < childCount; ++i)
+    {
+        if (Transform* childTransform = transform->GetChild(i))
+        {
+            GameObject& childGameObject = childTransform->gameObject;
+            if (const TokenElement* tokenElement = childGameObject.GetComponentDynamic<TokenElement>())
+            {
+                if (false == tokenElement->EnableInHierarchy)
+                {
+                    return tokenElement->GetWeakPtrAs<TokenElement>();
+                }
+            }
+        }
+    }
+    return CreateTokenElement();
+}
+
+std::weak_ptr<TokenElement> SpawnTokenPanel::CreateTokenElement()
+{
+    std::weak_ptr<TokenElement> weakTokenElement;
+    const File::Guid prefab(ReflectFields->TokenElementPrefabGuid);
+
+    if (const std::shared_ptr<GameObject> child = UmGameObjectFactory.DeserializeToGuid(prefab))
+    {
+        if (const TokenElement* tokenElement = child->GetComponentDynamic<TokenElement>())
+        {
+            child->transform->SetParent(transform);
+            weakTokenElement = tokenElement->GetWeakPtrAs<TokenElement>();
+        }
+    }
+
+    return weakTokenElement;
+}
+
+void SpawnTokenPanel::SpawnToken()
+{
+    _elapsedTime += UmTime.DeltaTime();
+    const float cycleTime = ReflectFields->CycleTime;
+
+    if (constexpr Mathf::CompareFloat compareFloat;
+        compareFloat(_elapsedTime, cycleTime) == std::partial_ordering::greater)
+    {
+        _elapsedTime -= cycleTime;
+
+        MakeToken(_tokenQueue.front());
+        _tokenQueue.pop();
+    }
+}
+
+void SpawnTokenPanel::EnqueueToken(const int tokenID)
+{
+    _tokenQueue.push(tokenID);
 }
 
 SIZE SpawnTokenPanel::MeasureOverride(const SIZE availableSize)
@@ -119,6 +230,16 @@ SIZE SpawnTokenPanel::ArrangeOverride(const SIZE finalSize)
     });
 
     return actualSize;
+}
+
+void SpawnTokenPanel::Update()
+{
+    UIComponent::Update();
+
+    if (false == _tokenQueue.empty())
+    {
+        SpawnToken();
+    }
 }
 
 namespace
@@ -218,6 +339,14 @@ namespace
 void SpawnTokenPanel::ImGuiDrawPropertysEvent()
 {
     UIComponent::ImGuiDrawPropertysEvent();
+
+    static int tokenID = 0;
+    ImGui::InputInt("Token ID", &tokenID, 0);
+    ImGui::SameLine();
+    if (ImGui::Button("Token!!!"))
+    {
+        EnqueueToken(tokenID);
+    }
 
     auto& tokenColors = ReflectFields->TokenColors;
     if (ImGui::TreeNodeEx("Token Colors##details"))

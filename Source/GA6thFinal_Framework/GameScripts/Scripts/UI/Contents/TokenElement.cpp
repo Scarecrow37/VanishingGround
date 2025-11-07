@@ -17,8 +17,8 @@ void TokenElement::Setup(const SetupData& data)
 
     _beginPoint   = data.BeginPoint;
     _endPoint     = data.EndPoint;
-    _beginOpacity = data.BeginOpacity;
-    _endOpacity   = data.EndOpacity;
+    _beginOpacity = std::clamp(data.BeginOpacity, 0.0f, 1.0f);
+    _endOpacity   = std::clamp(data.EndOpacity, 0.0f, 1.0f);
     _duration     = std::max(data.Duration, MIN_DURATION);
 
     if (const auto sharedIconImageElement = _iconImageElement.lock())
@@ -54,9 +54,14 @@ void TokenElement::Update()
 
 POINT TokenElement::GetPoint(const float t) const
 {
-    const LONG x = std::lerp(_beginPoint.x, _endPoint.x, t);
-    const LONG y = std::lerp(_beginPoint.y, _endPoint.y, t);
-    return POINT{.x = x, .y = y};
+    const float beginX = static_cast<float>(_beginPoint.x);
+    const float beginY = static_cast<float>(_beginPoint.y);
+    const float endX   = static_cast<float>(_endPoint.x);
+    const float endY   = static_cast<float>(_endPoint.y);
+
+    const float x = std::lerp(beginX, endX, t);
+    const float y = std::lerp(beginY, endY, t);
+    return POINT{.x = static_cast<LONG>(x), .y = static_cast<LONG>(y)};
 }
 
 float TokenElement::GetOpacity(const float t) const
@@ -67,7 +72,7 @@ float TokenElement::GetOpacity(const float t) const
 float TokenElement::GetT() const
 {
     const float t = std::clamp(_elapsedTime / _duration, 0.0f, 1.0f);
-    return Mathf::Ease(Mathf::EaseType::EASE_OUT, Mathf::SINE, 0.5f, t);
+    return Mathf::Ease(Mathf::EaseType::EASE_OUT, Mathf::QUAD, 0.5f, t);
 }
 
 void TokenElement::UpdatePoint(const float t)
