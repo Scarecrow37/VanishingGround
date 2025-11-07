@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "TokenSystem.h"
 #include "ExcelDataSystem/ExcelDataSystem.h"
+#include "Utility/HexToColor.h"
 #include "Utility/StringHelper.h"
 
 UMREAL_COMPONENT(TokenSystem)
@@ -197,6 +198,12 @@ void TokenSystem::LoadTokenDataFromExcelData(ExcelDataSystem* dataSystem)
                 if (excelData != ExcelDataBase::FIND_STR_FAIL)
                 {
                     StringHelper::StringToInt(excelData, tokenData.ImageID);
+                }
+                excelData = dataBase->FindData(rowIndex, TokenExcelData::Key::NAME_COLOR);
+                if (excelData != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    std::string colorString = "#" + std::string(excelData);
+                    tokenData.NameColor = HexToColor()(colorString);
                 }
                 excelData = dataBase->FindData(rowIndex, TokenExcelData::Key::NAME);
                 if (excelData != ExcelDataBase::FIND_STR_FAIL)

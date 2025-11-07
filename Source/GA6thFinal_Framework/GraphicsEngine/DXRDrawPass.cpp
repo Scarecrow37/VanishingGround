@@ -217,7 +217,9 @@ void DXRDrawPass::CreateShaderTable()
 
     // shader table 작성 (캐시된 데이터 사용)
     uint8_t* p = nullptr;
-    _shaderTable->Map(0, nullptr, reinterpret_cast<void**>(&p));
+    constexpr D3D12_RANGE readRange{0, 0};
+    HRESULT  hr = _shaderTable->Map(0, &readRange, reinterpret_cast<void**>(&p));
+    FAILED_CHECK_MESSAGE(hr, L"DXRDrawPass::CreateShaderTable() failed to map shader table");
 
     // Ray Generation Record
     memcpy(p, _cache.RayGenID.data(), bytesId);                          

@@ -7,8 +7,11 @@
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+#include <Monster/System/MonsterSystem.h>
+
 #include <UI/Animations/FadeUIComponent/FadeUIComponent.h>
 #include <UI/Contents/SpawnDamagePanel.h>
+#include <UI/Contents/SpawnTokenPanel.h>
 
 namespace CombatUI
 {
@@ -51,6 +54,10 @@ namespace CombatUI
                         {
                             EnemySpawnHealPanel[i] = curr->gameObject->GetComponent<SpawnDamagePanel>();
                         }
+                        else if (curr->gameObject->CompareTag(MONSTER_SPAWN_TOKEN_HUD[i]))
+                        {
+                            EnemySpawnTokenPanel[i] = curr->gameObject->GetComponent<SpawnTokenPanel>();
+                        }
                     }
                     if (curr->gameObject->CompareTag("Player HUD"))
                     {
@@ -63,6 +70,10 @@ namespace CombatUI
                     else if (curr->gameObject->CompareTag("Player Spawn Heal UI"))
                     {
                         PlayerSpawnHealPanel = curr->gameObject->GetComponent<SpawnDamagePanel>();
+                    }
+                    else if (curr->gameObject->CompareTag("Player Spawn Token UI"))
+                    {
+                        PlayerSpawnTokenPanel = curr->gameObject->GetComponent<SpawnTokenPanel>();
                     }
                 }
             });
@@ -77,8 +88,9 @@ namespace CombatUI
                PlayerSpawnDamagePanel && EnemySpawnDamagePanel[0] && EnemySpawnDamagePanel[1] &&
                EnemySpawnDamagePanel[2] && PlayerSpawnHealPanel && EnemySpawnHealPanel[0] && EnemySpawnHealPanel[1] &&
                EnemySpawnHealPanel[2] && EnemySpawnCriticalDamage[0] && EnemySpawnCriticalDamage[1] &&
-               EnemySpawnCriticalDamage[2] && FadeUI && EnemyActionPanel[0] && EnemyActionPanel[1] &&
-               EnemyActionPanel[2];
+               EnemySpawnCriticalDamage[2] && PlayerSpawnTokenPanel && EnemySpawnTokenPanel[0] &&
+               EnemySpawnTokenPanel[1] && EnemySpawnTokenPanel[2] && FadeUI && EnemyActionPanel[0] &&
+               EnemyActionPanel[1] && EnemyActionPanel[2];
     }
 
     void CharacterHUDGroup::ActiveUI(bool active)
@@ -91,10 +103,10 @@ namespace CombatUI
 
     void CharacterHUDGroup::RefreshUIPosition()
     {
-        SIZE    hudPanelSize[3];
-        POINT   hudPanelPoint[3];
-        SIZE    actionPanelSize[3];
-        POINT   actionPanelPoint[3];
+        SIZE    hudPanelSize[3] = {};
+        POINT   hudPanelPoint[3] = {};
+        SIZE    actionPanelSize[3] = {};
+        POINT   actionPanelPoint[3] = {};
 
         const int left   = 0;
         const int middle = 1;
@@ -167,6 +179,12 @@ namespace CombatUI
 
     bool CharacterHUDGroup::RefreshCharactersUIPosition()
     {
+        for (size_t i = 0; i < 3; ++i)
+        {
+            EnemyFootPosition[i] = Vector3::Zero;
+            EnemyHeadPosition[i] = Vector3::Zero;
+        }
+
         if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
         {
             // 연출 카메라 가져오기
@@ -178,16 +196,37 @@ namespace CombatUI
             }
             if (camera)
             {
-                const auto& enemies = turnMode->GetEnemies();
-                for (size_t i = 0; i < enemies.size(); ++i)
+                if (MonsterSystem* system = SingletonComponent<MonsterSystem>::GetInstance())
                 {
-                    if (enemies[i])
+                    for (size_t i = 0; i < 3; ++i)
                     {
-                        const int     index      = static_cast<int>((Monster::SpawnPoint)enemies[i]->SpawnPoint);
-                        const Vector3 foot       = enemies[i]->transform->GetWorldPosition();
-                        const Vector3 head       = foot + GetHeadOffset(enemies[i]);
-                        EnemyFootPosition[index] = camera->WorldToViewport(foot);
-                        EnemyHeadPosition[index] = camera->WorldToViewport(head);
+                        Monster::SpawnPoint spawnIndex = static_cast<Monster::SpawnPoint>(i);
+
+                        auto weakEnemy      = system->GetSpawnedEnemyFromSpawnPoint(spawnIndex);
+                        auto weakSpawnPoint = system->GetSpawnPointObject(spawnIndex);
+
+                        Vector3 foot = Vector3::Zero;
+                        Vector3 head = Vector3::Zero;
+
+                        if (auto spawnPoint = weakSpawnPoint.lock().get())
+                        {
+                            foot = spawnPoint->transform->GetWorldPosition();
+                        }
+                        else
+                        {
+                            foot = Vector3(FLT_MIN, FLT_MIN, 0.0f);
+                        }
+
+                        if (auto enemy = weakEnemy.lock().get())
+                        {
+                            head = foot + GetHeadOffset(enemy);
+                        }
+                        else
+                        {
+                            head = foot;
+                        }
+                        EnemyFootPosition[i] = camera->WorldToViewport(foot);
+                        EnemyHeadPosition[i] = camera->WorldToViewport(head);
                     }
                 }
                 if (Player* player = turnMode->GetPlayer())
@@ -255,7 +294,7 @@ namespace CombatUI
         if (player)
         {
             const Vector3 scale = player->transform->Scale;
-            const Vector3 offset = Vector3(0.0f, 0.0f, 0.0f);
+            const Vector3 offset = Vector3(0.0f, 0.3f, 0.0f);
             return Vector3(0.0f, 2.0f, 0.0f) * scale + offset;
         }
         return Vector3();

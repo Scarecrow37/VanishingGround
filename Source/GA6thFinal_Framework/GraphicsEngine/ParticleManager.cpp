@@ -860,39 +860,23 @@ void ParticleManager::UpdateAndCopyParticleResource(float deltaTime, const std::
         void* mappedData = nullptr;
         if (scene->TotalCount > 0)
         {
-            scene->ParticleInputUpload->Map(0, nullptr, &mappedData);
-            memcpy(mappedData, scene->TotalParticles.data(), scene->TotalCount * sizeof(Particle));
-            scene->ParticleInputUpload->Unmap(0, nullptr);
-
-            scene->EmitterInfoUpload->Map(0, nullptr, &mappedData);
-            memcpy(mappedData, scene->EmitterMatrix.data(), scene->EmitterMatrix.size() * sizeof(EmitterInfo));
-            scene->EmitterInfoUpload->Unmap(0, nullptr);
+            Global::device->UpdateBuffer(scene->ParticleInputUpload, scene->TotalParticles.data(), scene->TotalCount * sizeof(Particle));
+            Global::device->UpdateBuffer(scene->EmitterInfoUpload, scene->EmitterMatrix.data(), scene->EmitterMatrix.size() * sizeof(EmitterInfo));
         }
         if (scene->RibbonTotalCount > 0)
         {
-            scene->RibbonParticleInputUpload->Map(0, nullptr, &mappedData);
-            memcpy(mappedData, scene->RibbonTotalParticles.data(),
-                   scene->RibbonTotalParticles.size() * sizeof(Particle));
-            scene->RibbonParticleInputUpload->Unmap(0, nullptr);
-
-            scene->RibbonEmitterInfoUpload->Map(0, nullptr, &mappedData);
-            memcpy(mappedData, scene->RibbonEmitterMatrix.data(),
-                   scene->RibbonEmitterMatrix.size() * sizeof(EmitterInfo));
-            scene->RibbonEmitterInfoUpload->Unmap(0, nullptr);
+            Global::device->UpdateBuffer(scene->RibbonParticleInputUpload, scene->RibbonTotalParticles.data(), scene->RibbonTotalParticles.size() * sizeof(Particle));
+            Global::device->UpdateBuffer(scene->RibbonEmitterInfoUpload, scene->RibbonEmitterMatrix.data(), scene->RibbonEmitterMatrix.size() * sizeof(EmitterInfo));
         }
     }
 
     // copy data from upload to default heap
     {
         CD3DX12_RESOURCE_BARRIER preCopyBarriers[] = {
-            CD3DX12_RESOURCE_BARRIER::Transition(scene->ParticleInput.Get(), D3D12_RESOURCE_STATE_COMMON,
-                                                 D3D12_RESOURCE_STATE_COPY_DEST),
-            CD3DX12_RESOURCE_BARRIER::Transition(scene->EmitterInfo.Get(), D3D12_RESOURCE_STATE_COMMON,
-                                                 D3D12_RESOURCE_STATE_COPY_DEST),
-            CD3DX12_RESOURCE_BARRIER::Transition(scene->RibbonParticleInput.Get(), D3D12_RESOURCE_STATE_COMMON,
-                                                 D3D12_RESOURCE_STATE_COPY_DEST),
-            CD3DX12_RESOURCE_BARRIER::Transition(scene->RibbonEmitterInfo.Get(), D3D12_RESOURCE_STATE_COMMON,
-                                                 D3D12_RESOURCE_STATE_COPY_DEST)};
+            CD3DX12_RESOURCE_BARRIER::Transition(scene->ParticleInput.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST),
+            CD3DX12_RESOURCE_BARRIER::Transition(scene->EmitterInfo.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST),
+            CD3DX12_RESOURCE_BARRIER::Transition(scene->RibbonParticleInput.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST),
+            CD3DX12_RESOURCE_BARRIER::Transition(scene->RibbonEmitterInfo.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST)};
         _computeCommandList->ResourceBarrier(_countof(preCopyBarriers), preCopyBarriers);
 
         if (scene->TotalCount > 0)
@@ -1020,11 +1004,7 @@ void ParticleManager::UpdateMvpConstant(float deltaTime, ParticleRenderResource*
                                             sceneCamera->GetWorldMatrix()._43, 1);
     mvpConstants.DeltaTime        = deltaTime;
 
-    void* mappedData = nullptr;
-    FAILED_CHECK_MESSAGE(sceneRenderResource->MvpConstant->Map(0, nullptr, &mappedData),
-                         L"MVP Constant Buffer Map Failed");
-    memcpy(mappedData, &mvpConstants, sizeof(MVPConstants));
-    sceneRenderResource->MvpConstant->Unmap(0, nullptr);
+    Global::device->UpdateBuffer(sceneRenderResource->MvpConstant, &mvpConstants, sizeof(MVPConstants));  
 }
 
 void ParticleManager::UpdateLifeCycle(float deltaTime)

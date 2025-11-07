@@ -6,6 +6,7 @@ class TextElement;
 class DescriptionPanel;
 class ImageElement;
 struct WeaponStats;
+class TooltipDescriptionPanel;
 
 class ItemInfoUIManager : public Component
 {
@@ -13,12 +14,12 @@ class ItemInfoUIManager : public Component
 protected:
     struct Components
     {
-        ImageElement*     FrameImage      = nullptr;
-        TextElement*      ItemName        = nullptr;
-        ImageElement*     ItemIcon        = nullptr;
-        DescriptionPanel* ItemDescription = nullptr;
-        DescriptionPanel* ItemFlavor      = nullptr;
-        DescriptionPanel* ItemKeyword     = nullptr;
+        ImageElement*            FrameImage      = nullptr;
+        TextElement*             ItemName        = nullptr;
+        ImageElement*            ItemIcon        = nullptr;
+        DescriptionPanel*        ItemDescription = nullptr;
+        DescriptionPanel*        ItemFlavor      = nullptr;
+        TooltipDescriptionPanel* ItemKeyword     = nullptr;
 
         TextElement* Damage      = nullptr;
         TextElement* Critical    = nullptr;
@@ -64,7 +65,7 @@ public:
     void SetItemDescription(const DropItemInfo& info);
     void SetItemDescription(const std::string& description);
 
-    void SetKeywordDescription(const std::string& description);
+    void SetKeywordDescription(const DropItemInfo& info);
 
     void SetFlavorDescription(const std::string& description);
 

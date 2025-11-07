@@ -9,6 +9,9 @@
 #include "RevelationSystem/RevelationSystem.h"
 #include "UI/Panels/Overlay/OverlayPanel.h"
 #include "TokenHUD/TokenHUD.h"
+#include "TooltipSystem/TooltipSystem.h"
+#include "KeyCallbackUINavi/KeyCallbackUINavi.h"
+#include "Particle/ParticleComponent.h"
 
 //Condition
 #include "Condition/EnemyStartCondition.h"
@@ -31,6 +34,7 @@
 // TurnAction
 #include "TurnSystem/TurnAction/TurnActionFactory.h"
 #include "ProclamationHUD/ProclamationHUD.h"
+#include "UI/Contents/SpawnTokenPanel.h"
 
 UMREAL_COMPONENT(Enemy)
 
@@ -118,6 +122,11 @@ void Enemy::DeserializedReflectEvent()
             }
         }
     }
+}
+
+void Enemy::OnDestroy() 
+{
+    ClearCallback();
 }
 
 void Enemy::ClearState() 
@@ -281,6 +290,20 @@ void Enemy::Awake()
 void Enemy::Start()
 {
     Base::Start();
+    switch (_spawnPoint)
+    {
+    case Monster::SpawnPoint::Left:
+        AddCallback("Enemy Left Navi");
+        break;
+    case Monster::SpawnPoint::Middle:
+        AddCallback("Enemy Middle Navi");
+        break;
+    case Monster::SpawnPoint::Right:
+        AddCallback("Enemy Right Navi");
+        break;
+    default:
+        break;
+    }
 }
 
 CharacterStats* Enemy::GetCharacterStats()
@@ -453,6 +476,16 @@ void Enemy::OnKill(CharacterBase* destination)
 void Enemy::OnTokenAdded(const int tokenID)
 {
     Base::OnTokenAdded(tokenID);
+
+    if (const CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        Monster::SpawnPoint spawnPoint = SpawnPoint;
+        const size_t        index      = static_cast<size_t>(spawnPoint);
+        if (SpawnTokenPanel* spawnTokenPanel = combatUI->CharacterHUDGroup.EnemySpawnTokenPanel[index])
+        {
+            spawnTokenPanel->EnqueueToken(tokenID);
+        }
+    }
 }
 
 void Enemy::OnTokenRemoved(const int tokenID)
@@ -586,4 +619,58 @@ void Enemy::ShowActionEditor()
         }
     }
 #endif
+}
+
+void Enemy::AddCallback(const std::string& key)
+{
+    _callbacks.push_back(KeyCallbackUINavi::AddCallbackFocusIn(key, [this]() { FocusIn(); }));
+    _callbacks.push_back(KeyCallbackUINavi::AddCallbackFocusOut(key, [this]() { FocusOut(); }));
+    _callbacks.push_back(KeyCallbackUINavi::AddCallbackShowTooltips(key, [this]() { ShowTooltip(); }));
+    _callbacks.push_back(KeyCallbackUINavi::AddCallbackHideTooltips(key, [this]() { HideTooltip(); }));
+}
+
+void Enemy::ClearCallback()
+{
+    for (auto& [delegate, handel] : _callbacks)
+    {
+        delegate->RemoveListener(handel);
+    }
+}
+
+void Enemy::FocusIn()
+{
+    if (ParticleComponent* particle = GetParticleComponent())
+    {
+        particle->PlayEffect("focus");
+    }
+}
+
+void Enemy::FocusOut()
+{
+    if (TooltipSystem* system = SingletonComponent<TooltipSystem>::GetInstance())
+    {
+        system->Hide();
+    }
+    if (ParticleComponent* particle = GetParticleComponent())
+    {
+        particle->StopEffect("focus");
+    }
+}
+
+void Enemy::ShowTooltip()
+{
+    if (TooltipSystem* system = SingletonComponent<TooltipSystem>::GetInstance())
+    {
+        auto&            tokenInventory = GetTokenInventory();
+        std::vector<int> ids            = tokenInventory.GetTokensTooltips();
+        system->Show(Tooltip::Group::ENEMY, ids);
+    }
+}
+
+void Enemy::HideTooltip()
+{
+    if (TooltipSystem* system = SingletonComponent<TooltipSystem>::GetInstance())
+    {
+        system->Hide();
+    }
 }

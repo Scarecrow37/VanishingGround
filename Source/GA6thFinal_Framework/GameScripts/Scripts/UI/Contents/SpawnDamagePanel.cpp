@@ -91,11 +91,6 @@ void SpawnDamagePanel::DeserializedReflectEvent()
     }
 }
 
-void SpawnDamagePanel::Awake()
-{
-    UIComponent::Awake();
-}
-
 void SpawnDamagePanel::Reset()
 {
     UIComponent::Reset();

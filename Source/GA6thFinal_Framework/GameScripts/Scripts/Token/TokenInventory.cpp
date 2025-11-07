@@ -3,6 +3,7 @@
 #include "TurnSystem/TurnActor/Character/CharacterBase.h"
 #include "TurnSystem/TurnMode/TurnMode.h"
 #include "Token/TokenSystem.h"
+#include "ExcelDataSystem/ExcelDataSystem.h"
 
 namespace
 {
@@ -472,7 +473,36 @@ void TokenInventory::NotifyRollRandomSpeed(int& randomSpeed)
     });
 }
 
-void TokenInventory::RemoveAllToken() 
+std::vector<int> TokenInventory::GetTokensTooltips()
+{
+    if (ExcelDataSystem* excelDataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
+    {
+        if (std::unique_ptr<ExcelDataBase> dataBase = excelDataSystem->FindExcelDataBase(u8"툴팁"))
+        {
+            std::vector<int> ids;
+            for (auto& tokenID : _vaildTokenVector)
+            {
+               const char* name = TokenSystem::TokenIDToName(tokenID);
+               if (STR_NULL != name)
+               {
+                   size_t index = dataBase->FindRowIndex((const char8_t*)name, u8"note");
+                   if (index != dataBase->FIND_INDEX_FAIL)
+                   {
+                       std::string_view id = dataBase->FindData(index, u8"ID");
+                       if (id != dataBase->FIND_STR_FAIL)
+                       {
+                           ids.push_back(std::stoi(id.data()));
+                       }
+                   }
+               }
+            }
+            return ids;
+        }
+    }
+    return std::vector<int>();
+}
+
+void TokenInventory::RemoveAllToken()
 {
     for (auto& [id, token] : _tokenTable)
     {

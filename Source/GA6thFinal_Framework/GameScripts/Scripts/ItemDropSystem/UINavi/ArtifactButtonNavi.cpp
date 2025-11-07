@@ -9,6 +9,7 @@
 #include "RevelationSystem/RevelationSystem.h"
 #include "AccessorySystem/AccessorySystem.h"
 #include "ItemDropSystem/UI/EraseRevelationUIManager.h"
+#include "Input/InputOkCancelComponent/InputOkCancelComponent.h"
 
 UMREAL_COMPONENT(ArtifactButtonNavi)
 
@@ -45,6 +46,37 @@ std::shared_ptr<ImageElement> ArtifactButtonNavi::FindFocusImage()
 void ArtifactButtonNavi::Awake() 
 {
     Base::Awake();
+    if (auto revelationWarnning = GameObject::FindComponentWithTag<InputOkCancelComponent>("Revelation Warning Panel").lock())
+    {
+        _revelationWarning = revelationWarnning;
+        Transform::ForeachDFS(revelationWarnning->transform, [this](Transform* curr) 
+        {
+            GameObject& object = curr->gameObject;
+            if (object.CompareTag("Icon"))
+            {
+                if (ImageElement* image = object.GetComponent<ImageElement>())
+                {
+                    _revelationWarningIcon = image->GetWeakPtrAs<ImageElement>();
+                }           
+            }
+        });
+    }
+
+    if (auto accessoriesWarning = GameObject::FindComponentWithTag<InputOkCancelComponent>("Accessories Warning Panel").lock())
+    {
+        _accessoriesWarning = accessoriesWarning;
+        Transform::ForeachDFS(accessoriesWarning->transform, [this](Transform* curr) 
+        {
+            GameObject& object = curr->gameObject;
+            if (object.CompareTag("Icon"))
+            {
+                if (ImageElement* image = object.GetComponent<ImageElement>())
+                {
+                    _accessoriesWarningIcon = image->GetWeakPtrAs<ImageElement>();
+                }
+            }
+        });
+    }
 }
 
 void ArtifactButtonNavi::FocusIn(FocusCallType type)
@@ -100,23 +132,53 @@ void ArtifactButtonNavi::Submit()
             case ArtifactDropType::ACCESSORY:
                 if (AccessorySystem* accessoryManager = SingletonComponent<AccessorySystem>::GetInstance())
                 {
-                    std::unique_ptr<AccessoryElement> element = accessoryManager->TryMakeAccessoryToName(itemName);
-                    if (element)
+                    if (auto accessoriesWarning = _accessoriesWarning.lock())
                     {
-                        accessoryManager->EquipAccessory(*element);
-                    }
-                    manager->ObtainFocusNavi(_buttonIndex);
+                        if (auto accessoriesWarningIcon = _accessoriesWarningIcon.lock())
+                        {
+                            int id = DropItemInfo::GetArtifactIconID(_itemInfo);
+                            accessoriesWarningIcon->SetImage(UmFileSystem.GetGuidFromAssetID(id));
+                        }
+
+                        accessoriesWarning->GetOkOrCancel([this, accessoryManager, manager, itemName](bool result) 
+                        {
+                            if (result)
+                            {
+                                std::unique_ptr<AccessoryElement> element = accessoryManager->TryMakeAccessoryToName(itemName);
+                                if (element)
+                                {
+                                    accessoryManager->EquipAccessory(*element);
+                                }
+                                manager->ObtainFocusNavi(_buttonIndex);
+                            }
+                        });
+                    }                        
                 }
                 break;
             case ArtifactDropType::REVELATION:
                 if (RevelationSystem* revelationManager = SingletonComponent<RevelationSystem>::GetInstance())
                 {
-                    RevelationElement* element = revelationManager->FindElement(itemName);
-                    if (element)
+                    if (auto revelationWarning = _revelationWarning.lock())
                     {
-                        revelationManager->PushBackRevelation(*element);
-                    }
-                    manager->ObtainFocusNavi(_buttonIndex);
+                        if (auto revelationIcon = _revelationWarningIcon.lock())
+                        {
+                            int id = DropItemInfo::GetArtifactIconID(_itemInfo);
+                            revelationIcon->SetImage(UmFileSystem.GetGuidFromAssetID(id));
+                        }
+
+                        revelationWarning->GetOkOrCancel([this, revelationManager, manager, itemName](bool result) 
+                        {
+                            if (result)
+                            {
+                                RevelationElement* element = revelationManager->FindElement(itemName);
+                                if (element)
+                                {
+                                    revelationManager->PushBackRevelation(*element);
+                                }
+                                manager->ObtainFocusNavi(_buttonIndex);
+                            }
+                        });                      
+                    }             
                 }
                 break;
             case ArtifactDropType::ERASE_REVELATION:

@@ -100,6 +100,7 @@ void Stage::OnSelected()
             }
         });
     }
+    _isCleared = true;
 }
 
 void Stage::FocusIn(FocusCallType callType)

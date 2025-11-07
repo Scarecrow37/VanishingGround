@@ -21,10 +21,10 @@ void StageFocusView::Awake()
             {
                 if (auto imageElement = value->GetComponent<ImageElement>(); imageElement)
                 {
-                    ImageElement* focusElement = GetComponent<ImageElement>();
-                    SIZE          focusSize    = focusElement->Size;
-                    POINT         targetPoint  = imageElement->Point;
-                    SIZE          size         = imageElement->Size;
+                    ImageElement*   focusElement = GetComponent<ImageElement>();
+                    SIZE            focusSize   = focusElement->Size;
+                    POINT           targetPoint = imageElement->Point;
+                    SIZE            size        = imageElement->Size;
 
                     POINT alignPoint = AlignPoint()(HorizontalAlignment::CENTER, VerticalAlignment::CENTER, focusSize - size);
                     POINT focusPoint    = targetPoint - alignPoint;
