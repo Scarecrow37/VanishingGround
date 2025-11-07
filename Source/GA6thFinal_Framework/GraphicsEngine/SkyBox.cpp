@@ -259,7 +259,7 @@ void SkyBox::UploadToTexture2D(ID3D12Device* device, ID3D12GraphicsCommandList* 
     device->GetCopyableFootprints(&texDesc, 0, 1, 0, nullptr, nullptr, nullptr, &uploadBufferSize);
 
     auto                  heapProperty = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-    CD3DX12_RESOURCE_DESC   bufferDesc   = CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize);
+    CD3DX12_RESOURCE_DESC bufferDesc   = CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize);
 
     ComPtr<ID3D12Resource> uploadResrouce;
    
@@ -267,14 +267,7 @@ void SkyBox::UploadToTexture2D(ID3D12Device* device, ID3D12GraphicsCommandList* 
     hr         = device->CreateCommittedResource(&heapProperty, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&uploadResrouce));
     FAILED_CHECK_MESSAGE(hr, L"SkyBox::UploadToTexture2D device->CreateCommittedResource Failed");
 
-    void*         mappedData = nullptr;
-    CD3DX12_RANGE readRange(0, 0);
-
-    hr = uploadResrouce->Map(0, &readRange, &mappedData);
-    FAILED_CHECK_MESSAGE(hr, L"SkyBox::UploadToTexture2D uploadResrouce->Map Failed");
-
-    memcpy(mappedData, data, dataSize);
-    uploadResrouce->Unmap(0, nullptr);
+    Global::device->UpdateBuffer(uploadResrouce, data, dataSize);
 
     D3D12_TEXTURE_COPY_LOCATION dst = {};
     dst.pResource                   = texture;

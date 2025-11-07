@@ -45,7 +45,7 @@ public:
     void Execute();
 
 public:
-    void UpdateBuffer(ComPtr<ID3D12Resource>& buffer, void* data, UINT size);
+    void UpdateBuffer(ComPtr<ID3D12Resource>& buffer, const void* data, UINT size);
     void ClearBackBuffer(UINT flag, XMVECTOR color, float depth = 1.0f, UINT stencil = 0);
     void Flip();
     void CreateVertexBuffer(void* data, UINT size, UINT stride, ComPtr<ID3D12Resource>& buffer, D3D12_VERTEX_BUFFER_VIEW& view);

@@ -153,4 +153,11 @@ struct PointLightShadowData
     float FarPlane;
 };
 
+struct ForwardPSOutput
+{
+    float4 color : SV_Target0;
+    float4 normal : SV_Target1;
+    uint customDepth : SV_Target2;    
+};
+
 #endif
