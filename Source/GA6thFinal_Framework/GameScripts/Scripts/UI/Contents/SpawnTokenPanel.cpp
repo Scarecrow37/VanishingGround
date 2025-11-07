@@ -25,10 +25,27 @@ SpawnTokenPanel::SpawnTokenPanel() : _newColor(DEFAULT_COLOR)
 
 std::weak_ptr<TokenElement> SpawnTokenPanel::MakeToken(int tokenID) const
 {
-    const std::shared_ptr<GameObject> child = NewGameObject(GameObject::Helper::GenerateUniqueName("Token Element"));
+    std::weak_ptr<TokenElement> weakTokenElement;
 
-    TokenElement& tokenElement = child->AddComponent<TokenElement>();
-    // TODO
+    if (const std::shared_ptr<GameObject> child = NewGameObject(GameObject::Helper::GenerateUniqueName("Token Element")))
+    {
+        child->transform->SetParent(transform, true);
+        TokenElement& tokenElement = child->AddComponent<TokenElement>();
+
+        const SIZE size = Size;
+
+        const POINT     beginPoint = POINT{.x = 0, .y = size.cy};
+        constexpr POINT endPoint   = POINT{.x = 0, .y = 0};
+
+        const TokenElement::SetupData data{
+            .BeginPoint = beginPoint, .EndPoint = endPoint, .BeginOpacity = BeginOpacity, .EndOpacity = EndOpacity};
+
+        tokenElement.Setup(data);
+
+        weakTokenElement = tokenElement.GetWeakPtrAs<TokenElement>();
+    }
+
+    return weakTokenElement;
 }
 
 void SpawnTokenPanel::Reset()
