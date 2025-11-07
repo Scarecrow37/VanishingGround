@@ -5,11 +5,6 @@ UMREAL_COMPONENT(UmCineMotion)
 
 UmCineMotion::UmCineMotion()  = default;
 UmCineMotion::~UmCineMotion() = default;
-void UmCineMotion::Start()
-{
-    ResetRail(true);
-}
-
 void UmCineMotion::OnDrawDebug()
 {
 #ifdef _UMEDITOR
@@ -23,7 +18,6 @@ void UmCineMotion::OnDrawDebug()
         ApplyTransform();
     }
 }
-
 void UmCineMotion::OnDrawDebugSelected()
 {
 #ifdef _UMEDITOR
@@ -45,7 +39,10 @@ void UmCineMotion::OnDrawDebugSelected()
         ApplyTransform();
     }
 }
-
+void UmCineMotion::Start()
+{
+    ResetRail(true);
+}
 void UmCineMotion::Update()
 {
 #ifdef _UMEDITOR
@@ -55,7 +52,6 @@ void UmCineMotion::Update()
     Shake();
     ApplyTransform();
 }
-
 void UmCineMotion::ImGuiDrawPropertysEvent()
 {
 #ifdef _UMEDITOR
@@ -200,6 +196,18 @@ void UmCineMotion::ImGuiDrawPropertysEvent()
         {
             BeginShake(_shakeDuration, _shakeIntensity, _shakeFrequency);
         }
+        ImGui::SameLine();
+
+        bool isStopShakePressed = ImGui::Button("Stop Shake", {100, 50});
+        if (true == isStopShakePressed)
+        {
+            StopShake();
+        }
+        bool isHandHeldPressed = ImGui::Button("HandHeld Shake", {100, 50});
+        if (true == isHandHeldPressed)
+        {
+            BeginHandHeldShake();
+        }
     }
     {
         ImGui::Checkbox("Easing Panel", &_showEasingFlag);
@@ -238,7 +246,49 @@ void UmCineMotion::ImGuiDrawPropertysEvent()
     }
 #endif
 }
+void UmCineMotion::SerializedReflectEvent()
+{
+    ReflectFields->PositionXTethers.clear();
+    ReflectFields->PositionYTethers.clear();
+    ReflectFields->PositionZTethers.clear();
+    ReflectFields->RotationXTethers.clear();
+    ReflectFields->RotationYTethers.clear();
+    ReflectFields->RotationZTethers.clear();
+    ReflectFields->RotationWTethers.clear();
 
+    for (auto& pos : _posTethers)
+    {
+        ReflectFields->PositionXTethers.push_back(pos.x);
+        ReflectFields->PositionYTethers.push_back(pos.y);
+        ReflectFields->PositionZTethers.push_back(pos.z);
+    }
+    for (auto& rot : _rotTethers)
+    {
+        ReflectFields->RotationXTethers.push_back(rot.x);
+        ReflectFields->RotationYTethers.push_back(rot.y);
+        ReflectFields->RotationZTethers.push_back(rot.z);
+        ReflectFields->RotationWTethers.push_back(rot.w);
+    }
+}
+void UmCineMotion::DeserializedReflectEvent()
+{
+    CameraComponent::DeserializedReflectEvent();
+    _posTethers.clear();
+    _rotTethers.clear();
+    for (int i = 0; i < ReflectFields->TimestepTethers.size(); i++)
+    {
+        _posTethers.push_back({ReflectFields->PositionXTethers[i], ReflectFields->PositionYTethers[i],
+                               ReflectFields->PositionZTethers[i]});
+
+        _rotTethers.push_back({ReflectFields->RotationXTethers[i], ReflectFields->RotationYTethers[i],
+                               ReflectFields->RotationZTethers[i], ReflectFields->RotationWTethers[i]});
+        Matrix world = Matrix::CreateFromQuaternion(_rotTethers[i]) * Matrix::CreateTranslation(_posTethers[i]);
+#ifdef _UMEDITOR
+        PushGuizmo(world);
+#endif
+    }
+    ResetRail(true);
+}
 void UmCineMotion::AddTether()
 {
     if (_posTethers.size() >= 1)
@@ -258,7 +308,6 @@ void UmCineMotion::AddTether()
     PushGuizmo(transform->GetWorldMatrix());
 #endif
 }
-
 void UmCineMotion::UndoTether()
 {
     if (ReflectFields->TimestepTethers.empty())
@@ -289,7 +338,6 @@ void UmCineMotion::UndoTether()
     PopGuizmo();
 #endif
 }
-
 void UmCineMotion::ClearTethers()
 {
     ReflectFields->RailLength = 0;
@@ -302,7 +350,6 @@ void UmCineMotion::ClearTethers()
     ClearGuizmo();
 #endif
 }
-
 void UmCineMotion::StartRail(bool isReverse)
 {
     if (ReflectFields->TimestepTethers.empty())
@@ -314,7 +361,6 @@ void UmCineMotion::StartRail(bool isReverse)
     _reverseFlag = isReverse;
     _easeLog.clear();
 }
-
 void UmCineMotion::PauseRail()
 {
     if (ReflectFields->TimestepTethers.empty())
@@ -324,7 +370,6 @@ void UmCineMotion::PauseRail()
     _railFlag  = true;
     _pauseFlag = true;
 }
-
 void UmCineMotion::StopRail()
 {
     if (ReflectFields->TimestepTethers.empty())
@@ -335,7 +380,90 @@ void UmCineMotion::StopRail()
     _pauseFlag = true;
     _railFlag  = false;
 }
+void UmCineMotion::ResetRail(bool toBegin)
+{
+    _railTargetPos   = transform->Position;
+    _railTargetAngle = transform->Rotation;
+    _easeLog.clear();
+    if (toBegin)
+    {
+        _moveTimer   = 0.f;
+        _currentStep = 0.f;
+    }
+    else
+    {
+        if (ReflectFields->RailLength > 0.f && ReflectFields->RailSpeed > 0.f)
+        {
+            _moveTimer   = (ReflectFields->RailLength / (ReflectFields->RailSpeed * _railSpeedScale));
+            _currentStep = 100.f;
+        }
+    }
+    if (ReflectFields->TimestepTethers.size() > 1)
+    {
+        int idx             = toBegin ? 0 : static_cast<int>(ReflectFields->TimestepTethers.size()) - 1;
+        _railTargetPos          = _posTethers[idx];
+        _railTargetAngle        = _rotTethers[idx];
+        transform->Position = _railTargetPos;
+        transform->Rotation = _railTargetAngle;
+    }
+}
+void UmCineMotion::BeginShake(float duration, float intensity, float frequency)
+{
+    _shakeFlag         = true;
+    Vector3 camUp    = Vector3::Transform(Vector3::Up, _railTargetAngle);
+    Vector3 camRight = Vector3::Transform(Vector3::Right, _railTargetAngle);
+    _shakeDirection  = Random::Range(-1.f, 1.f) * camUp + Random::Range(-1.f, 1.f) * camRight;
+    _shakeDirection.Normalize();
+    _shakeTargetPos    = Vector3::Zero;
+    _shakeDuration     = duration;
+    _shakeIntensity    = intensity;
+    _shakeFrequency    = frequency;
+    _shakeElapsedTimer = 0.f;
+}
+void UmCineMotion::BeginFeedBackShake(int feedbackValue)
+{
+    constexpr int weakThreshold   = 10;
+    constexpr int strongThreshold = 20;
 
+    constexpr float weakIntensity = 0.02f;
+    constexpr float weakDuration  = 0.5f;
+    constexpr float weakFrequency = 5.f;
+
+    constexpr float midIntensity = 0.035f;
+    constexpr float midDuration  = 0.5f;
+    constexpr float midFrequency = 5.f;
+
+    constexpr float strongIntensity = 0.06f;
+    constexpr float strongDuration  = 0.5f;
+    constexpr float strongFrequency = 5.f;
+
+    if (feedbackValue <= 0)
+        return;
+    if (feedbackValue <= weakThreshold)
+    {
+        BeginShake(weakDuration, weakIntensity, weakFrequency);
+    }
+    else if (feedbackValue <= strongThreshold)
+    {
+        BeginShake(midDuration, midIntensity, midFrequency);
+    }
+    else
+    {
+        BeginShake(strongDuration, strongIntensity, strongFrequency);
+    }
+}
+void UmCineMotion::BeginHandHeldShake() 
+{
+    constexpr float loopDuration = -1;
+    BeginShake(loopDuration, _handHeldIntensity, _handHeldFrequency);
+}
+void UmCineMotion::StopShake()
+{
+    _shakeFlag         = false;
+    _shakeElapsedTimer = 0.f;
+    _shakeTargetPos    = Vector3::Zero;
+    _shakeOffset       = Vector3::Zero;
+}
 void UmCineMotion::DrawRail()
 {
     if (false == _posTethers.empty())
@@ -425,7 +553,6 @@ void UmCineMotion::DrawRail()
         }
     }
 }
-
 void UmCineMotion::RunRail()
 {
     if (_posTethers.empty() || _rotTethers.empty())
@@ -458,173 +585,48 @@ void UmCineMotion::RunRail()
             position = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _posTethers,
                                                _currentStep * ReflectFields->RailLength);
         }
-        _targetPos   = position;
-        _targetAngle = angle;
+        _railTargetPos   = position;
+        _railTargetAngle = angle;
     }
     else
     {
-        _targetPos   = transform->Position;
-        _targetAngle = transform->Rotation;
+        _railTargetPos   = transform->Position;
+        _railTargetAngle = transform->Rotation;
     }
 }
-
 void UmCineMotion::Shake()
 {
     if (true == _shakeFlag)
     {
+        _shakeTargetPos = Vector3::Zero;
         _shakeElapsedTimer += UmTime.DeltaTime();
         GetShakeOffset();
-        _targetPos += _shakeOffset;
+        _shakeTargetPos = _shakeOffset;
         
-        if (_shakeElapsedTimer >= _shakeDuration)
+        if (_shakeElapsedTimer >= _shakeDuration && _shakeDuration > 0.f)
         {
             _shakeFlag         = false;
             _shakeElapsedTimer = 0.f;
+            _shakeTargetPos    = Vector3::Zero;
         }
-    }
-}
-
-void UmCineMotion::ResetRail(bool toBegin)
-{
-    _targetPos   = transform->Position;
-    _targetAngle = transform->Rotation;
-    _easeLog.clear();
-    if (toBegin)
-    {
-        _moveTimer   = 0.f;
-        _currentStep = 0.f;
     }
     else
     {
-        if (ReflectFields->RailLength > 0.f && ReflectFields->RailSpeed > 0.f)
-        {
-            _moveTimer   = (ReflectFields->RailLength / (ReflectFields->RailSpeed * _railSpeedScale));
-            _currentStep = 100.f;
-        }
-    }
-    if (ReflectFields->TimestepTethers.size() > 1)
-    {
-        int idx             = toBegin ? 0 : static_cast<int>(ReflectFields->TimestepTethers.size()) - 1;
-        _targetPos          = _posTethers[idx];
-        _targetAngle        = _rotTethers[idx];
-        transform->Position = _targetPos;
-        transform->Rotation = _targetAngle;
+        _shakeTargetPos = Vector3::Zero;
     }
 }
-
-void UmCineMotion::BeginShake(float duration, float intensity, float frequency)
-{
-    _shakeFlag         = true;
-    Vector3 camUp    = Vector3::Transform(Vector3::Up, _targetAngle);
-    Vector3 camRight = Vector3::Transform(Vector3::Right, _targetAngle);
-    _shakeDirection  = Random::Range(-1.f, 1.f) * camUp + Random::Range(-1.f, 1.f) * camRight;
-    _shakeDirection.Normalize();
-    _shakeDuration     = duration;
-    _shakeIntensity    = intensity;
-    _shakeFrequency    = frequency;
-    _shakeElapsedTimer = 0.f;
-}
-
 void UmCineMotion::GetShakeOffset()
 {
-    if (_shakeIntensity <= 0.0f || _shakeFrequency <= 0.0f || _shakeDuration <= 0.0f)
+    if (_shakeIntensity <= 0.0f || _shakeFrequency <= 0.0f || _shakeDuration == 0.0f)
     {
         _shakeOffset = Vector3::Zero;
         return;
     }
-
-    float normalizedTime = std::clamp(_shakeElapsedTimer / _shakeDuration, 0.f, 1.f);
+    float normalizedTime = _shakeDuration > 0.f ? std::clamp(_shakeElapsedTimer / _shakeDuration, 0.f, 1.f) : 0.f;
     float envelope       = 1.0f - (normalizedTime * normalizedTime);
     _shakeAmount         = std::sinf(_shakeElapsedTimer * _shakeFrequency * XM_2PI);
     _shakeAmount *= _shakeIntensity * envelope;
     _shakeOffset = _shakeDirection * _shakeAmount;
-}
-
-void UmCineMotion::ApplyTransform()
-{
-    if (true == _railFlag)
-    {
-        transform->Rotation = _targetAngle;
-        transform->Position = _targetPos;
-    }
-}
-
-void UmCineMotion::BeginFeedBackShake(int feedbackValue)
-{
-    constexpr int weakThreshold   = 10;
-    constexpr int strongThreshold = 20;
-
-    constexpr float weakIntensity = 0.02f;
-    constexpr float weakDuration  = 0.5f;
-    constexpr float weakFrequency = 5.f;
-
-    constexpr float midIntensity = 0.035f;
-    constexpr float midDuration  = 0.5f;
-    constexpr float midFrequency = 5.f;
-
-    constexpr float strongIntensity = 0.06f;
-    constexpr float strongDuration  = 0.5f;
-    constexpr float strongFrequency = 5.f;
-
-    if (feedbackValue <= 0)
-        return;
-    if (feedbackValue <= weakThreshold)
-    {
-        BeginShake(weakDuration, weakIntensity, weakFrequency);
-    }
-    else if (feedbackValue <= strongThreshold)
-    {
-        BeginShake(midDuration, midIntensity, midFrequency);
-    }
-    else
-    {
-        BeginShake(strongDuration, strongIntensity, strongFrequency);
-    }
-}
-
-void UmCineMotion::DeserializedReflectEvent()
-{
-    CameraComponent::DeserializedReflectEvent();
-    _posTethers.clear();
-    _rotTethers.clear();
-    for (int i = 0; i < ReflectFields->TimestepTethers.size(); i++)
-    {
-        _posTethers.push_back({ReflectFields->PositionXTethers[i], ReflectFields->PositionYTethers[i],
-                               ReflectFields->PositionZTethers[i]});
-
-        _rotTethers.push_back({ReflectFields->RotationXTethers[i], ReflectFields->RotationYTethers[i],
-                               ReflectFields->RotationZTethers[i], ReflectFields->RotationWTethers[i]});
-        Matrix world = Matrix::CreateFromQuaternion(_rotTethers[i]) * Matrix::CreateTranslation(_posTethers[i]);
-#ifdef _UMEDITOR
-        PushGuizmo(world);
-#endif
-    }
-    ResetRail(true);
-}
-
-void UmCineMotion::SerializedReflectEvent()
-{
-    ReflectFields->PositionXTethers.clear();
-    ReflectFields->PositionYTethers.clear();
-    ReflectFields->PositionZTethers.clear();
-    ReflectFields->RotationXTethers.clear();
-    ReflectFields->RotationYTethers.clear();
-    ReflectFields->RotationZTethers.clear();
-    ReflectFields->RotationWTethers.clear();
-
-    for (auto& pos : _posTethers)
-    {
-        ReflectFields->PositionXTethers.push_back(pos.x);
-        ReflectFields->PositionYTethers.push_back(pos.y);
-        ReflectFields->PositionZTethers.push_back(pos.z);
-    }
-    for (auto& rot : _rotTethers)
-    {
-        ReflectFields->RotationXTethers.push_back(rot.x);
-        ReflectFields->RotationYTethers.push_back(rot.y);
-        ReflectFields->RotationZTethers.push_back(rot.z);
-        ReflectFields->RotationWTethers.push_back(rot.w);
-    }
 }
 float UmCineMotion::EaseTimeStep(float step)
 {
@@ -633,6 +635,29 @@ float UmCineMotion::EaseTimeStep(float step)
     if (curStep <= 1.f)
         _easeLog.push_back(curStep);
     return curStep;
+}
+void UmCineMotion::ApplyTransform()
+{
+    if (true == _railFlag)
+    {
+        transform->Rotation = _railTargetAngle;
+        transform->Position = _railTargetPos;
+    }
+    
+    // Shake 적용 또는 리셋
+    if (_shakeFlag && _shakeTargetPos != Vector3::Zero)
+    {
+        Matrix worldMat =
+            Matrix::CreateFromQuaternion(transform->Rotation) * Matrix::CreateTranslation(transform->Position);
+        worldMat *= (transform->Parent) ? transform->Parent->GetWorldMatrix() : Matrix::Identity;
+        worldMat *= Matrix::CreateTranslation(_shakeTargetPos);
+        _camera->SetWorldMatrix(worldMat);
+    }
+    else
+    {
+        // Shake가 없으면 카메라를 transform과 동기화
+        _camera->SetWorldMatrix(transform->GetWorldMatrix());
+    }
 }
 
 #ifdef _UMEDITOR

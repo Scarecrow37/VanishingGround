@@ -865,7 +865,7 @@ void ParticleManager::UpdateAndCopyParticleResource(float deltaTime, const std::
         }
         if (scene->RibbonTotalCount > 0)
         {
-            Global::device->UpdateBuffer(scene->RibbonParticleInputUpload, scene->RibbonTotalParticles.data(), scene->RibbonTotalParticles.size() * sizeof(Particle));
+            Global::device->UpdateBuffer(scene->RibbonParticleInputUpload, scene->RibbonTotalParticles.data(), scene->RibbonTotalCount * sizeof(Particle));
             Global::device->UpdateBuffer(scene->RibbonEmitterInfoUpload, scene->RibbonEmitterMatrix.data(), scene->RibbonEmitterMatrix.size() * sizeof(EmitterInfo));
         }
     }
@@ -892,7 +892,7 @@ void ParticleManager::UpdateAndCopyParticleResource(float deltaTime, const std::
 
         if (scene->RibbonTotalCount > 0)
         {
-            UINT64 particleDataSize = scene->RibbonTotalParticles.size() * sizeof(Particle);
+            UINT64 particleDataSize = scene->RibbonTotalCount * sizeof(Particle);
             _computeCommandList->CopyBufferRegion(scene->RibbonParticleInput.Get(), 0,
                                                   scene->RibbonParticleInputUpload.Get(), 0, particleDataSize);
 
