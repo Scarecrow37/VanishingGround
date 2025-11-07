@@ -81,7 +81,6 @@ MapManager::MapManager()
     StageEnableImage.SetInputAutoEvent([this, PayLoadEvent]() { PayLoadEvent(STAGE_ENABLE, ReflectFields->AssetIDs[STAGE_ENABLE]); });
     StageDisableImage.SetInputAutoEvent([this, PayLoadEvent]() { PayLoadEvent(STAGE_DISABLE, ReflectFields->AssetIDs[STAGE_DISABLE]); });
     StageFocusImage.SetInputAutoEvent([this, PayLoadEvent]() { PayLoadEvent(STAGE_FOCUS, ReflectFields->AssetIDs[STAGE_FOCUS]); });
-    RewardPopupImage.SetInputAutoEvent([this, PayLoadEvent]() { PayLoadEvent(REWARD_POPUP, ReflectFields->AssetIDs[REWARD_POPUP]); });
 }
 
 MapManager::~MapManager()
@@ -128,9 +127,9 @@ void MapManager::SetSelectStage(Stage* stage)
 
 void MapManager::Awake()
 {    
-    if (_singletonComponent.TrySingleTon()  && 
-        _singletonObject.TrySingleTon(true))
+    if (_singletonObject.TrySingleTon(true))
     {        
+        _singletonComponent.TrySingleTon();
         BindInputAction(ControllerButton::BACK, Action::PRESSED, this, &MapManager::PreferencesKeyDown);
         BindInputAction(ControllerButton::START, Action::PRESSED, this, &MapManager::InventoryKeyDown);
         BindInputAction(ControllerButton::RIGHT_THUMB_STICK, Action::HELD, this, &MapManager::ScrollKeyUpdate);
@@ -253,7 +252,7 @@ void MapManager::FindUI()
         _scroll = scroll->GetComponent<ScrollingWrapper>();
     }
 
-    if (auto background = GameObject::Find("Map Background").lock(); background)
+    if (auto background = GameObject::FindWithTag("Map Background").lock(); background)
     {
         _mainBackgroundUI = background->GetComponent<ImageElement>();
     }
@@ -297,17 +296,10 @@ void MapManager::ImGuiDrawPropertysEvent()
 
 void MapManager::ChageBackgroundImage(int assetID)
 {    
-    if (auto rewardPopup = GameObject::Find("RewardPopup").lock(); rewardPopup)
+    if (_mainBackgroundUI)
     {
-        if (auto background = rewardPopup->transform->Find("Background"); background)
-        {
-            auto imageElement = background->gameObject->GetComponent<ImageElement>();
-
-            if (imageElement)
-            {
-                imageElement->SetImage(UmFileSystem.GetGuidFromAssetID(assetID));
-            }
-        }
+        const File::Guid& imageGuid = UmFileSystem.GetGuidFromAssetID(assetID);
+        _mainBackgroundUI->SetImage(imageGuid);
     }
 }
 
@@ -337,10 +329,6 @@ void MapManager::DefaultSetting()
         rewardPopup->transform->SetParent(gameObject->transform);
         rewardPopup->AddComponent<RewardPopup>();
         rewardPopup->AddComponent<OverlayPanel>();
-
-        auto rewardBackground = NewGameObject("Background");
-        rewardBackground->transform->SetParent(rewardPopup->transform);
-        rewardBackground->AddComponent<ImageElement>().SetImage(UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[REWARD_POPUP]));
 
         auto stages = NewGameObject("Stages");
         stages->AddComponent<OverlayPanel>();
@@ -395,10 +383,10 @@ void MapManager::UpdateStageUI()
             }
         }
     }
-    const int backgroundAssetID = ReflectFields->MainBackgroundAssetID + _lastClearedStageData.MainLevel;
+    const int backgroundAssetID = ReflectFields->AssetIDs[BACKGROUND] + _lastClearedStageData.MainLevel;
     if (_mainBackgroundUI)
     {
-        SetMainBackgroundAsset(backgroundAssetID);
+        ChageBackgroundImage(backgroundAssetID);
     }
 }
 
@@ -510,14 +498,5 @@ void MapManager::OpenInventoryWindow()
             });
             UmAudio.Play("-901005");
         }
-    }
-}
-
-void MapManager::SetMainBackgroundAsset(int assetID) 
-{
-    if (_mainBackgroundUI)
-    {
-        const File::Guid& imageGuid = UmFileSystem.GetGuidFromAssetID(assetID);
-        _mainBackgroundUI->SetImage(imageGuid);
     }
 }

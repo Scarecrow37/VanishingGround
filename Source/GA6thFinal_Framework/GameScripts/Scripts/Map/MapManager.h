@@ -10,7 +10,7 @@ class ImageElement;
 
 class MapManager : public Component, public InputReceiver
 {
-    enum AssetIDs { BACKGROUND, STAGE_ENABLE, STAGE_DISABLE, STAGE_FOCUS, REWARD_POPUP, MAX };
+    enum AssetIDs { BACKGROUND, STAGE_ENABLE, STAGE_DISABLE, STAGE_FOCUS, MAX };
     USING_PROPERTY(MapManager)
 
 public:
@@ -42,19 +42,11 @@ public:
     Monster::SpawnID GetCurrentSpawnID() const;
 
 public:
-    REFLECT_PROPERTY(MainBackgroundImage, MapScenePath, BackgroundImage, StageEnableImage, StageDisableImage,
-                     StageFocusImage, RewardPopupImage)
+    REFLECT_PROPERTY(MapScenePath, BackgroundImage, StageEnableImage, StageDisableImage,
+                     StageFocusImage)
 
     GETTER_ONLY(std::string, MapScenePath) { return ReflectFields->MapSceneGuid; }
     PROPERTY(MapScenePath)
-
-    GETTER(int, MainBackgroundImage) { return ReflectFields->MainBackgroundAssetID; }
-    SETTER(int, MainBackgroundImage)
-    {
-        ReflectFields->MainBackgroundAssetID = value;
-        SetMainBackgroundAsset(value);
-    }
-    PROPERTY(MainBackgroundImage)
 
     GETTER(int, BackgroundImage) { return ReflectFields->AssetIDs[BACKGROUND]; }
     SETTER(int, BackgroundImage)
@@ -76,15 +68,10 @@ public:
     SETTER(int, StageFocusImage) { ReflectFields->AssetIDs[STAGE_FOCUS] = value; }
     PROPERTY(StageFocusImage)
 
-    GETTER(int, RewardPopupImage) { return ReflectFields->AssetIDs[REWARD_POPUP]; }
-    SETTER(int, RewardPopupImage) { ReflectFields->AssetIDs[REWARD_POPUP] = value; }
-    PROPERTY(RewardPopupImage)
-
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     std::array<int, MAX> AssetIDs;
     std::string          MapSceneGuid; // 자기 자신 씬 Guid (씬 로드 시 비활성화 시키기 위해)
-    int                  MainBackgroundAssetID = 0; // 맵 백그라운드 이미지 에셋 ID
     REFLECT_FIELDS_END(MapManager)
 
 protected:
@@ -92,6 +79,7 @@ protected:
 
 private:
     void ChageBackgroundImage(int assetID);
+
     void DefaultSetting();
     void RegisterStage(GameObject& object);
 
@@ -131,5 +119,4 @@ private:
 
 private:
     ImageElement* _mainBackgroundUI;
-    void          SetMainBackgroundAsset(int assetID);
 };
