@@ -162,6 +162,11 @@ void ImageElement::SetOpacity(const float opacity)
     UpdateRendererAlpha(clampedAlpha);
 }
 
+void ImageElement::BindResourceLoadedCallback(ResourceLoadedCallback callback)
+{
+    _resourceLoadedCallback = std::move(callback);
+}
+
 void ImageElement::LoadTexture(const File::Guid& guid) const
 {
     if (nullptr != _renderer)
@@ -231,6 +236,13 @@ void ImageElement::RequestResource()
             SetRadialFill(radialFill);
 
             // ResetToSpriteSize();
+            if (_resourceLoadedCallback)
+            {
+                CallbackParameters params;
+                params.ResourceSize = _spriteOriginSize;
+                _resourceLoadedCallback(params);
+                _resourceLoadedCallback = nullptr;
+            }
         });
     }
 }

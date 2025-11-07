@@ -10,9 +10,7 @@ public:
 
 public:
     void SetupTokenHUD(const File::Guid& guid, MVVM::Model<int>& tokenStack, const std::string& key);
-
-protected:
-    void OnDestroy() override;
+    void RemoveTokenHUD();
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
