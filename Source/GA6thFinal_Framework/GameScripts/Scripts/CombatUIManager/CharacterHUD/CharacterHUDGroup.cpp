@@ -11,6 +11,7 @@
 
 #include <UI/Animations/FadeUIComponent/FadeUIComponent.h>
 #include <UI/Contents/SpawnDamagePanel.h>
+#include <UI/Contents/SpawnTokenPanel.h>
 
 namespace CombatUI
 {
@@ -53,6 +54,10 @@ namespace CombatUI
                         {
                             EnemySpawnHealPanel[i] = curr->gameObject->GetComponent<SpawnDamagePanel>();
                         }
+                        else if (curr->gameObject->CompareTag(MONSTER_SPAWN_TOKEN_HUD[i]))
+                        {
+                            EnemySpawnTokenPanel[i] = curr->gameObject->GetComponent<SpawnTokenPanel>();
+                        }
                     }
                     if (curr->gameObject->CompareTag("Player HUD"))
                     {
@@ -65,6 +70,10 @@ namespace CombatUI
                     else if (curr->gameObject->CompareTag("Player Spawn Heal UI"))
                     {
                         PlayerSpawnHealPanel = curr->gameObject->GetComponent<SpawnDamagePanel>();
+                    }
+                    else if (curr->gameObject->CompareTag("Player Spawn Token UI"))
+                    {
+                        PlayerSpawnTokenPanel = curr->gameObject->GetComponent<SpawnTokenPanel>();
                     }
                 }
             });
@@ -79,8 +88,9 @@ namespace CombatUI
                PlayerSpawnDamagePanel && EnemySpawnDamagePanel[0] && EnemySpawnDamagePanel[1] &&
                EnemySpawnDamagePanel[2] && PlayerSpawnHealPanel && EnemySpawnHealPanel[0] && EnemySpawnHealPanel[1] &&
                EnemySpawnHealPanel[2] && EnemySpawnCriticalDamage[0] && EnemySpawnCriticalDamage[1] &&
-               EnemySpawnCriticalDamage[2] && FadeUI && EnemyActionPanel[0] && EnemyActionPanel[1] &&
-               EnemyActionPanel[2];
+               EnemySpawnCriticalDamage[2] && PlayerSpawnTokenPanel && EnemySpawnTokenPanel[0] &&
+               EnemySpawnTokenPanel[1] && EnemySpawnTokenPanel[2] && FadeUI && EnemyActionPanel[0] &&
+               EnemyActionPanel[1] && EnemyActionPanel[2];
     }
 
     void CharacterHUDGroup::ActiveUI(bool active)

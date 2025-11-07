@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="DebugEditor|Win32">
@@ -333,6 +333,7 @@
     <ClInclude Include="Scripts\UI\Contents\TooltipType.h" />
     <ClInclude Include="Scripts\Utility\AutoRotateComponent.h" />
     <ClInclude Include="Scripts\Utility\HexToColor.h" />
+    <ClInclude Include="Scripts\UI\Contents\TokenElement.h" />
     <ClInclude Include="Scripts\Utility\SceneGuid.h" />
     <ClInclude Include="Scripts\GameOverManager\GameOverManager.h" />
     <ClInclude Include="Scripts\Map\StageData.h" />
@@ -619,6 +620,7 @@
     <ClInclude Include="Scripts\UI\Contents\DamageElement.h" />
     <ClInclude Include="Scripts\UI\Contents\GlobalFontManager.h" />
     <ClInclude Include="Scripts\UI\Contents\SpawnDamagePanel.h" />
+    <ClInclude Include="Scripts\UI\Contents\SpawnTokenPanel.h" />
     <ClInclude Include="Scripts\UI\Contents\TooltipColumnComponent.h" />
     <ClInclude Include="Scripts\UI\Contents\TooltipComponent.h" />
     <ClInclude Include="Scripts\UI\Contents\TooltipGroupComponent.h" />
@@ -709,6 +711,7 @@
     <ClCompile Include="Scripts\UI\Contents\TooltipElement.cpp" />
     <ClCompile Include="Scripts\Utility\AutoRotateComponent.cpp" />
     <ClCompile Include="Scripts\Utility\HexToColor.cpp" />
+    <ClCompile Include="Scripts\UI\Contents\TokenElement.cpp" />
     <ClCompile Include="Scripts\Utility\SceneGuid.cpp" />
     <ClCompile Include="Scripts\GameOverManager\GameOverManager.cpp" />
     <ClCompile Include="Scripts\Monster\Action\BossServant\MonsterBossServantAction.cpp" />
@@ -997,6 +1000,7 @@
       <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</IncludeInUnityFile>
       <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">false</IncludeInUnityFile>
     </ClCompile>
+    <ClCompile Include="Scripts\UI\Contents\SpawnTokenPanel.cpp" />
     <ClCompile Include="Scripts\UI\Contents\TooltipColumnComponent.cpp" />
     <ClCompile Include="Scripts\UI\Contents\TooltipComponent.cpp" />
     <ClCompile Include="Scripts\UI\Contents\TooltipGroupComponent.cpp" />
@@ -1010,7 +1014,12 @@
       <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">false</IncludeInUnityFile>
     </ClCompile>
     <ClCompile Include="Scripts\UI\Elements\Text\TextElement.cpp" />
-    <ClCompile Include="Scripts\UI\Panels\Description\DescriptionPanel.cpp" />
+    <ClCompile Include="Scripts\UI\Panels\Description\DescriptionPanel.cpp">
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">false</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">false</IncludeInUnityFile>
+    </ClCompile>
     <ClCompile Include="Scripts\UI\Panels\Grid\GridPanel.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Overlay\OverlayPanel.cpp" />
