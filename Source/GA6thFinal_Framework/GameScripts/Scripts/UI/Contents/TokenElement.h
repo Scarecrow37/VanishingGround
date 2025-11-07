@@ -1,12 +1,14 @@
 ﻿#pragma once
-#include "UI/Panels/Description/DescriptionPanel.h"
+#include "UI/Panels/Horizontal/HorizontalPanel.h"
 
 class TextElement;
 class ImageElement;
 
-class TokenElement : public DescriptionPanel
+class TokenElement : public HorizontalPanel
 {
     USING_PROPERTY(TokenElement)
+
+    static constexpr float MIN_DURATION = 0.1f;
 
 public:
     struct SetupData
@@ -25,20 +27,21 @@ public:
     TokenElement();
 
     void Setup(const SetupData& data);
-    bool IsPlaying() const;
 
 protected:
     void Update() override;
     POINT GetPoint(float t) const;
+    float GetOpacity(float t) const;
 
 private:
     float GetT() const;
     void  UpdatePoint(float t);
     void  UpdateOpacity(float t) const;
     void  FindComponents();
+    void  ResetState();
 
 protected:
-    REFLECT_FIELDS_BEGIN(DescriptionPanel)
+    REFLECT_FIELDS_BEGIN(HorizontalPanel)
     REFLECT_FIELDS_END(TokenElement)
 
 private:
@@ -49,7 +52,6 @@ private:
     float _duration;
 
     float _elapsedTime;
-    bool  _isPlaying;
 
     std::weak_ptr<ImageElement> _iconImageElement;
     std::weak_ptr<TextElement>  _nameTextElement;

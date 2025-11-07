@@ -27,7 +27,7 @@ std::weak_ptr<TokenElement> SpawnTokenPanel::MakeToken(int tokenID) const
 {
     std::weak_ptr<TokenElement> weakTokenElement;
 
-    if (const std::shared_ptr<GameObject> child = NewGameObject(GameObject::Helper::GenerateUniqueName("Token Element")))
+    if (const std::shared_ptr<GameObject> child = UmGameObjectFactory.DeserializeToGuid(_Guid))
     {
         child->transform->SetParent(transform, true);
         TokenElement& tokenElement = child->AddComponent<TokenElement>();
