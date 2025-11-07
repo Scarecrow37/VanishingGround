@@ -73,17 +73,16 @@ void LogOutput::DrawShowLog()
 
 void LogOutput::DrawLogSetting() 
 {
-    if (_isShowSetting)
+    if (ImGui::TreeNode("Log Output"))
     {
-        ImGui::Begin("logger setting##7E65496E-DD8D-42CF-8774-2D32CC3B0C9D", &_isShowSetting);
         ImGui::Checkbox("Show log", &_isShowLog);
         ImGui::Separator();
         ImGui::Text("Font size");
         float& globalScale = ImGui::GetIO().FontGlobalScale;
         if (ImGui::DragFloat("##font scale", &globalScale, 0.01f))
-        { 
-            globalScale = std::clamp(globalScale, 0.1f, 10.f);            
+        {
+            globalScale = std::clamp(globalScale, 0.1f, 10.f);
         }
-        ImGui::End();
+        ImGui::TreePop();
     }
 }
