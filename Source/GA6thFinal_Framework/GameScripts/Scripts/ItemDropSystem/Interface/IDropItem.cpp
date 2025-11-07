@@ -208,6 +208,18 @@ std::vector<int> DropItemInfo::GetArtifactTooltipIDs(DropItemInfo itemInfo)
 
 std::string DropItemInfo::GetArtifactDescription(DropItemInfo itemInfo)
 {
+    using namespace u8_literals;
+    if (itemInfo.Category == ArtifactDropType::ERASE_REVELATION)
+    {
+        return u8R"(
+        <Description>
+        <Text color="#d7d7d7"> 보유한 계시 중 한 개를 제거합니다.</Text>
+        <Break/>
+        <Text color="#d7d7d7"> 보유 계시가 3개일 경우 제거할 수 없습니다.</Text>
+        </Description>
+        )"_c_str;
+    }
+
     if (ExcelDataSystem* excelDataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
     {
         std::u8string_view dbName = GetDataBaseName(itemInfo.Category);

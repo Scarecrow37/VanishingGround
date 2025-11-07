@@ -541,6 +541,9 @@ void ItemDropSystem::PlayItemDropUISequence()
             {
                 bgmManager->PlayBGM("-460000", true);
             }
+
+            // UI 갱신
+            _dropItemsModel.Notify();
         }
     }
 
