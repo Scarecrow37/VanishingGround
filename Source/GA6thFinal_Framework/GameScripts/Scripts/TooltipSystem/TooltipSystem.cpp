@@ -2,37 +2,37 @@
 #include "TooltipSystem.h"
 #include "Scripts/UI/Contents/TooltipGroupComponent.h"
 #include "ExcelDataSystem/ExcelDataSystem.h"
+#include "Utility/HexToColor.h"
 
 UMREAL_COMPONENT(TooltipSystem)
 
 TooltipSystem::TooltipSystem() = default;
 
-void TooltipSystem::Show(const Group group, const int id) const
+void TooltipSystem::RegisterTooltipGroup(const Tooltip::Group group, const std::weak_ptr<TooltipGroupComponent>& component)
 {
-    try
-    {
-        if (const auto sharedGroup = _tooltipGroups.at(group).lock())
-        {
-            sharedGroup->Show(_tooltips.at(id));
-            sharedGroup->FadeIn();
-        }
-    }
-    catch (const std::out_of_range& exception)
-    {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, "Tooltip group or tooltip data not found.");
-        UmLogger.Log(LogLevel::LEVEL_WARNING, exception.what());
-    }
+    _tooltipGroups[group] = component;
 }
 
-void TooltipSystem::Show(const Group group, const std::initializer_list<int> ids) const
+void TooltipSystem::Show(const Tooltip::Group group, const int id) const
+{
+    Show(group, std::span(&id, 1));
+}
+
+void TooltipSystem::Show(const Tooltip::Group group, const std::initializer_list<int> ids) const
+{
+    Show(group, std::span(ids));
+}
+
+void TooltipSystem::Show(const Tooltip::Group group, const std::span<const int> ids) const
 {
     try
     {
         if (const auto sharedGroup = _tooltipGroups.at(group).lock())
         {
+            sharedGroup->Hide();
             for (const int id : ids)
             {
-                sharedGroup->Show(_tooltips.at(id));
+                sharedGroup->Show(id, _tooltips.at(id));
             }
             sharedGroup->FadeIn();
         }
@@ -46,24 +46,26 @@ void TooltipSystem::Show(const Group group, const std::initializer_list<int> ids
 
 void TooltipSystem::Hide()
 {
-    for (auto& weakGroup : _tooltipGroups | std::views::values)
+    for (const Tooltip::Group weakGroup : _tooltipGroups | std::views::keys)
     {
-        if (const auto sharedGroup = weakGroup.lock())
-        {
-            sharedGroup->FadeOut();
-            UmTime.Invoke(this, sharedGroup->GetFadeDuration(), [sharedGroup]() { sharedGroup->Hide(); });
-        }
+        Hide(weakGroup);
     }
 }
 
-void TooltipSystem::Hide(const Group group)
+void TooltipSystem::Hide(const Tooltip::Group group)
 {
     try
     {
-        if (const auto sharedGroup = _tooltipGroups.at(group).lock())
+        std::weak_ptr<TooltipGroupComponent> weakGroup = _tooltipGroups.at(group);
+        if (const auto sharedGroup = weakGroup.lock())
         {
             sharedGroup->FadeOut();
-            UmTime.Invoke(this, sharedGroup->GetFadeDuration(), [sharedGroup]() { sharedGroup->Hide(); });
+            UmTime.Invoke(this, sharedGroup->GetFadeDuration(), [weakGroup]() {
+                if (const auto sharedInInvokeGroup = weakGroup.lock())
+                {
+                    sharedInInvokeGroup->Hide();
+                }
+            });
         }
     }
     catch (const std::out_of_range& exception)
@@ -73,7 +75,7 @@ void TooltipSystem::Hide(const Group group)
     }
 }
 
-TooltipComponent::TooltipData TooltipSystem::GetTooltip(const int id) const
+Tooltip::TooltipData TooltipSystem::GetTooltip(const int id) const
 {
     try
     {
@@ -83,7 +85,7 @@ TooltipComponent::TooltipData TooltipSystem::GetTooltip(const int id) const
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, "Tooltip data not found.");
         UmLogger.Log(LogLevel::LEVEL_WARNING, exception.what());
-        return TooltipComponent::TooltipData{};
+        return Tooltip::TooltipData{};
     }
 }
 
@@ -95,8 +97,6 @@ void TooltipSystem::Awake()
     {
         _singletonComponent.TrySingleTon();
     }
-
-    FindComponents();
 }
 
 void TooltipSystem::Start()
@@ -112,29 +112,6 @@ void TooltipSystem::ImGuiDrawPropertysEvent()
 
     ShowDataProperty();
     ShowTestTooltipProperty();
-}
-
-void TooltipSystem::FindComponents()
-{
-    _tooltipGroups.emplace(Group::WEAPON,
-                           GameObject::FindComponentWithTag<TooltipGroupComponent>(TOOLTIP_GROUP_WEAPON.data()));
-    _tooltipGroups.emplace(Group::ACCESSORY,
-                           GameObject::FindComponentWithTag<TooltipGroupComponent>(TOOLTIP_GROUP_ACCESSORY.data()));
-    _tooltipGroups.emplace(Group::PLAYER,
-                           GameObject::FindComponentWithTag<TooltipGroupComponent>(TOOLTIP_GROUP_PLAYER.data()));
-    _tooltipGroups.emplace(Group::ENEMY_LEFT,
-                           GameObject::FindComponentWithTag<TooltipGroupComponent>(TOOLTIP_GROUP_ENEMY_LEFT.data()));
-    _tooltipGroups.emplace(Group::ENEMY_MIDDLE,
-                           GameObject::FindComponentWithTag<TooltipGroupComponent>(TOOLTIP_GROUP_ENEMY_MIDDLE.data()));
-    _tooltipGroups.emplace(Group::ENEMY_RIGHT,
-                           GameObject::FindComponentWithTag<TooltipGroupComponent>(TOOLTIP_GROUP_ENEMY_RIGHT.data()));
-    _tooltipGroups.emplace(Group::REVELATION_UP,
-                           GameObject::FindComponentWithTag<TooltipGroupComponent>(TOOLTIP_GROUP_REVELATION_UP.data()));
-    _tooltipGroups.emplace(Group::REVELATION_MIDDLE, GameObject::FindComponentWithTag<TooltipGroupComponent>(
-                                                         TOOLTIP_GROUP_REVELATION_MIDDLE.data()));
-    _tooltipGroups.emplace(Group::REVELATION_DOWN,
-                            GameObject::FindComponentWithTag<TooltipGroupComponent>(
-                                                       TOOLTIP_GROUP_REVELATION_DOWN.data()));
 }
 
 void TooltipSystem::SetupData()
@@ -159,6 +136,8 @@ void TooltipSystem::SetupData()
                     const size_t     nameIndex       = textSheet->FindRowIndex(nameIdU8String, DATA_TEXT_COLUMN_KEY_ID);
                     std::string_view nameContentView = textSheet->FindData(nameIndex, DATA_TEXT_COLUMN_CONTENT);
                     std::string      nameContent     = std::string(nameContentView);
+                    std::string_view nameColorView   = textSheet->FindData(nameIndex, DATA_TEXT_COLUMN_COLOR);
+                    std::string      nameColorString       = "#" + std::string(nameColorView);
 
                     std::string_view descriptionIdStringView =
                         tooltipSheet->FindData(row, DATA_TOOLTIP_COLUMN_KEY_DESCRIPTION_ID);
@@ -174,9 +153,10 @@ void TooltipSystem::SetupData()
                     std::string      iconIdString     = std::string(iconIdStringView);
                     int              iconId           = iconIdString.empty() ? 0 : std::stoi(iconIdString);
 
-                    TooltipComponent::TooltipData tooltipData{.ImageAssetId = iconId,
-                                                              .Title        = std::move(nameContent),
-                                                              .Description  = std::move(descriptionContent)};
+                    Tooltip::TooltipData tooltipData{.ImageAssetId = iconId,
+                                                     .Title        = std::move(nameContent),
+                                                     .TitleColor   = HexToColor()(nameColorString),
+                                                     .Description  = std::move(descriptionContent)};
 
                     _tooltips.emplace(id, std::move(tooltipData));
                 }
@@ -224,22 +204,19 @@ void TooltipSystem::ShowDataProperty()
 
 void TooltipSystem::ShowTestTooltipProperty()
 {
-    constexpr const char* groupItems[] = {"Weapon",        "Accessory",         "Player",
-                                          "Enemy Left",    "Enemy Middle",      "Enemy Right",
-                                          "Revelation Up", "Revelation Middle", "Revelation Down"};
-
-    static int id = 0;
-    static Group group = Group::WEAPON;
+    static int   id    = 0;
+    static Tooltip::Group group = Tooltip::Group::PLAYER;
 
     ImGui::InputInt("Tooltip ID", &id);
-    if (ImGui::BeginCombo("Tooltip Group", groupItems[static_cast<size_t>(group)]))
+    if (constexpr const char* groupItems[] = {"Player", "Enemy", "Revelation"};
+        ImGui::BeginCombo("Tooltip Group", groupItems[static_cast<size_t>(group)]))
     {
         for (size_t i = 0; i < std::size(groupItems); ++i)
         {
             const bool isSelected = (static_cast<size_t>(group) == i);
             if (ImGui::Selectable(groupItems[i], isSelected))
             {
-                group = static_cast<Group>(i);
+                group = static_cast<Tooltip::Group>(i);
             }
             if (isSelected)
             {

@@ -12,6 +12,7 @@ class FSMState;
 class TurnAction;
 class ProclamationHUD;
 class UmCineMotion;
+class ParticleComponent;
 
 class Enemy : public CharacterBase
 {
@@ -116,6 +117,7 @@ protected:
     void ImGuiDrawPropertysEvent() override;
     void SerializedReflectEvent() override;
     void DeserializedReflectEvent() override;
+    void OnDestroy() override;
 
 private:
     void OnCombatStart() override;
@@ -140,4 +142,14 @@ private:
 private:
     void ShowActionEditor();
 
+private:
+    void AddCallback(const std::string& key);
+    void ClearCallback();
+
+    void FocusIn();
+    void FocusOut();
+    void ShowTooltip();
+    void HideTooltip();
+
+    std::vector<std::pair<UmDelegate<>*, UmDelegate<>::Handle>> _callbacks;
 };

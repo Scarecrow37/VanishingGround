@@ -2344,6 +2344,7 @@ void ESceneManager::InputSystem::UpdateInput()
         try
         {
             _inputController.UpdateState();
+            _actionTracker.fill(Action::IDLE);
             if (const auto& queue = _inputController.GetButtonQueue(); false == queue.empty())
             {
                 for (const auto& state : queue)
@@ -2477,16 +2478,6 @@ void ESceneManager::InputSystem::UpdateTracker(const Input::Controller::ButtonSt
 
     switch (buttonState.Flag)
     {
-    case Input::ControllerTypes::STATE_UNCHANGED:
-        if (action == Action::PRESSED)
-        {
-            action = Action::HELD;
-        }
-        else if (action == Action::RELEASED)
-        {
-            action = Action::IDLE;
-        }
-        break;
     case Input::ControllerTypes::STATE_DOWN:
         action = Action::PRESSED;
         break;

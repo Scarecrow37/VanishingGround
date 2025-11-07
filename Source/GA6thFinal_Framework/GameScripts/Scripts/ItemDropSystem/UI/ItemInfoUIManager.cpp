@@ -6,6 +6,7 @@
 #include "ExcelDataSystem/ExcelDataSystem.h"
 #include "WeaponSystem/WeaponTable/WeaponTableComponent.h"
 #include "WeaponSystem/WeaponElement/WeaponElement.h"
+#include "UI/Contents/TooltipDescriptionPanel.h"
 
 UMREAL_COMPONENT(ItemInfoUIManager)
 
@@ -72,8 +73,7 @@ void ItemInfoUIManager::SetItemDescription(const DropItemInfo& info)
     //TODO: Flavor 텍스트에 대한 표시 해야함.
     SetFlavorDescription("");
     
-    //TODO: 키워드에 대한 설명 표시해야함.
-    SetKeywordDescription("");
+    SetKeywordDescription(info);
 }
 
 void ItemInfoUIManager::SetItemDescription(const std::string& description) 
@@ -84,11 +84,20 @@ void ItemInfoUIManager::SetItemDescription(const std::string& description)
     }
 }
 
-void ItemInfoUIManager::SetKeywordDescription(const std::string& description) 
+void ItemInfoUIManager::SetKeywordDescription(const DropItemInfo& dropItemInfo)
 {
     if (_uiComponents.ItemKeyword)
     {
-        _uiComponents.ItemKeyword->Description = description;
+        std::vector<int> ids;
+        ids = DropItemInfo::GetArtifactTooltipIDs(dropItemInfo);
+        if (false == ids.empty())
+        {
+            _uiComponents.ItemKeyword->SetTooltips(ids);
+        }
+        else
+        {
+            _uiComponents.ItemKeyword->ClearTooltips();
+        }   
     }
 }
 
@@ -202,7 +211,7 @@ void ItemInfoUIManager::FindComponents()
         }
         else if (nullptr == _uiComponents.ItemKeyword && object.CompareTag("Keyword Description"))
         {
-            _uiComponents.ItemKeyword = object.GetComponent<DescriptionPanel>();
+            _uiComponents.ItemKeyword = object.GetComponent<TooltipDescriptionPanel>();
         }
         else if (nullptr == _uiComponents.ItemFlavor && object.CompareTag("Flavor Description"))
         {

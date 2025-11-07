@@ -31,7 +31,7 @@ void InputOkCancelComponent::GetOkOrCancel(const std::function<void(bool)>& call
         PushInputLayer();
         gameObject->SetActive(true);
         std::function<void(bool)> callbackFunc = callback;
-        UmTime.Invoke(this, 0.1f, [this, callbackFunc] { _callback = callbackFunc; });
+        UmTime.Invoke(this, 0.2f, [this, callbackFunc] { _callback = callbackFunc; });
     }
 }
 

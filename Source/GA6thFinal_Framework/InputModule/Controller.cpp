@@ -7,8 +7,8 @@
 namespace Input
 {
     Controller::Controller(const Adapter* adapter)
-        : _adapter(adapter), _id(ControllerTypes::INVALID_ID), _state{}, _leftStickBias(StickBias::UNBIASED),
-          _rightStickBias(StickBias::UNBIASED), _nextVibration(ControllerTypes::VIBRATION_EMPTY) {}
+        : _adapter(adapter), _id(ControllerTypes::INVALID_ID), _state{}, _queueState(0),
+          _leftStickBias(StickBias::UNBIASED), _rightStickBias(StickBias::UNBIASED), _nextVibration(ControllerTypes::VIBRATION_EMPTY) {}
 
     void Controller::Connect()
     {
@@ -32,7 +32,7 @@ namespace Input
         {
             _state = _adapter->ReceiveState(_id);
             ButtonQueue queue = _adapter->ReceiveQueue(_id);
-            UpdateStickBias();
+            UpdateStickBias(queue);
             _queue = UpdateQueue(queue);
             UpdateVibration();
         }
@@ -119,11 +119,11 @@ namespace Input
         _nextVibration = vibration;
     }
 
-    void Controller::UpdateStickBias()
+    void Controller::UpdateStickBias(const ButtonQueue& queue)
     {
         _leftStickBias  = StickBias::UNBIASED;
         _rightStickBias = StickBias::UNBIASED;
-        std::ranges::for_each(_queue, [this](const ButtonState& buttonState) {
+        std::ranges::for_each(queue, [this](const ButtonState& buttonState) {
             if (buttonState.Button == Button::LEFT_THUMB_STICK)
             {
                 _leftStickBias = buttonState.Bias;
@@ -142,20 +142,32 @@ namespace Input
         _nextVibration = ControllerTypes::VIBRATION_EMPTY;
     }
 
-    Controller::ButtonQueue Controller::UpdateQueue(ButtonQueue& queue) const
+    struct IsExistInQueue
     {
+        bool operator()(const Controller::Button button, const Controller::ButtonQueue& queue) const
+        {
+            return std::ranges::any_of(
+                queue, [button](const Controller::ButtonState& buttonState) { return buttonState.Button == button; });
+        }
+    };
+
+    Controller::ButtonQueue Controller::UpdateQueue(ButtonQueue& queue)
+    {
+
+        UpdateQueueState(queue);
+
         ButtonQueue updatedQueue;
 
         for (unsigned int buttonFlag = 0x000001; buttonFlag <= Button::RIGHT_THUMB_STICK; buttonFlag = buttonFlag << 1)
         {
-            Button button = static_cast<Button>(buttonFlag);
-            if (std::ranges::any_of(queue, [button](const ButtonState& buttonState) { return buttonState.Button == button; }))
+            if (_queueState & buttonFlag)
             {
-                continue;
-            }
+                const Button button = static_cast<Button>(buttonFlag);
+                if (constexpr IsExistInQueue isExistInQueue; isExistInQueue(button, queue))
+                {
+                    continue;
+                }
 
-            if (IsButtonDown(button))
-            {
                 ButtonState buttonState{};
                 buttonState.Button = button;
                 buttonState.Flag   = StateFlag::STATE_REPEAT;
@@ -176,6 +188,23 @@ namespace Input
         std::ranges::move(queue, std::back_inserter(updatedQueue));
 
         return updatedQueue;
+    }
+
+    void Controller::UpdateQueueState(const ButtonQueue& queue)
+    {
+        std::ranges::for_each(queue, [this](const ButtonState& buttonState) {
+            switch (buttonState.Flag)
+            {
+            case StateFlag::STATE_DOWN:
+                _queueState |= buttonState.Button;
+                break;
+            case StateFlag::STATE_UP:
+                _queueState &= ~buttonState.Button;
+                break;
+            case StateFlag::STATE_REPEAT:
+                break;
+            }
+        });
     }
 
 } // namespace Input
