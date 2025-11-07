@@ -152,6 +152,13 @@ void Enemy::Dead()
     if (auto turnMode = SingletonComponent<TurnMode>::GetInstance())
     {
         turnMode->ApplyActions([this](TurnAction& action) { action.OnEnemyDead(*this); });
+        for (auto& action : _actions)
+        {
+            if (action)
+            {
+                action->OnEnemyDead(*this);
+            }
+        }
     }
     if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
     {
