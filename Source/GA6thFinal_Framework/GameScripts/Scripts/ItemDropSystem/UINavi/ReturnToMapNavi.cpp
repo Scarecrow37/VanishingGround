@@ -60,6 +60,7 @@ void ReturnToMapNavi::Submit()
         else
         {
             UmSceneManager.LoadScene(path.string());
+            UmSceneManager.ResourceManager.ClearResource();
         }
     }
 }
