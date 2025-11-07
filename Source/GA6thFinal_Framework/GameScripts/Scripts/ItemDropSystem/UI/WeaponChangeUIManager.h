@@ -6,6 +6,7 @@ class TextElement;
 class DescriptionPanel;
 class ImageElement;
 class PlayerWeaponChangeNavi;
+class ItemInfoUIManager;
 class WeaponChangeUIManager : public Component, public InputReceiver
 {
     USING_PROPERTY(WeaponChangeUIManager)
@@ -21,14 +22,7 @@ public:
 
     struct PlayerWeaponStats
     {
-        TextElement*      Name        = nullptr;
-        ImageElement*     Icon        = nullptr;
-        TextElement*      Damage      = nullptr;
-        TextElement*      Critical    = nullptr;
-        TextElement*      AttackCount = nullptr;
-        TextElement*      Speed       = nullptr;
-        DescriptionPanel* Description = nullptr;
-        DescriptionPanel* Keyword     = nullptr;
+        ItemInfoUIManager* Manager = nullptr;
     };
 
     struct ChangeWeaponStats
@@ -39,14 +33,11 @@ public:
             ImageElement* UpArrow   = nullptr;
             ImageElement* DownArrow = nullptr;
         };
-        TextElement*      Name = nullptr;
-        ImageElement*     Icon = nullptr;
-        StatsUIDatas      Damage;
-        StatsUIDatas      Critical;
-        StatsUIDatas      AttackCount;
-        StatsUIDatas      Speed;
-        DescriptionPanel* Description = nullptr;
-        DescriptionPanel* Keyword     = nullptr;
+        ItemInfoUIManager* Manager = nullptr;
+        StatsUIDatas       Damage;
+        StatsUIDatas       Critical;
+        StatsUIDatas       AttackCount;
+        StatsUIDatas       Speed;
     };
 
     struct WarningUI
