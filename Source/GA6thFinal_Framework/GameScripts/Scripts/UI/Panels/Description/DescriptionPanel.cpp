@@ -259,6 +259,14 @@ void DescriptionPanel::MakeChild()
             element.VerticalFillMode   = FillMode::FILL;
             element.Alpha              = ReflectFields->Alpha;
             element.SetArtificial(true);
+            std::weak_ptr<RatioWrapper> weakRatio = ratio.GetWeakPtrAs<RatioWrapper>();
+            element.BindResourceLoadedCallback([weakRatio](const ImageElement::CallbackParameters params) {
+                if (const auto sharedRatio = weakRatio.lock(); nullptr != sharedRatio && params.ResourceSize.cx != 0)
+                {
+                    sharedRatio->Ratio =
+                        static_cast<float>(params.ResourceSize.cy) / static_cast<float>(params.ResourceSize.cx);
+                }
+            });
             imageChild->transform->SetParent(child->transform, true);
         }
         break;
