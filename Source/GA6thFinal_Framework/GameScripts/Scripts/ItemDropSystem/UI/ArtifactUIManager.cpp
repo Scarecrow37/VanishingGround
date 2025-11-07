@@ -362,18 +362,6 @@ void ArtifactUIManager::SetNaviDropItemInfo(const DropItemInfo& info, size_t ind
     {
         ArtifactButtonNavi* navi = _focusNaviElements[index];
         navi->SettingItem(info);
-        
-        // 계시 지우기 조건 제어
-        if (info.Category == ArtifactDropType::ERASE_REVELATION)
-        {
-            if (RevelationSystem* system = SingletonComponent<RevelationSystem>::GetInstance())
-            {
-                if (system->GetPlayerElementList().size() <= 3)
-                {
-                    navi->Enable = false;
-                }
-            }
-        }
     }
 }
 
