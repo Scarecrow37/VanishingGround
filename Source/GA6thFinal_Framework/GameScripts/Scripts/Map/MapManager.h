@@ -6,6 +6,8 @@
 class OpenInventoryComponent;
 class Stage;
 class ScrollingWrapper;
+class ImageElement;
+
 class MapManager : public Component, public InputReceiver
 {
     enum AssetIDs { BACKGROUND, STAGE_ENABLE, STAGE_DISABLE, STAGE_FOCUS, REWARD_POPUP, MAX };
@@ -21,11 +23,13 @@ private:
     void OnEnable() override;
     void OnLoadScene(Scene& loadScene, LoadSceneMode mode) override;
 
+    void FindUI();
+
 public:
-    void    UINotify() const { _focusStage.Notify(); }
-    void    SetFocusStage(Stage* stage);
-    bool    TrySelectStage(Stage* stage);
-    void    SetSelectStage(Stage* stage);
+    void UINotify() const { _focusStage.Notify(); }
+    void SetFocusStage(Stage* stage);
+    bool TrySelectStage(Stage* stage);
+    void SetSelectStage(Stage* stage);
 
 
     /// <summary>현재 스테이지를 반환합니다.</summary>
@@ -38,10 +42,19 @@ public:
     Monster::SpawnID GetCurrentSpawnID() const;
 
 public:
-    REFLECT_PROPERTY(MapScenePath, BackgroundImage, StageEnableImage, StageDisableImage, StageFocusImage, RewardPopupImage)
-    
-    GETTER_ONLY(std::string, MapScenePath) { return ReflectFields->MapScenePath; }
+    REFLECT_PROPERTY(MainBackgroundImage, MapScenePath, BackgroundImage, StageEnableImage, StageDisableImage,
+                     StageFocusImage, RewardPopupImage)
+
+    GETTER_ONLY(std::string, MapScenePath) { return ReflectFields->MapSceneGuid; }
     PROPERTY(MapScenePath)
+
+    GETTER(int, MainBackgroundImage) { return ReflectFields->MainBackgroundAssetID; }
+    SETTER(int, MainBackgroundImage)
+    {
+        ReflectFields->MainBackgroundAssetID = value;
+        SetMainBackgroundAsset(value);
+    }
+    PROPERTY(MainBackgroundImage)
 
     GETTER(int, BackgroundImage) { return ReflectFields->AssetIDs[BACKGROUND]; }
     SETTER(int, BackgroundImage)
@@ -70,7 +83,8 @@ public:
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     std::array<int, MAX> AssetIDs;
-    std::string          MapScenePath;
+    std::string          MapSceneGuid; // 자기 자신 씬 Guid (씬 로드 시 비활성화 시키기 위해)
+    int                  MainBackgroundAssetID = 0; // 맵 백그라운드 이미지 에셋 ID
     REFLECT_FIELDS_END(MapManager)
 
 protected:
@@ -79,10 +93,9 @@ protected:
 private:
     void ChageBackgroundImage(int assetID);
     void DefaultSetting();
-    void SetupStage();
     void RegisterStage(GameObject& object);
 
-    void UpdateStageFocus();
+    void UpdateStageUI();
     
     // 해당 스테이지가 Submit가능한 상태인지 판단합니다
     bool CanSubmitStage(Stage* stage);
@@ -115,4 +128,8 @@ private:
     bool   _openInventory   = false;
 
     float _scrollDir = 0.f;
+
+private:
+    ImageElement* _mainBackgroundUI;
+    void          SetMainBackgroundAsset(int assetID);
 };

@@ -120,15 +120,15 @@ void IntroManager::Update()
 
     Debugger()([this] {
         // 아래는 디버그용 코드입니다.
-        if (ImGui::IsKeyPressed(ImGuiKey_UpArrow))
+        if (ImGui::IsKeyPressed(ImGuiKey_UpArrow, false))
         {
             SelectNormal();
         }
-        else if (ImGui::IsKeyPressed(ImGuiKey_DownArrow))
+        else if (ImGui::IsKeyPressed(ImGuiKey_DownArrow, false))
         {
             SelectHard();
         }
-        else if (ImGui::IsKeyPressed(ImGuiKey_A))
+        else if (ImGui::IsKeyPressed(ImGuiKey_A, false))
         {
             SkipStep();
         }

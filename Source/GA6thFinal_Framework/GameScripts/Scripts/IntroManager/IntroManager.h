@@ -3,6 +3,7 @@
 class FadeImageElement;
 class FadeTextElement;
 class FadeDescriptionPanel;
+class FadeImageElement;
 class ExcelDataBase;
 
 class IntroManager : public Component, public InputReceiver
@@ -79,9 +80,11 @@ private:
     void                           ResetFade();
 
     void SkipStep(const Input::Controller& controller);
+    void SkipStep();
     void SelectNormal(const Input::Controller& controller);
     void SelectNormal();
     void SelectHard(const Input::Controller& controller);
+    void SelectHard();
     void SelectThumbStick(const Input::Controller& controller);
 
     template <typename T>
