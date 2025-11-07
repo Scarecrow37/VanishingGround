@@ -31,7 +31,6 @@
 #include "State/PlayerWinState.h"
 #include "UI/Contents/SpawnDamagePanel.h"
 
-
 UMREAL_COMPONENT(Player)
 
 Player::Player()
