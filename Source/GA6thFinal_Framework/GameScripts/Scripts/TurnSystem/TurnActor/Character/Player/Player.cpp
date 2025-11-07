@@ -73,9 +73,9 @@ void Player::OnDestroy()
 
 void Player::FocusIn()
 {
-    if (ParticleComponent* particle = GetParticleComponent())
+    if (CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
     {
-        particle->PlayEffect("focus");
+        combatUI->CharacterHUDGroup.PlayerFocusIn(0.2f);
     }
 }
 
@@ -85,9 +85,9 @@ void Player::FocusOut()
     {
         system->Hide();
     }
-    if (ParticleComponent* particle = GetParticleComponent())
+    if (CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
     {
-        particle->StopEffect("focus");
+        combatUI->CharacterHUDGroup.PlayerFocusOut(0.2f);
     }
 }
 

@@ -628,9 +628,9 @@ void Enemy::ClearCallback()
 
 void Enemy::FocusIn()
 {
-    if (ParticleComponent* particle = GetParticleComponent())
+    if (CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
     {
-        particle->PlayEffect("focus");
+        combatUI->CharacterHUDGroup.MonsterFocusIn(_spawnPoint, 0.2f);
     }
 }
 
@@ -640,9 +640,9 @@ void Enemy::FocusOut()
     {
         system->Hide();
     }
-    if (ParticleComponent* particle = GetParticleComponent())
+    if (CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
     {
-        particle->StopEffect("focus");
+        combatUI->CharacterHUDGroup.MonsterFocusOut(_spawnPoint, 0.2f);
     }
 }
 
