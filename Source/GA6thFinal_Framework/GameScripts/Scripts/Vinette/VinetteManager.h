@@ -3,7 +3,7 @@
 #include "Utility/SingletonHelper.h"
 
 class OverlayPanel;
-class FadeImageElement;
+class SpriteAnimationElement;
 
 class VinetteManager : public Component, public InputReceiver
 {
@@ -29,6 +29,6 @@ protected:
 private:
     SingletonComponent<VinetteManager> _singletonComponent{this};
     OverlayPanel*           _vinetteOverlay     = nullptr;
-    FadeImageElement*       _hitVinette         = nullptr;
-    FadeImageElement*       _healVinette        = nullptr;
+    SpriteAnimationElement* _hitVinette         = nullptr;
+    SpriteAnimationElement* _healVinette        = nullptr;
 };
