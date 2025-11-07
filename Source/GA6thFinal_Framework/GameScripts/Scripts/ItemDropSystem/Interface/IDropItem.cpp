@@ -189,11 +189,6 @@ std::vector<int> DropItemInfo::GetArtifactTooltipIDs(DropItemInfo itemInfo)
     return std::vector<int>();
 }
 
-std::vector<std::string> DropItemInfo::GetArtifactTooltips(DropItemInfo itemInfo)
-{
-    return std::vector<std::string>();
-}
-
 std::string DropItemInfo::GetArtifactDescription(DropItemInfo itemInfo)
 {
     if (ExcelDataSystem* excelDataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())

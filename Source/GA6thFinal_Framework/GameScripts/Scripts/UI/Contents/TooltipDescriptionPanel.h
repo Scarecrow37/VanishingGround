@@ -23,6 +23,7 @@ public:
     void SetTooltip(int id);
     void SetTooltips(std::initializer_list<int> ids);
     void SetTooltips(std::span<const int> ids);
+    void ClearTooltips() const;
 
 protected:
     void Reset() override;
@@ -30,7 +31,6 @@ protected:
 
 private:
     std::weak_ptr<TooltipElement> CreateTooltipElements();
-    void                          ClearTooltips() const;
 
 protected:
     REFLECT_FIELDS_BEGIN(HorizontalPanel)
