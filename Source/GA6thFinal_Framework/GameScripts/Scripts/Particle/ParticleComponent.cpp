@@ -193,22 +193,24 @@ void ParticleComponent::Start()
 
 void ParticleComponent::Update()
 {
-    if (ImGui::IsKeyPressed(ImGuiKey_K))
-    {
-        PlayEffect("focus");
-    }
-    if (ImGui::IsKeyPressed(ImGuiKey_L))
-    {
-        StopEffect("focus");
-    }
-    if (ImGui::IsKeyPressed(ImGuiKey_N))
-    {
-        StopEffect("buff");
-    }
-    if (ImGui::IsKeyPressed(ImGuiKey_M))
-    {
-        StopEffect("debuff");
-    }
+    Debugger()([this] {
+        if (ImGui::IsKeyPressed(ImGuiKey_K))
+        {
+            PlayEffect("focus");
+        }
+        if (ImGui::IsKeyPressed(ImGuiKey_L))
+        {
+            StopEffect("focus");
+        }
+        if (ImGui::IsKeyPressed(ImGuiKey_N))
+        {
+            StopEffect("buff");
+        }
+        if (ImGui::IsKeyPressed(ImGuiKey_M))
+        {
+            StopEffect("debuff");
+        }
+    });
 }
 
 void ParticleComponent::LoadParticle(const std::string& keyString)
