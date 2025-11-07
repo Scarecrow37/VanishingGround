@@ -235,9 +235,13 @@ void TutorialSystem::SetupData()
                     const std::string descriptionString     = std::string(descriptionStringView);
 
                     std::string_view imageStringView = dataBase->FindData(row, COLUMN_KEY_IMAGE);
-                    std::string      imageString     = std::string(imageStringView);
-                    const int        image           = std::stoi(imageString);
-                    File::Guid       imageGuid       = UmFileSystem.GetGuidFromAssetID(image);
+                    File::Guid       imageGuid;
+                    if (false == imageStringView.empty())
+                    {
+                        std::string imageString = std::string(imageStringView);
+                        const int   image       = std::stoi(imageString);
+                        imageGuid               = UmFileSystem.GetGuidFromAssetID(image);
+                    }
 
                     auto [_, succeed] = _tutorials.try_emplace(id, false, titleString, descriptionString, imageGuid);
                     assert(succeed);
