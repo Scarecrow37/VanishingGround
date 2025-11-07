@@ -59,6 +59,7 @@ private:
 private:
     /*적 배열을 Left, Middle, Right 순으로 정렬합니다.*/
     void RegisterEnemiesHUD();
+    void RegisterEnemiesNavi();
     void RegisterEnemiesHP() const;
     void RegisterEnemyHP(int point, const std::string& key, const std::string& tag) const;
     void RegisterEnemiesChain();

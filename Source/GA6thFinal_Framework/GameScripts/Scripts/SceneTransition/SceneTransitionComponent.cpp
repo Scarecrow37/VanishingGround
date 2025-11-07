@@ -126,6 +126,17 @@ void SceneTransitionComponent::Update()
 {
     CalculateFade();
     UpdateBGMVolume();
+    bool isFade = IsTransitioning();
+    if (false == _inputlock && isFade)
+    {
+        PushInputLayer();
+        _inputlock = true;
+    }
+    else if (_inputlock && false == isFade)
+    {
+        PopInputLayer();
+        _inputlock = false;
+    }
 }
 
 void SceneTransitionComponent::CalculateFade()
@@ -174,6 +185,8 @@ void SceneTransitionComponent::Awake()
 {
     _singletonObject.TrySingleTon(true);
     _singletonComponent.TrySingleTon();
+
+    BindAllKeyInputAction(Action::PRESSED, this, &SceneTransitionComponent::InputVoid);
 }
 
 void SceneTransitionComponent::Fade(float duration, const Vector4& start, const Vector4& end,
@@ -310,7 +323,8 @@ void SceneTransitionComponent::SceneTransitionFade(std::string_view inPreset, st
 {
     if (false == _transitionLock)
     {
-        Fade(inPreset, [callback, outPreset, this]() {
+        Fade(inPreset, [callback, outPreset, this]() 
+        {
             if (nullptr != callback)
             {
                 callback();
@@ -321,3 +335,5 @@ void SceneTransitionComponent::SceneTransitionFade(std::string_view inPreset, st
 
 
 }
+
+void SceneTransitionComponent::InputVoid(const Input::Controller&) {}

@@ -204,6 +204,14 @@ void TutorialSystem::Hide()
     Unlock();
 }
 
+void TutorialSystem::ResetTutorials()
+{
+    for (auto& [isCompleted, title, description, image] : _tutorials | std::views::values)
+    {
+        isCompleted = false;
+    }
+}
+
 void TutorialSystem::SetupData()
 {
     if (ExcelDataSystem* excelDataSystemComponent = SingletonComponent<ExcelDataSystem>::GetInstance())

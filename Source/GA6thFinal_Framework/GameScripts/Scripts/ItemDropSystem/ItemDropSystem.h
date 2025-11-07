@@ -21,6 +21,11 @@ public:
     std::array<DropItemInfo, ARTIFACT_DROP_COUNT> RollArtifacts();
 
     /// <summary>
+    /// 현재 정해진 카테고리를 유지하고 랜덤으로 아이템을 뽑습니다.
+    /// </summary>
+    void RollArtifactsCurrent();
+
+    /// <summary>
     /// 현재 보상 아이템을 설정합니다. UI도 갱신됩니다.
     /// </summary>
     /// <param name="itemInfos :"></param>

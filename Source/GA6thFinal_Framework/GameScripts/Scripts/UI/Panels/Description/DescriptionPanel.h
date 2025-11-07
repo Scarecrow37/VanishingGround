@@ -75,6 +75,7 @@ protected:
     void ImGuiDrawPropertysEvent() override;
 
     void Awake() override;
+    void Update() override;
 
 private:
     void UpdateContent();
@@ -94,4 +95,6 @@ private:
     File::Guid _Guid;
 
     float _fontWeight;
+
+    bool _invalidateLater;
 };

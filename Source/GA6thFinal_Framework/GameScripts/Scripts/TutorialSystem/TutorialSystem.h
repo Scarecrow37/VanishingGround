@@ -55,6 +55,7 @@ public:
     bool Show(int id);
     void Show(std::initializer_list<int> ids);
     void Hide();
+    void ResetTutorials();
 
 protected:
     void Awake() override;

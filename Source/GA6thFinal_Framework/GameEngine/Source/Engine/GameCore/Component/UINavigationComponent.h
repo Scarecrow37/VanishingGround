@@ -34,7 +34,6 @@ private:
     static UIRoot*      GetRoot(const GameObject& gameObject);
 
     static NavigationID _toID;
-
 public:
     UINavigationComponent();
 

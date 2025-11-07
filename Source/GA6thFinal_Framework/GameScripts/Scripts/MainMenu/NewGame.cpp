@@ -4,6 +4,7 @@
 #include "PlayerSystem/PlayerSystem.h"
 #include "Map/MapManager.h"
 #include "QTE/System/QTESystem.h"
+#include "TutorialSystem/TutorialSystem.h"
 
 UMREAL_COMPONENT(NewGame)
 
@@ -31,11 +32,18 @@ NewGame::~NewGame() = default;
 void NewGame::Submit()
 {
     Base::Submit();
-    TransitionToNextScene();
+
     if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
     {
         system->ResetState();
     }
+
+    if (TutorialSystem* tutorialSystem = SingletonComponent<TutorialSystem>::GetInstance())
+    {
+        tutorialSystem->ResetTutorials();
+    }
+
+    TransitionToNextScene();
 }
 
 void NewGame::Update() 

@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "ItemDropSystem/Interface/IDropItem.h"
 
+class InputOkCancelComponent;
 class ImageElement;
 class ArtifactButtonNavi : public UISFXNavigationComponent
 {
@@ -39,4 +40,10 @@ private:
     DropItemInfo _itemInfo;
     std::weak_ptr<ImageElement> _focusImage;
     size_t                      _buttonIndex = std::numeric_limits<size_t>::max();
+
+    std::weak_ptr<InputOkCancelComponent> _revelationWarning;
+    std::weak_ptr<ImageElement>           _revelationWarningIcon;
+
+    std::weak_ptr<InputOkCancelComponent> _accessoriesWarning;
+    std::weak_ptr<ImageElement>           _accessoriesWarningIcon;
 };
