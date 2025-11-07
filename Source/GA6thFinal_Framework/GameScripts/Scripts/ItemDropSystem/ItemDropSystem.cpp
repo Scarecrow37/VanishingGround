@@ -501,6 +501,7 @@ void ItemDropSystem::PlayItemDropUISequence()
             fadeUI->FadeIn();
         }
         StageClearCount = StageClearCount + 1;
+        ++WinCount;
 
         if (ArtifactUIManager* manager = SingletonComponent<ArtifactUIManager>::GetInstance())
         {

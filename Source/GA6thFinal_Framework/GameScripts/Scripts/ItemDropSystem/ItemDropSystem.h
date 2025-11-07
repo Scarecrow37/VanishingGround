@@ -7,6 +7,7 @@ class ItemDropSystem : public Component
 {
     USING_PROPERTY(ItemDropSystem)
 public:
+    inline static int WinCount = 0;
     inline static const std::string WATCHER_KEY = "8940F3B8-1D49-4556-9588-5D423CAC794D";
     static const size_t ARTIFACT_TYPE_COUNT; // 유물 카테고리 개수
     inline static constexpr int ITEM_DROP_RATE_BONUS_MAX = 5; //아이템 드롭 확률 보너스 최대 개수
