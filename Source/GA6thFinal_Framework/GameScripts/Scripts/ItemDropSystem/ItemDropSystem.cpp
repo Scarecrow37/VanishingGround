@@ -10,6 +10,7 @@
 #include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
 #include "Debugger/Debugger.h"
 #include "UI/Animations/FadeUIComponent/FadeUIComponent.h"
+#include "TutorialSystem/TutorialSystem.h"
 
 #include "Map/MapManager.h"
 #include "Map/Stage.h"
@@ -545,6 +546,12 @@ void ItemDropSystem::PlayItemDropUISequence()
 
             // UI 갱신
             _dropItemsModel.Notify();
+
+            // 튜토리얼
+            if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
+            {
+                system->Show(805914); //보상과 추가 전투
+            }
         }
     }
 
