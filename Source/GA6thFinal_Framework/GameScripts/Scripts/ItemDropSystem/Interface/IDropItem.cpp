@@ -143,6 +143,23 @@ int DropItemInfo::GetArtifactIconID(DropItemInfo itemInfo)
         return 0;
     };
 
+    auto GetEraseRevelationAssetID = []() 
+    {
+        if (RevelationSystem* system = SingletonComponent<RevelationSystem>::GetInstance())
+        {
+            size_t playerCount = system->GetPlayerElementList().size();
+            if (playerCount <= 3)
+            {
+                return DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::ERASE_REVELATION, false);
+            }
+            else
+            {
+                return DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::ERASE_REVELATION, true);
+            }           
+        }
+        return 0;
+    };
+
     switch (itemInfo.Category)
     {
     case ArtifactDropType::DAGGER:
@@ -156,7 +173,7 @@ int DropItemInfo::GetArtifactIconID(DropItemInfo itemInfo)
     case ArtifactDropType::REVELATION:
         return GetRevelationDefaultIcon(itemInfo);
     case ArtifactDropType::ERASE_REVELATION:
-        return DropItemInfo::GetArtifactCategoryAssetID(itemInfo.Category, true);
+        return GetEraseRevelationAssetID();
     default:
         return 0;
     }

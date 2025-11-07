@@ -345,6 +345,7 @@ void ItemDropSystem::RollArtifactsCurrent()
     }
 
     // 카테고리 유지하고 뽑기
+    size_t index = 0;
     _dropItemsModel.for_each([&](DropItemInfo& artifact) 
     {
         // 현재 종류
@@ -429,7 +430,7 @@ void ItemDropSystem::RollArtifactsCurrent()
                 info.Name     = rfl::enum_to_string(grade);
                 info.Name += (const char*)u8" 등급 장신구";
                 return info;
-            }
+            }     
         };
 
         switch (type)
@@ -450,13 +451,11 @@ void ItemDropSystem::RollArtifactsCurrent()
             artifact = RollRevelationRandomItem();
             break;
         case ArtifactDropType::ERASE_REVELATION:
-            artifact.ID       = DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::ERASE_REVELATION, false);
-            artifact.Category = ArtifactDropType::ERASE_REVELATION;
-            artifact.Name     = (const char*)u8"계시 지우기";
             break;
         default:
             break;
         }
+        ++index;
     });  
 }
 
@@ -514,13 +513,27 @@ void ItemDropSystem::PlayItemDropUISequence()
                 std::array<DropItemInfo, ARTIFACT_DROP_COUNT> artifacts = RollArtifacts();
                 SetDropItem(artifacts);
             }
-            else
+
+            // 계시 지우기 조건 제어
+            if (RevelationSystem* revelationSystem = SingletonComponent<RevelationSystem>::GetInstance())
             {
-                //첫번째 클리어일때는 뽑기 실행
-                if (StageClearCount == 1)
+                if (revelationSystem->GetPlayerElementList().size() <= 3)
                 {
-                    RollArtifactsCurrent();
+                    for (size_t i = 0; i < _dropItemsModel.size(); i++)
+                    {
+                        const auto& item = _dropItemsModel[i];
+                        if (item.Category == ArtifactDropType::ERASE_REVELATION)
+                        {
+                            SetObtainArtifact(i);
+                        }                     
+                    }
                 }
+            }
+
+            // 첫번째 클리어일때는 뽑기 실행
+            if (StageClearCount == 1)
+            {
+                RollArtifactsCurrent();
             }
 
             // 버튼 기능 설정
