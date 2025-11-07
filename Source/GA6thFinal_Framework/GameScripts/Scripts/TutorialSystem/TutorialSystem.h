@@ -28,7 +28,7 @@ class TutorialSystem : public Component, public InputReceiver
     static constexpr std::u8string_view COLUMN_KEY_ID          = u8"ID";
     static constexpr std::u8string_view COLUMN_KEY_TITLE       = u8"Title";
     static constexpr std::u8string_view COLUMN_KEY_DESCRIPTION = u8"Text Description";
-    static constexpr std::u8string_view COLUMN_KEY_IMAGE       = u8"Image";
+    static constexpr std::u8string_view COLUMN_KEY_IMAGE       = u8"Tutorial Image ID";
 
 public:
     /// <summary>
