@@ -204,10 +204,7 @@ void SDFTextRenderer::Update(ID3D12GraphicsCommandList* commandList)
             return;
         }
 
-        void* data = nullptr;
-        _vertexUploadBuffer->Map(0, nullptr, reinterpret_cast<void**>(&data));
-        memcpy(data, _vertices.data(), sizeof(Vertex) * _charCount * 4);
-        _vertexUploadBuffer->Unmap(0, nullptr);
+        Global::device->UpdateBuffer(_vertexUploadBuffer, _vertices.data(), sizeof(Vertex) * _charCount * 4);
 
         auto br = CD3DX12_RESOURCE_BARRIER::Transition(_vertexBuffer.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_COPY_DEST);
 

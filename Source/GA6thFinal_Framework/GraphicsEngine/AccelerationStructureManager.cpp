@@ -331,10 +331,7 @@ ID3D12Resource* AccelerationStructureManager::BuildOrUpdateTLAS(ID3D12Device5*  
                                                D3D12_RESOURCE_STATE_GENERIC_READ, _instanceUpload);
         }
 
-        void* data = nullptr;
-        _instanceUpload->Map(0, nullptr, &data);
-        memcpy(data, inst.data(), instByteSize);
-        _instanceUpload->Unmap(0, nullptr);
+        Global::device->UpdateBuffer(_instanceUpload, inst.data(), instByteSize);
     }
 
     D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS inputs{};

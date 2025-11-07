@@ -49,13 +49,9 @@ void StructuredBuffer::Initialize(UINT64 stride, UINT numElements)
     _stride = (UINT)stride;
 }
 
-void StructuredBuffer::CopyStructuredBuffer(ID3D12GraphicsCommandList* commandList, void* data, UINT count)
+void StructuredBuffer::CopyStructuredBuffer(ID3D12GraphicsCommandList* commandList, const void* data, UINT count)
 {
-	void* temp = nullptr;
-
-	HRESULT hr = _uploadBuffer->Map(0, nullptr, &temp);
-    memcpy(temp, data, _stride * count);
-	_uploadBuffer->Unmap(0, nullptr);
+    Global::device->UpdateBuffer(_uploadBuffer, data, _stride * count);
 
 	auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(_defaultBuffer.Get(),
 														D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,

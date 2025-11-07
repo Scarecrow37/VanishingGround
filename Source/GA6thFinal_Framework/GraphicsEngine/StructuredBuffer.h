@@ -7,7 +7,7 @@ public:
 
 public:
     void Initialize(UINT64 stride, UINT numElements);
-    void CopyStructuredBuffer(ID3D12GraphicsCommandList* commandList, void* data, UINT count);
+    void CopyStructuredBuffer(ID3D12GraphicsCommandList* commandList, const void* data, UINT count);
 
 private:
 	ComPtr<ID3D12Resource> _uploadBuffer;
