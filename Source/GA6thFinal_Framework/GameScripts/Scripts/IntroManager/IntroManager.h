@@ -79,9 +79,11 @@ private:
     void                           ResetFade();
 
     void SkipStep(const Input::Controller& controller);
+    void SkipStep();
     void SelectNormal(const Input::Controller& controller);
     void SelectNormal();
     void SelectHard(const Input::Controller& controller);
+    void SelectHard();
     void SelectThumbStick(const Input::Controller& controller);
 
     template <typename T>
