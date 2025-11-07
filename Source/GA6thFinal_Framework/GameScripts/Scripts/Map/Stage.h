@@ -31,13 +31,16 @@ private:
     void Start() override;
 
 public:
-    REFLECT_PROPERTY(StagePath, LightingPath, MainLevel, SubLevel, BattleCount)
+    REFLECT_PROPERTY(StagePath, LightingPath, IsCleared, MainLevel, SubLevel, BattleCount)
 
     GETTER_ONLY(std::string, StagePath) { return File::Guid(ReflectFields->StageGuid).ToPath().string(); }
     PROPERTY(StagePath)
 
     GETTER_ONLY(std::string, LightingPath) { return File::Guid(ReflectFields->LightingGuid).ToPath().string(); }
     PROPERTY(LightingPath)
+
+    GETTER_ONLY(bool, IsCleared) { return _isCleared; }
+    PROPERTY(IsCleared)
 
     SETTER(int, MainLevel) { ReflectFields->MainLevel = value; }
     GETTER(int, MainLevel) { return ReflectFields->MainLevel; }
@@ -66,7 +69,8 @@ private:
     std::array<int, ARTIFACT_DROP_COUNT>          _dropItemAssetIDs = {0, 0, 0, 0, 0, 0};
     std::array<DropItemInfo, ARTIFACT_DROP_COUNT> _dropItemInfos;
 
-    int _battleCount = 1;
+    int     _battleCount = 1;
+    bool    _isCleared  = false; // 여길 지나갔는지
 
     std::weak_ptr<ImageElement> _bossRewordPopup; //보스 스테이지가 선택될때만 실행됨
 };

@@ -28,13 +28,13 @@ MapManager::MapManager()
         {
             if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
             {
-                DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
-                File::Path           path = data->GetPath();
+                DragDropAsset::Data* data      = static_cast<DragDropAsset::Data*>(payLoad->Data);
+                File::Path           path      = data->GetPath();
                 const auto           extension = path.extension();
 
                 if (extension == L".UmScene")
                 {
-                    ReflectFields->MapScenePath = UmFileSystem.GetGuidFromPath(path).string();
+                    ReflectFields->MapSceneGuid = UmFileSystem.GetGuidFromPath(path).string();
                 }
             }
             ImGui::EndDragDropTarget();
@@ -81,7 +81,6 @@ MapManager::MapManager()
     StageEnableImage.SetInputAutoEvent([this, PayLoadEvent]() { PayLoadEvent(STAGE_ENABLE, ReflectFields->AssetIDs[STAGE_ENABLE]); });
     StageDisableImage.SetInputAutoEvent([this, PayLoadEvent]() { PayLoadEvent(STAGE_DISABLE, ReflectFields->AssetIDs[STAGE_DISABLE]); });
     StageFocusImage.SetInputAutoEvent([this, PayLoadEvent]() { PayLoadEvent(STAGE_FOCUS, ReflectFields->AssetIDs[STAGE_FOCUS]); });
-    RewardPopupImage.SetInputAutoEvent([this, PayLoadEvent]() { PayLoadEvent(REWARD_POPUP, ReflectFields->AssetIDs[REWARD_POPUP]); });
 }
 
 MapManager::~MapManager()
@@ -131,13 +130,12 @@ void MapManager::Awake()
     if (_singletonObject.TrySingleTon(true))
     {        
         _singletonComponent.TrySingleTon();
-
-        UmWatcher.Register<StageFocusViewModel>("StageFocus", _focusStage);
-        SetupStage();
-
         BindInputAction(ControllerButton::BACK, Action::PRESSED, this, &MapManager::PreferencesKeyDown);
         BindInputAction(ControllerButton::START, Action::PRESSED, this, &MapManager::InventoryKeyDown);
         BindInputAction(ControllerButton::RIGHT_THUMB_STICK, Action::HELD, this, &MapManager::ScrollKeyUpdate);
+
+        UmWatcher.Register<StageFocusViewModel>("StageFocus", _focusStage);
+        FindUI();
     }
 }
 
@@ -205,7 +203,7 @@ void MapManager::Update()
 
 void MapManager::OnEnable() 
 {
-    UpdateStageFocus();
+    UpdateStageUI();
 }
 
 void MapManager::OnLoadScene(Scene& loadScene, LoadSceneMode mode)
@@ -213,7 +211,7 @@ void MapManager::OnLoadScene(Scene& loadScene, LoadSceneMode mode)
     std::string otherScene = loadScene.Path;
     bool        isActive   = true;
 
-    if (UmFileSystem.GetPathFromGuid(ReflectFields->MapScenePath).string() == otherScene)
+    if (UmFileSystem.GetPathFromGuid(ReflectFields->MapSceneGuid).string() == otherScene)
     {
         isActive = true;
     }
@@ -230,6 +228,34 @@ void MapManager::OnLoadScene(Scene& loadScene, LoadSceneMode mode)
         }
     }
     gameObject->SetActive(isActive);
+}
+
+void MapManager::FindUI()
+{
+    auto stages = GameObject::Find("Stages").lock();
+
+    if (stages)
+    {
+        const int childCount = stages->transform->GetChildCount();
+        for (int i = 0; i < childCount; i++)
+        {
+            auto child = stages->transform->GetChild(i);
+            if (child)
+            {
+                RegisterStage(child->gameObject);
+            }
+        }
+    }
+
+    if (auto scroll = GameObject::Find("Scroll").lock(); scroll)
+    {
+        _scroll = scroll->GetComponent<ScrollingWrapper>();
+    }
+
+    if (auto background = GameObject::FindWithTag("Map Background").lock(); background)
+    {
+        _mainBackgroundUI = background->GetComponent<ImageElement>();
+    }
 }
 
 void MapManager::ImGuiDrawPropertysEvent()
@@ -264,23 +290,16 @@ void MapManager::ImGuiDrawPropertysEvent()
 
     if (ImGui::Button("Update Data"))
     {
-        SetupStage();
+        FindUI();
     }
 }
 
 void MapManager::ChageBackgroundImage(int assetID)
 {    
-    if (auto rewardPopup = GameObject::Find("RewardPopup").lock(); rewardPopup)
+    if (_mainBackgroundUI)
     {
-        if (auto background = rewardPopup->transform->Find("Background"); background)
-        {
-            auto imageElement = background->gameObject->GetComponent<ImageElement>();
-
-            if (imageElement)
-            {
-                imageElement->SetImage(UmFileSystem.GetGuidFromAssetID(assetID));
-            }
-        }
+        const File::Guid& imageGuid = UmFileSystem.GetGuidFromAssetID(assetID);
+        _mainBackgroundUI->SetImage(imageGuid);
     }
 }
 
@@ -311,10 +330,6 @@ void MapManager::DefaultSetting()
         rewardPopup->AddComponent<RewardPopup>();
         rewardPopup->AddComponent<OverlayPanel>();
 
-        auto rewardBackground = NewGameObject("Background");
-        rewardBackground->transform->SetParent(rewardPopup->transform);
-        rewardBackground->AddComponent<ImageElement>().SetImage(UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[REWARD_POPUP]));
-
         auto stages = NewGameObject("Stages");
         stages->AddComponent<OverlayPanel>();
         stages->transform->SetParent(map->transform);
@@ -325,29 +340,6 @@ void MapManager::DefaultSetting()
         imageElement.SetImage(UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[STAGE_FOCUS]));        
         // imageElement.ResetToSpriteSize();
     }
-}
-
-void MapManager::SetupStage()
-{
-    auto stages = GameObject::Find("Stages").lock();
-
-    if (stages)
-    {
-        const int childCount = stages->transform->GetChildCount();
-        for (int i = 0; i < childCount; i++) 
-        {
-            auto child = stages->transform->GetChild(i);
-            if (child)
-            {
-                RegisterStage(child->gameObject);
-            }
-        }
-    }
-
-    if (auto scroll = GameObject::Find("Scroll").lock(); scroll)
-    {
-        _scroll = scroll->GetComponent<ScrollingWrapper>();
-    }    
 }
 
 void MapManager::RegisterStage(GameObject& object)
@@ -370,7 +362,7 @@ void MapManager::RegisterStage(GameObject& object)
     }
 }
 
-void MapManager::UpdateStageFocus()
+void MapManager::UpdateStageUI()
 {
     for (auto& [mainLevel, stageMap] : _stageDataTable)
     {
@@ -390,6 +382,11 @@ void MapManager::UpdateStageFocus()
                 }
             }
         }
+    }
+    const int backgroundAssetID = ReflectFields->AssetIDs[BACKGROUND] + _lastClearedStageData.MainLevel;
+    if (_mainBackgroundUI)
+    {
+        ChageBackgroundImage(backgroundAssetID);
     }
 }
 
