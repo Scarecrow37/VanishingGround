@@ -563,6 +563,7 @@ void Enemy::RegisterTokenHUD(int tokenID)
                                         tokenHUD->SetupTokenHUD(UmFileSystem.GetGuidFromAssetID(tokenData->ImageID), model, key);
                                         _tokenHUDTable.emplace(tokenID, tokenHUD);
                                         prefab->transform->SetParent(object.transform);
+                                        model.Notify();
                                     }
                                 }
                             }
