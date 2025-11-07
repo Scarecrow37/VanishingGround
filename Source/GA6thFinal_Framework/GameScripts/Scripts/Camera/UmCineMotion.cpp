@@ -648,9 +648,11 @@ void UmCineMotion::ApplyTransform()
     // Shake 적용 또는 리셋
     if (_shakeFlag && _shakeTargetPos != Vector3::Zero)
     {
-        auto cameraMatrix = transform->GetWorldMatrix();
-        cameraMatrix *= Matrix::CreateTranslation(_shakeTargetPos);
-        _camera->SetWorldMatrix(cameraMatrix);
+        Matrix worldMat =
+            Matrix::CreateFromQuaternion(transform->Rotation) * Matrix::CreateTranslation(transform->Position);
+        worldMat *= (transform->Parent) ? transform->Parent->GetWorldMatrix() : Matrix::Identity;
+        worldMat *= Matrix::CreateTranslation(_shakeTargetPos);
+        _camera->SetWorldMatrix(worldMat);
     }
     else
     {
