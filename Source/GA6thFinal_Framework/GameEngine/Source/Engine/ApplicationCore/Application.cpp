@@ -187,11 +187,11 @@ void Application::Run()
     }
 #ifndef _UMEDITOR
     catch (const std::exception& ex)
-#endif
     {
         UmLogger.Log(LogLevel::LEVEL_FATAL, ex.what());
         CreateMiniDump(nullptr, MiniDumpWithFullMemory | MiniDumpWithThreadInfo);
     }
+#endif
 }
 
 void Application::SetStyleToWindowed()
