@@ -18,16 +18,22 @@ void VinetteManager::Awake()
             if (child->gameObject->CompareTag("Hit Vinette"))
             {
                 _hitVinette = child->gameObject->GetComponent<SpriteAnimationElement>();
-                _hitVinette->StopAnimation();
                 child->gameObject->ActiveSelf = false;
             }
             if (child->gameObject->CompareTag("Heal Vinette"))
             {
                 _healVinette = child->gameObject->GetComponent<SpriteAnimationElement>();
-                _healVinette->StopAnimation();
                 child->gameObject->ActiveSelf = false;
             }
         }
+    }
+    if (_hitVinette)
+    {
+        _hitVinette->StopAnimation();
+    }
+    if (_healVinette)
+    {
+        _healVinette->StopAnimation();
     }
 }
 
