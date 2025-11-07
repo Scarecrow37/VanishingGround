@@ -81,7 +81,7 @@ protected:
     REFLECT_FIELDS_END(ItemInfoUIManager)
 
 protected:
-    void Awake() override;
+    void Added() override;
     void FindComponents();
 
 private:

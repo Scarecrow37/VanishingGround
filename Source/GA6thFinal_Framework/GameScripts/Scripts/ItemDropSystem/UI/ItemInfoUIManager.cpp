@@ -169,11 +169,13 @@ void ItemInfoUIManager::ClearWeaponStats()
     }
 }
 
-void ItemInfoUIManager::Awake() 
+void ItemInfoUIManager::Added() 
 {
-    Base::Awake();
-    gameObject->AddTag(TAG);
-    FindComponents();
+    if (UmCore->IsPlay())
+    {       
+        gameObject->AddTag(TAG);
+        FindComponents();
+    }
 }
 
 void ItemInfoUIManager::FindComponents() 
