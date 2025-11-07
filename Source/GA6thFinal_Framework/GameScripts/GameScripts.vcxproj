@@ -307,6 +307,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\KeyCallbackUINavi\KeyCallbackUINavi.h" />
+    <ClInclude Include="Scripts\Camera\HandHeldController.h" />
     <ClInclude Include="Scripts\QTE\Audio\QTEAudioState.h" />
     <ClInclude Include="Scripts\QTE\Callback\Callback.h" />
     <ClInclude Include="Scripts\QTE\Common\QTECommon.h" />
@@ -689,6 +690,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\KeyCallbackUINavi\KeyCallbackUINavi.cpp" />
+    <ClCompile Include="Scripts\Camera\HandHeldController.cpp" />
     <ClCompile Include="Scripts\QTE\Callback\Callback.cpp" />
     <ClCompile Include="Scripts\QTE\Common\QTECommon.cpp" />
     <ClCompile Include="Scripts\QTE\Controller\QTEController.cpp" />
