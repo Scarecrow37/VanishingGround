@@ -47,11 +47,6 @@ void TooltipElement::ImGuiDrawPropertysEvent()
     {
         SetTooltip(tooltipId);
     }
-
-    if (_isDebug)
-    {
-        
-    }
 }
 
 void TooltipElement::FindComponents()
