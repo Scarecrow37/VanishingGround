@@ -54,11 +54,25 @@ void ViewManager::AddDescriptorHeap(const ViewManager::Type type, D3D12_CPU_DESC
     switch (type)
     {
     case ViewManager::Type::SHADER_RESOURCE: {
-        UINT atomicIndex = _numShaderResource.fetch_add(1);
-        offset           = _shaderResourceDescriptorSize * atomicIndex;
-        handle           = _shaderResourceHeap->GetCPUDescriptorHandleForHeapStart();
+        UINT index = 0;
+        if (!_availableShaderResourceIDs.empty())
+        {
+            index = _availableShaderResourceIDs.front();
+            _availableShaderResourceIDs.pop();
+        }
+        else
+        {
+            index = _numShaderResource++;
+        }
+        
+        offset = _shaderResourceDescriptorSize * index;
+        handle = _shaderResourceHeap->GetCPUDescriptorHandleForHeapStart();
         handle.ptr += offset;
-        if (ID) *ID = atomicIndex;
+        
+        if (ID)
+        {
+            *ID = index;
+        }
         break;
     }
     case ViewManager::Type::RENDER_TARGET:
@@ -94,13 +108,27 @@ void ViewManager::AddDescriptorHeap(const ViewManager::Type type, DescriptorHand
     switch (type)
     {
     case ViewManager::Type::SHADER_RESOURCE: {
-        UINT atomicIndex = _numShaderResource.fetch_add(1);
-        offset           = _shaderResourceDescriptorSize * atomicIndex;
-        handle.CPU       = _shaderResourceHeap->GetCPUDescriptorHandleForHeapStart();
+        UINT index = 0;
+        if (!_availableShaderResourceIDs.empty())
+        {
+            index = _availableShaderResourceIDs.front();
+            _availableShaderResourceIDs.pop();
+        }
+        else
+        {
+            index = _numShaderResource++;
+        }
+
+        offset     = _shaderResourceDescriptorSize * index;
+        handle.CPU = _shaderResourceHeap->GetCPUDescriptorHandleForHeapStart();
         handle.CPU.ptr += offset;
         handle.GPU = _shaderResourceHeap->GetGPUDescriptorHandleForHeapStart();
         handle.GPU.ptr += offset;
-        if (ID) *ID = atomicIndex;
+        
+        if (ID)
+        {
+            *ID = index;
+        }
         break;
     }
     case ViewManager::Type::RENDER_TARGET:
@@ -127,4 +155,9 @@ void ViewManager::AddDescriptorHeap(const ViewManager::Type type, DescriptorHand
         handle.CPU.ptr += offset;
         break;
     }
+}
+
+void ViewManager::ReturnShaderResourceDescriptorHeap(UINT ID)
+{
+    _availableShaderResourceIDs.push(ID);
 }

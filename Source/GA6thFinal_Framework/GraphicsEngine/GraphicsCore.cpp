@@ -289,6 +289,7 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     Global::threadPool               = _threadPool;
     Global::sceneTransitionCore      = _sceneTransitionCore;
     Global::isRayTracing             = isRayTracing;
+
     _device->SetUpDevice(hwnd, width, height, feature);
     _viewManager->Initialize();
     _device->Initialize();
