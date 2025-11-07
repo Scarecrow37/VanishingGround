@@ -460,7 +460,6 @@ void UmCineMotion::BeginHandHeldShake()
 void UmCineMotion::StopShake()
 {
     _shakeFlag         = false;
-    _handheldShakeFlag = false;
     _shakeElapsedTimer = 0.f;
     _shakeTargetPos    = Vector3::Zero;
     _shakeOffset       = Vector3::Zero;
