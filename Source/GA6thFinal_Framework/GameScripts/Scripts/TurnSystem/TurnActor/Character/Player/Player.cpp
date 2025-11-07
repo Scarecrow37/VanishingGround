@@ -93,11 +93,14 @@ void Player::FocusOut()
 
 void Player::ShowTooltip()
 {
-    if (TooltipSystem* system = SingletonComponent<TooltipSystem>::GetInstance())
+    if (false == IsDead())
     {
-        auto&  tokenInventory = GetTokenInventory();
-        std::vector<int> ids = tokenInventory.GetTokensTooltips();
-        system->Show(Tooltip::Group::PLAYER, ids);
+        if (TooltipSystem* system = SingletonComponent<TooltipSystem>::GetInstance())
+        {
+            auto&            tokenInventory = GetTokenInventory();
+            std::vector<int> ids            = tokenInventory.GetTokensTooltips();
+            system->Show(Tooltip::Group::PLAYER, ids);
+        }
     }
 }
 
