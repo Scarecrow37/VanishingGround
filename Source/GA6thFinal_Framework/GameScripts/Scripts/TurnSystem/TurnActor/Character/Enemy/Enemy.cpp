@@ -152,6 +152,13 @@ void Enemy::Dead()
     if (auto turnMode = SingletonComponent<TurnMode>::GetInstance())
     {
         turnMode->ApplyActions([this](TurnAction& action) { action.OnEnemyDead(*this); });
+        for (auto& action : _actions)
+        {
+            if (action)
+            {
+                action->OnEnemyDead(*this);
+            }
+        }
     }
     if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
     {
@@ -556,6 +563,7 @@ void Enemy::RegisterTokenHUD(int tokenID)
                                         tokenHUD->SetupTokenHUD(UmFileSystem.GetGuidFromAssetID(tokenData->ImageID), model, key);
                                         _tokenHUDTable.emplace(tokenID, tokenHUD);
                                         prefab->transform->SetParent(object.transform);
+                                        model.Notify();
                                     }
                                 }
                             }
@@ -640,9 +648,9 @@ void Enemy::ClearCallback()
 
 void Enemy::FocusIn()
 {
-    if (ParticleComponent* particle = GetParticleComponent())
+    if (CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
     {
-        particle->PlayEffect("focus");
+        combatUI->CharacterHUDGroup.MonsterFocusIn(_spawnPoint, 0.2f);
     }
 }
 
@@ -652,9 +660,9 @@ void Enemy::FocusOut()
     {
         system->Hide();
     }
-    if (ParticleComponent* particle = GetParticleComponent())
+    if (CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
     {
-        particle->StopEffect("focus");
+        combatUI->CharacterHUDGroup.MonsterFocusOut(_spawnPoint, 0.2f);
     }
 }
 
