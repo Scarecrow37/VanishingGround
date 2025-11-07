@@ -26,6 +26,7 @@ void TooltipComponent::SetTooltip(const Tooltip::TooltipData& data) const
     if (const auto title = _title.lock())
     {
         title->Text  = data.Title;
+        title->Color = data.TitleColor;
     }
 
     if (const auto description = _description.lock())
