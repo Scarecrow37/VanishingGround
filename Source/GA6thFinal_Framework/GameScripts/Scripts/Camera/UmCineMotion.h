@@ -122,7 +122,6 @@ protected:
     float _handHeldIntensity     = 0.f;
     float _handHeldFrequency     = 0.f;
 
-
 #ifdef _UMEDITOR
     void                                                                 UpdateTetherFromGuizmo();
     void                                                                 PushGuizmo(const Matrix& world);
