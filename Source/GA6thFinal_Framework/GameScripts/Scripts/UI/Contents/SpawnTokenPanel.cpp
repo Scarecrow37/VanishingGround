@@ -32,7 +32,7 @@ std::weak_ptr<TokenElement> SpawnTokenPanel::MakeToken(const int tokenID)
                     .EndOpacity   = EndOpacity,
                     .Duration     = LifeTime,
                     .TokenName    = tokenData->Name,
-                    .NameColor    = GetTokenColor(tokenID),
+                    .NameColor    = tokenData->NameColor,
                     .IconGuid     = UmFileSystem.GetGuidFromAssetID(tokenData->ImageID),
                 };
 
@@ -105,27 +105,6 @@ void SpawnTokenPanel::EraseChild() const
         GameObject::Destroy(child);
     }
     children.clear();
-}
-
-Color SpawnTokenPanel::GetTokenColor(const int tokenID) const
-{
-    Color                color{};
-    const TokenColorMap& tokenColors = ReflectFields->TokenColors;
-    ArrayColor           arrayColor;
-
-    try
-    {
-        arrayColor = tokenColors.at(tokenID);
-    }
-    catch (...)
-    {
-        arrayColor = DEFAULT_COLOR;
-        UmLogger.Log(LogLevel::LEVEL_INFO, u8"토큰에 부여된 색이 없습니다. 기본색으로 대체합니다.");
-    }
-
-    std::ranges::copy(arrayColor, &color.x);
-
-    return color;
 }
 
 std::weak_ptr<TokenElement> SpawnTokenPanel::GetTokenElement()
@@ -346,42 +325,6 @@ void SpawnTokenPanel::ImGuiDrawPropertysEvent()
     if (ImGui::Button("Token!!!"))
     {
         EnqueueToken(tokenID);
-    }
-
-    auto& tokenColors = ReflectFields->TokenColors;
-    if (ImGui::TreeNodeEx("Token Colors##details"))
-    {
-        // AddMapping Function
-        if (ImGui::BeginTable("ColorTable##Details", 2, ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_RowBg))
-        {
-            // Headers
-            ImGui::TableSetupColumn("Token ID", ImGuiTableColumnFlags_WidthStretch, 0.3f);
-            ImGui::TableSetupColumn("Color", ImGuiTableColumnFlags_WidthStretch, 0.6f);
-            ImGui::TableHeadersRow();
-
-            // Existing Colors
-            EraseLater eraseLater(&tokenColors);
-            for (auto& [tokenID, colorArray] : tokenColors)
-            {
-                ImGui::PushID(tokenID);
-                ImGui::TableNextRow();
-                Row()(tokenID, colorArray, [tokenID, &eraseLater]() { eraseLater(tokenID); });
-                ImGui::PopID();
-            }
-
-            // New Color;
-            ImGui::TableNextRow();
-            Row()(&_newID, &_newColor, tokenColors.contains(_newID), [this, &tokenColors]() {
-                if (auto [iterator, isSucceed] = tokenColors.try_emplace(_newID, _newColor); isSucceed)
-                {
-                    _newID = 0;
-                    _newColor = DEFAULT_COLOR;
-                }
-            });
-            ImGui::EndTable();
-        }
-
-        ImGui::TreePop();
     }
 }
 

@@ -30,6 +30,7 @@
 #include "State/PlayerDeadState.h"
 #include "State/PlayerWinState.h"
 #include "UI/Contents/SpawnDamagePanel.h"
+#include "UI/Contents/SpawnTokenPanel.h"
 
 
 UMREAL_COMPONENT(Player)
@@ -359,6 +360,14 @@ void Player::OnKill(CharacterBase* destination)
 void Player::OnTokenAdded(const int tokenID)
 {
     Base::OnTokenAdded(tokenID);
+
+    if (const CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        if (SpawnTokenPanel* panel = combatUI->CharacterHUDGroup.PlayerSpawnTokenPanel)
+        {
+            panel->EnqueueToken(tokenID);
+        }
+    }
 }
 
 void Player::OnTokenRemoved(const int tokenID)

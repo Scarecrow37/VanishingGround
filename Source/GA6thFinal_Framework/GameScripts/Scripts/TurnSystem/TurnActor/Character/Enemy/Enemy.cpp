@@ -34,6 +34,7 @@
 // TurnAction
 #include "TurnSystem/TurnAction/TurnActionFactory.h"
 #include "ProclamationHUD/ProclamationHUD.h"
+#include "UI/Contents/SpawnTokenPanel.h"
 
 UMREAL_COMPONENT(Enemy)
 
@@ -475,6 +476,16 @@ void Enemy::OnKill(CharacterBase* destination)
 void Enemy::OnTokenAdded(const int tokenID)
 {
     Base::OnTokenAdded(tokenID);
+
+    if (const CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        Monster::SpawnPoint spawnPoint = SpawnPoint;
+        const size_t        index      = static_cast<size_t>(spawnPoint);
+        if (SpawnTokenPanel* spawnTokenPanel = combatUI->CharacterHUDGroup.EnemySpawnTokenPanel[index])
+        {
+            spawnTokenPanel->EnqueueToken(tokenID);
+        }
+    }
 }
 
 void Enemy::OnTokenRemoved(const int tokenID)

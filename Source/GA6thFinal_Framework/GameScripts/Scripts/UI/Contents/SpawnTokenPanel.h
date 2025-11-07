@@ -6,12 +6,6 @@ class SpawnTokenPanel : public UIComponent
 {
     USING_PROPERTY(SpawnTokenPanel)
 
-    using ArrayColor = std::array<float, 4>;
-
-    static constexpr ArrayColor DEFAULT_COLOR = {0.0f, 0.0f, 0.0f, 1.0f};
-
-    using TokenColorMap = std::unordered_map<int, ArrayColor>;
-
 public:
     SpawnTokenPanel();
 
@@ -61,7 +55,6 @@ private:
 
 protected:
     REFLECT_FIELDS_BEGIN(UIComponent)
-    TokenColorMap TokenColors;
     std::string   TokenElementPrefabGuid;
     POINT         BeginPoint;
     POINT         EndPoint;
