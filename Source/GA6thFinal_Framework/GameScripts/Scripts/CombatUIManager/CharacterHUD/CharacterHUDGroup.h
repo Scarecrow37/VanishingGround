@@ -5,6 +5,7 @@ class OverlayPanel;
 class ImageElement;
 class FadeUIComponent;
 class SpawnDamagePanel;
+class SpawnTokenPanel;
 class Player;
 class Enemy;
 
@@ -27,10 +28,12 @@ namespace CombatUI
 
         SpawnDamagePanel*   PlayerSpawnHealPanel            = nullptr;
         SpawnDamagePanel*   PlayerSpawnDamagePanel          = nullptr;
+        SpawnTokenPanel*    PlayerSpawnTokenPanel           = nullptr;
 
         SpawnDamagePanel*   EnemySpawnHealPanel[3]          = {nullptr, nullptr, nullptr};
         SpawnDamagePanel*   EnemySpawnDamagePanel[3]        = {nullptr, nullptr, nullptr};
         SpawnDamagePanel*   EnemySpawnCriticalDamage[3]     = {nullptr, nullptr, nullptr};
+        SpawnTokenPanel*    EnemySpawnTokenPanel[3]         = {nullptr, nullptr, nullptr};
 
         bool FindUI() override;
         bool IsValid() const override;
@@ -60,6 +63,9 @@ namespace CombatUI
         };
         inline static constexpr std::array<const char*, 3> MONSTER_SPAWN_HEAL_HUD = {
             "Left Spawn Heal UI", "Middle Spawn Heal UI", "Right Spawn Heal UI"
+        };
+        inline static constexpr std::array<const char*, 3> MONSTER_SPAWN_TOKEN_HUD = {
+            "Left Spawn Token UI", "Middle Spawn Token UI", "Right Spawn Token UI"
         };
 
         inline static LONG MONSTER_HUD_SPACE_X = 0;
