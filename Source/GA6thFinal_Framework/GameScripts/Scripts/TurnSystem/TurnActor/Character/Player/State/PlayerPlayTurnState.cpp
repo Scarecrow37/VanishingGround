@@ -480,10 +480,11 @@ void PlayerPlayTurnState::OnQTEFinish()
                         {
                             if (Timeline::EventContext* context = track->GetContextFromLabel("Hit"))
                             {
-                                const float noteTime  = note->Time;
-                                const float hitTime   = context->Time;
+                                const float noteTime  = note->Time / qteSystem->ScaledSpeedFactor;
+                                const float hitTime   = context->Time / weaponModel.Animation->SpeedScale;
                                 const float noteDelay = note->WeaponAnimationDelay;
-                                float       delta     = noteTime - hitTime + noteDelay + animOffset;
+
+                                float delta = noteTime - hitTime + noteDelay + animOffset;
                                 // 0보다 낮으면 0초로 맞추고 나머지를 해당 오프셋만큼 이동
                                 if (delta < 0)
                                 {
@@ -595,16 +596,18 @@ void PlayerPlayTurnState::SetWeaponModelTransform(WeaponModelData& modelData, QT
                         const Vector3 enemyForward  = spawnPoint->transform->Forward * offsetDistance;
                         gameObject->transform->SetWorldPosition(enemyPosition + enemyForward + offsetPosition);
 
+                        const Quaternion enemyRotation = spawnPoint->transform->Rotation;
+                        gameObject->transform->Rotation = enemyRotation;
+                        gameObject->transform->EulerAngle += offsetRotation;
+
                         Quaternion addRotation = Quaternion::Identity;
                         if (modelData.Type != WeaponType::WARHAMMER)
                         {
-                            const Vector3 randomAdded = Vector3(Random::Range(-XM_1DIVPI, XM_1DIVPI),
-                                                                Random::Range(-XM_1DIVPI, XM_1DIVPI), 0.f);
-                            addRotation               = Quaternion::CreateFromYawPitchRoll(randomAdded);
+                            const Vector3 randomAdded = Vector3(Random::Range(-XM_PIDIV4, XM_PIDIV4),
+                                                                Random::Range(-XM_PIDIV4, XM_PIDIV4), 0.f);
+                            addRotation = Quaternion::CreateFromYawPitchRoll(randomAdded);
                         }
-
                         gameObject->transform->Rotation *= addRotation;
-                        gameObject->transform->EulerAngle += offsetRotation;
 
                         gameObject->transform->Scale = spawnPoint->transform->Scale;
                     }
