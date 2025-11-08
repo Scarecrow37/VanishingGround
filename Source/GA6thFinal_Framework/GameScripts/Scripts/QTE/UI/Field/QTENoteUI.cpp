@@ -218,8 +218,6 @@ namespace QTE
         if (resultType.IsPressedButton())
         {
             Result = resultType.Result;
-            //State  = STATE_DEAD;
-            //OnNoteExit();
         }
     }
     
