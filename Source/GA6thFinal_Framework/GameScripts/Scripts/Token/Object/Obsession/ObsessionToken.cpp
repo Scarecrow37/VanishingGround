@@ -17,7 +17,6 @@ namespace TokenObject
         if (owner)
         {
             auto& tokenInventory = owner->GetTokenInventory();
-            // 이번 턴을 제외한 사용 가능 토큰이 있는 경우
             if (tokenInventory.IsAvailableTokenFromID(tokenID))
             {
                 tokenInventory.RemoveTokenStackFromID(tokenID);
@@ -28,14 +27,13 @@ namespace TokenObject
                                                       int& damage)
     {
         auto& tokenInventory = attackerData.Source.GetTokenInventory();
-        // 이번 턴을 제외한 사용 가능 토큰이 있는 경우
-        if (tokenInventory.IsAvailableTokenFromID(GetTokenID()))
-        {
-            // 일격 데미지 감소
+        const int tokenID = GetTokenID();
+        const int param   = GetTokenParam(0);
+        if (tokenInventory.HasTokenFromID(tokenID))
+        {   // 일격 데미지 감소
             if (QTE::QTE_RESULT_NORMAL == attackerData.NoteResult.Result)
             {
-                const int param = GetTokenParam(0);
-                damage          = ContentMath::CeilPercentage(damage, 100 - param);
+                damage = ContentMath::CeilPercentage(damage, 100 - param);
             }
         }
     }

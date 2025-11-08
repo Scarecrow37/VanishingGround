@@ -215,7 +215,7 @@ private:
 private:
     CharacterBase&                                _owner;               // 해당 매니저를 소유한 CharacterBase 인스턴스
     std::vector<TokenID>                          _vaildTokenVector;    // 유효한 토큰 ID 리스트(쌓인 순서대로)
-    std::unordered_map<TokenID, MVVM::Model<int>> _validtokenTable;     // 모든 토큰 테이블
+    std::unordered_map<TokenID, MVVM::Model<int>> _validTokenTable;     // 모든 토큰 테이블
 
     std::unordered_map<TokenID, int>              _waitAvailableTokenTable;
 };
