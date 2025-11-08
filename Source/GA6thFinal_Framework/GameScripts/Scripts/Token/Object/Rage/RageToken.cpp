@@ -20,10 +20,13 @@ namespace TokenObject
         auto&       tokenInventory = attackerData.Source.GetTokenInventory();
 
         // 자신보다 높은 등급 토큰이 존재하면 return
-        for (int i = tokenID; i < Rage2::ID; ++i)
+        if (tokenID < Rage2::ID)
         {
-            if (tokenInventory.HasTokenFromID(i))
-                return;
+            for (int i = tokenID + 1; i <= Rage2::ID; ++i)
+            {
+                if (tokenInventory.HasTokenFromID(i))
+                    return;
+            }
         }
 
         damage += ContentMath::CeilPercentage(damage, param);
@@ -39,10 +42,13 @@ namespace TokenObject
         auto& tokenInventory = attackerData.Source.GetTokenInventory();
 
         // 자신보다 높은 등급 토큰이 존재하면 return
-        for (int i = tokenID; i < Rage2::ID; ++i)
+        if (tokenID < Rage2::ID)
         {
-            if (tokenInventory.HasTokenFromID(i))
-                return;
+            for (int i = tokenID + 1; i <= Rage2::ID; ++i)
+            {
+                if (tokenInventory.HasTokenFromID(i))
+                    return;
+            }
         }
 
         damage += ContentMath::CeilPercentage(damage, param);
