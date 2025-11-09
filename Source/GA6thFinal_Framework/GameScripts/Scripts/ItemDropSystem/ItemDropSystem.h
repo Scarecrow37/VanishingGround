@@ -3,6 +3,15 @@
 #include "Interface/IDropItem.h"
 #include "Utility/SingletonHelper.h"
 
+enum class ItemDropBonusType
+{
+    WEAPON,
+    ACCESSORY,
+    REVELATION,
+
+    UNKNOWN,
+};
+
 class ItemDropSystem : public Component
 {
     USING_PROPERTY(ItemDropSystem)
@@ -75,8 +84,7 @@ public:
 
 public:
     REFLECT_PROPERTY(
-        StageClearCount,
-        ItemDropRateBonus
+        StageClearCount
     )
     
     GETTER(int, StageClearCount) { return _stageClearCount; }
@@ -85,11 +93,9 @@ public:
     // type : int
     PROPERTY(StageClearCount)
 
-    GETTER(int, ItemDropRateBonus) { return _itemDropRateBonus; }
-    SETTER(int, ItemDropRateBonus) { _itemDropRateBonus = std::clamp(value, 0, ITEM_DROP_RATE_BONUS_MAX); }
-    // 아이템 드랍 확률 보정 수치입니다.
-    // type : int
-    PROPERTY(ItemDropRateBonus)
+    void AddItemDropRateBonus(ItemDropBonusType type);
+    void ResetItemDropRateBonus(ItemDropBonusType type);
+    int  GetItemDropRateBonus(ItemDropBonusType type);
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
@@ -131,6 +137,6 @@ private:
     SingletonComponent<ItemDropSystem>     _singletonComponent{this};
     MVVM::Model<std::vector<DropItemInfo>> _dropItemsModel;
     int _stageClearCount = 0;
-    int _itemDropRateBonus = 0;
     std::array<bool, ARTIFACT_DROP_COUNT>  _obtainArtifactFlag{}; // 이번 보상 획득 여부 플래그
+    std::array<int, static_cast<size_t>(ItemDropBonusType::UNKNOWN)> _itemDropRateBonus{};
 };

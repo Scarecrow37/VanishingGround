@@ -10,6 +10,7 @@
 #include "ItemDropSystem/UI/ArtifactUIManager.h"
 #include "ItemDropSystem/UINavi/ArtifactButtonNavi.h"
 #include "ItemDropSystem/UI/ItemInfoUIManager.h"
+#include "ItemDropSystem/ItemDropSystem.h"
 
 UMREAL_COMPONENT(WeaponChangeUIManager)
 
@@ -260,13 +261,21 @@ void WeaponChangeUIManager::Update()
                 {
                     system->EquipWeapon(_changeWeaponSlot, _changeWeaponElement);
                     _warningUI.WarningUIObject->SetActive(false);
-                    PopInputLayer();
                     _changeWeaponSlot = -1;
                     if (ArtifactUIManager* artifactManager = SingletonComponent<ArtifactUIManager>::GetInstance())
                     {                     
                         artifactManager->ObtainFocusNavi(ArtifactButtonNavi::GetLastFocusIndex());               
-                        HideUI();
                     }
+                    // 무기 등장 확률 보정에 대한 값 초기화
+                    if (ItemDropSystem* itemDrop = SingletonComponent<ItemDropSystem>::GetInstance())
+                    {
+                        if (WeaponGrade::COMMON != _changeWeaponElement.Stats.Grade)
+                        {
+                            itemDrop->ResetItemDropRateBonus(ItemDropBonusType::WEAPON);
+                        }
+                    }        
+                    PopInputLayer();
+                    HideUI();
                 }
             }
             break;
