@@ -152,6 +152,15 @@ void ItemDropUIRootManager::UpdateStory()
                     if (rowIndex != dataBase->FIND_INDEX_FAIL)
                     {
                         std::string_view data = dataBase->FIND_STR_FAIL;
+                        data = dataBase->FindData(rowIndex, u8"Journal Image");
+                        if (data != dataBase->FIND_STR_FAIL)
+                        {                          
+                            if (auto image = _storyPanel.Image.lock())
+                            {
+                                int imageID = std::stoi(data.data());
+                                image->SetImage(UmFileSystem.GetGuidFromAssetID(imageID));
+                            }
+                        }
                         data = dataBase->FindData(rowIndex, u8"Journal Name Real");
                         if (data != dataBase->FIND_STR_FAIL)
                         {
