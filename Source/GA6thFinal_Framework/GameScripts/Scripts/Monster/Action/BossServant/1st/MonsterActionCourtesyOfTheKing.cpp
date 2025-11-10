@@ -26,6 +26,10 @@ namespace Monster
                 {
                     TokenInventory& tokenInventory = target->GetTokenInventory();
                     tokenInventory.AddTokenStackFromID(tokenParam.TokenID, tokenParam.Count);
+                    if (ParticleComponent* particle = target->GetParticleComponent())
+                    {
+                        particle->PlayEffect("buff");
+                    }
                 }
             }
         }

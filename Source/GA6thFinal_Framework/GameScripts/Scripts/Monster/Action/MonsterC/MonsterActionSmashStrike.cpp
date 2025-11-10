@@ -39,6 +39,10 @@ namespace Monster
                 TokenParam      tokenParam     = GetTokenParam(1);
                 TokenInventory& tokenInventory = target->GetTokenInventory();
                 tokenInventory.AddTokenStackFromID(tokenParam.TokenID, tokenParam.Count);
+                if (ParticleComponent* particle = target->GetParticleComponent())
+                {
+                    particle->PlayEffect("debuff");
+                }
             }
             ActionParam damage = GetActionParam(1);
             ProcessBattle(damage.Param);
