@@ -100,9 +100,6 @@ void CharacterBase::Awake()
 {
     Base::Awake();
     gameObject->AddTag(TAG);
-    _skeletalMeshRenderer = nullptr;
-    _animationComponent   = nullptr;
-    _particleComponent    = nullptr;
     InitializeAnimation();
 }
 
