@@ -326,12 +326,12 @@ public:
     /// <summary>
     /// 플레이어가 토큰 데미지를 입기 전에 호출됩니다.
     /// </summary>
-    virtual void OnPlayerTokenTakeDamage(int tokenID, int& damage) {}
+    virtual void OnPlayerTokenTakeDamage(int tokenID, int tokenCount, int& damage) {}
 
     /// <summary>
     /// 적이 토큰 데미지를 입기 전에 호출됩니다.
     /// </summary>
-    virtual void OnEnemyTokenTakeDamage(int tokenID, int& damage) {}
+    virtual void OnEnemyTokenTakeDamage(int tokenID, int tokenCount, int& damage) {}
     
     /// <summary>
     /// 캐릭터의 연격 유지 라운드 수를 사용할때 호출됩니다.

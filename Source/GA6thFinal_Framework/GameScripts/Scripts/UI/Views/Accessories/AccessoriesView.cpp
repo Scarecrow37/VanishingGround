@@ -198,7 +198,7 @@ void AccessoriesView::AddCallback()
         key += std::to_string(i);
         _callbacks.push_back(KeyCallbackUINavi::AddCallbackFocusIn(key, [this, i]() { FocusIn(i); }));
         _callbacks.push_back(KeyCallbackUINavi::AddCallbackFocusOut(key, [this, i]() { FocusOut(i); }));
-        _callbacks.push_back(KeyCallbackUINavi::AddCallbackShowTooltips(key, [this, i]() { ShowTooltip(i); }));
+        _callbacks.push_back(KeyCallbackUINavi::AddCallbackShowTooltips(key, [this, i]() { ShowTooltip(i); UmAudio.Play("-901006"); }));
         _callbacks.push_back(KeyCallbackUINavi::AddCallbackHideTooltips(key, [this, i]() { HideTooltip(i); }));
     }
     _focusInfoUIFade      = GameObject::FindComponentWithTag<FadeUIComponent>("Focus Info UI Panel");

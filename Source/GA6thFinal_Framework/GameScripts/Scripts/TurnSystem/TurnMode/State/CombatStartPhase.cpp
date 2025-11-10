@@ -103,14 +103,6 @@ void CombatStartPhase::ResetCharacterStats()
             return static_cast<int>(aSpawnPoint) < static_cast<int>(bSpawnPoint);
         });
     }
-
-    for (auto& character : _characters)
-    {
-        if (character)
-        {
-            character->ClearState();
-        }
-    }
 }
 
 Enemy* CombatStartPhase::GetEnemyFromSpawnPoint(Monster::SpawnPoint spawnPoint) const
@@ -159,6 +151,7 @@ void CombatStartPhase::OnStart()
     AddValidActions();
     ReviveEnemies();
     ResetPlayer();
+    ClearCharacterState();
 }
 void CombatStartPhase::OnEnter() 
 {
@@ -504,5 +497,16 @@ void CombatStartPhase::ResetPlayer()
     if (_player)
     {
         _player->TurnActor::Revive();
+    }
+}
+
+void CombatStartPhase::ClearCharacterState() 
+{
+    for (auto& character : _characters)
+    {
+        if (character)
+        {
+            character->ClearState();
+        }
     }
 }

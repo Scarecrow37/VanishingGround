@@ -157,6 +157,7 @@ void TextElement::UpdateProperties()
     UpdatePosition();
     UpdateScale();
     UpdateOutline();
+    UpdateWeight();
     UpdateContentSize();
 }
 

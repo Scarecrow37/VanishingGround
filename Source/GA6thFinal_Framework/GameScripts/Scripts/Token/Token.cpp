@@ -32,15 +32,17 @@ void Token::TakeDamage(CharacterBase* dest, int damage)
     {
         if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
         {
+            TokenInventory& tokenInventory = dest->GetTokenInventory();
+            const int tokenID = GetTokenID();
+            const int tokenCount = tokenInventory .GetTokenStackFromID(tokenID);
             turnMode->ApplyActions([&](TurnAction& action) {
-                const int tokenID = GetTokenID();
                 if (typeid(Player) == typeid(*dest))
                 {
-                    action.OnPlayerTokenTakeDamage(tokenID, damage);
+                    action.OnPlayerTokenTakeDamage(tokenID, tokenCount, damage);
                 }
                 else if (typeid(Enemy) == typeid(*dest))
                 {
-                    action.OnEnemyTokenTakeDamage(tokenID, damage);
+                    action.OnEnemyTokenTakeDamage(tokenID, tokenCount, damage);
                 }
             });
         }

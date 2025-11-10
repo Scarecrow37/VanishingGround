@@ -52,13 +52,13 @@ void TokenDamaggeAction::ImGuiDrawPropertysEvent()
     ImguiDrawConditionEditor();
 }
 
-void TokenDamaggeAction::OnEnemyTokenTakeDamage(int tokenID, int& damage) 
+void TokenDamaggeAction::OnEnemyTokenTakeDamage(int tokenID, int tokenCount, int& damage)
 {
     if (tokenID == ReflectFields->TokenID)
     {
         if (EvaluateConditions())
         {
-            damage += ReflectFields->Damage;
+            damage += ReflectFields->Damage * tokenCount;
         }
     } 
 }

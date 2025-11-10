@@ -113,7 +113,7 @@ void GameOverManager::TransitionTitleScene()
                 UmSceneManager.LoadScene(UmFileSystem.GetPathFromGuid(SceneGuid::TITLE).string());
                 _isBeginProcess = false;
                 PopInputLayer();
-                UmAudio.FadeOut();
+                UmAudio.FadeIn();
             }
         });
     }
