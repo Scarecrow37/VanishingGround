@@ -93,7 +93,10 @@ CharacterBase::~CharacterBase() = default;
 
 void CharacterBase::Added() 
 {
-    FindComponent();
+    if (UmCore->IsPlay())
+    {
+        FindComponent();
+    }
 }
 
 void CharacterBase::Awake()
