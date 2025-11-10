@@ -14,6 +14,8 @@
 #include "Token/Object/Focus/FocusToken.h"
 #include "WeaponModel/WeaponModelManager.h"
 
+#include "Monster/System/MonsterSystem.h"
+
 UMREAL_COMPONENT(QTESystem)
 
 QTESystem::QTESystem() = default;
@@ -105,6 +107,10 @@ void QTESystem::ImGuiDrawPropertysEvent()
         bool allCrit = _overallResult.CompareResult(QTE::QTE_RESULT_ALL_CRIT);
         bool overHit = _overallResult.CompareResult(QTE::QTE_RESULT_OVER_HIT);
         ImGui::Text("Overall Result: %s%s", allCrit ? "All Crit " : "", overHit ? "Over Hit" : "");
+        ImGui::Text("Perfect Count: %i", _overallResult.PerfectCount);
+        ImGui::Text("Good Count: %i", _overallResult.NormalCount);
+        ImGui::Text("Miss Count: %i", _overallResult.MissCount);
+        ImGui::Text("Invalid Count: %i", _overallResult.InvalidCount);
 
         ImGui::TreePop();
     }
@@ -568,6 +574,36 @@ void QTESystem::PressedQTEButton(const Input::Controller::Button buttonType)
             default:
                 break;
         }
+
+        // 누른 버튼이 없다면 InvalidCount를 올림
+        if (buttonType == Input::Controller::Button::UNDEFINED)
+        {
+            ++_overallResult.InvalidCount;
+        }
+        // 누른 버튼이 있다면 해당 버튼의 스폰포인트 몬스터의 유무를 확인해 InvalidCount를 올림
+        else if (MonsterSystem* system = SingletonComponent<MonsterSystem>::GetInstance())
+        {
+            Monster::SpawnPoint spawnPoint = Monster::SpawnPoint::Left;
+            if (buttonType == Input::Controller::Button::X)
+                spawnPoint = Monster::SpawnPoint::Left;
+            else if (buttonType == Input::Controller::Button::Y)
+                spawnPoint = Monster::SpawnPoint::Middle;
+            else if (buttonType == Input::Controller::Button::B)
+                spawnPoint = Monster::SpawnPoint::Right;
+
+            if (auto enemy = system->GetSpawnedEnemyFromSpawnPoint(spawnPoint).lock())
+            {
+                if (enemy->IsDead())
+                {
+                    ++_overallResult.InvalidCount;
+                }
+            }
+            else
+            {
+                ++_overallResult.InvalidCount;
+            }
+        }
+        
         ProcessQTENotePressedEvent(result.NoteData->ID, result);
     }
 }
