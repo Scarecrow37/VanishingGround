@@ -672,9 +672,7 @@ void Enemy::ShowTooltip()
     {
         if (TooltipSystem* system = SingletonComponent<TooltipSystem>::GetInstance())
         {
-            // 토큰 툴팁
-            auto& tokenInventory = GetTokenInventory();
-            std::vector<int> tooltipIds = tokenInventory.GetTokensTooltips();
+            std::vector<int> tooltipIds;
 
             // 패턴 툴팁
             Monster::Controller& controller = GetController();
@@ -684,8 +682,17 @@ void Enemy::ShowTooltip()
                 if (false == actionTooltips.empty())
                 {
                     std::ranges::move(actionTooltips, std::back_inserter(tooltipIds));
-                }           
+                }
             }
+
+            // 토큰 툴팁
+            auto&            tokenInventory = GetTokenInventory();
+            std::vector<int> tokenTooltips  = tokenInventory.GetTokensTooltips();
+            if (false == tokenTooltips.empty())
+            {
+                std::ranges::move(tokenTooltips, std::back_inserter(tooltipIds));
+            }
+
             system->Show(Tooltip::Group::ENEMY, tooltipIds);
         }
     }
