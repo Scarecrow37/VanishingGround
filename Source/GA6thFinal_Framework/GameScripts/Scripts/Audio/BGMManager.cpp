@@ -90,8 +90,8 @@ void BGMManager::SerializedReflectEvent() {}
 void BGMManager::DeserializedReflectEvent() 
 {
     // DeltaTime을 쓰지 않도록 할 것
-    _currBGMFader.UseUnScaledDeltaTime(false);
-    _prevBGMFader.UseUnScaledDeltaTime(false);
+    _currBGMFader.UseUnScaledDeltaTime(true);
+    _prevBGMFader.UseUnScaledDeltaTime(true);
 
     _currBGMFader.SetFadeMode(Fader::FADE_IN);
     _currBGMFader.SetDuration(FadeDuration);
