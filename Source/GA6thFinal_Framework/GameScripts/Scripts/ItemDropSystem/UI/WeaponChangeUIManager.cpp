@@ -148,6 +148,7 @@ void WeaponChangeUIManager::SetPlayerWeaponStatsUI(const WeaponElement& focusWea
     if (_playerWeaponStats.Manager)
     {
         _playerWeaponStats.Manager->SetItemInfoUI(playerInfo);
+        _playerWeaponStats.Manager->SetWeaponStats(playerStats);
     }
 
     auto UpdateArrowUI = [](int player, int change, auto& upArrow, auto& downArrow) 
