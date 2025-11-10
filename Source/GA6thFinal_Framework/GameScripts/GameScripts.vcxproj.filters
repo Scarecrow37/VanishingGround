@@ -357,6 +357,13 @@
     <ClCompile Include="Scripts\KeyCallbackUINavi\KeyCallbackUINavi.cpp" />
     <ClCompile Include="Scripts\UI\Contents\TooltipDescriptionPanel.cpp" />
     <ClCompile Include="Scripts\UI\Contents\TooltipElement.cpp" />
+    <ClCompile Include="Scripts\Camera\HandHeldController.cpp" />
+    <ClCompile Include="Scripts\Utility\AutoRotateComponent.cpp" />
+    <ClCompile Include="Scripts\Utility\HexToColor.cpp" />
+    <ClCompile Include="Scripts\UI\Contents\TokenElement.cpp" />
+    <ClCompile Include="Scripts\UI\Contents\SpawnTokenPanel.cpp" />
+    <ClCompile Include="Scripts\Vinette\VinetteManager.cpp" />
+    <ClCompile Include="Scripts\Test\DevTools\Debugging.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
@@ -734,6 +741,13 @@
     <ClInclude Include="Scripts\UI\Contents\TooltipDescriptionPanel.h" />
     <ClInclude Include="Scripts\UI\Contents\TooltipElement.h" />
     <ClInclude Include="Scripts\UI\Contents\TooltipType.h" />
+    <ClInclude Include="Scripts\Camera\HandHeldController.h" />
+    <ClInclude Include="Scripts\Utility\AutoRotateComponent.h" />
+    <ClInclude Include="Scripts\Utility\HexToColor.h" />
+    <ClInclude Include="Scripts\UI\Contents\TokenElement.h" />
+    <ClInclude Include="Scripts\UI\Contents\SpawnTokenPanel.h" />
+    <ClInclude Include="Scripts\Vinette\VinetteManager.h" />
+    <ClInclude Include="Scripts\Test\DevTools\Debugging.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
