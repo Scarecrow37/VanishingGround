@@ -40,7 +40,6 @@ protected:
     SETTER(bool, IsHolding)
     {
         _isHolding = value;
-        value ? BeginHold() : EndHold();
     }
     PROPERTY(IsHolding)
 
@@ -51,8 +50,7 @@ protected:
 public:
     void BindProgressComplete(const ProgressCompleteCallback& callback);
 
-    void BeginHold();
-    void EndHold();
+    void Held();
 
     void ResetProgress();
 

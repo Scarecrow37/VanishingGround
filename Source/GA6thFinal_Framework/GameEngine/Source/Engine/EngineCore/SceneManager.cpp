@@ -2138,6 +2138,17 @@ bool ESceneManager::SceneResourceManager::CheckAllResourceLoad()
     return true;
 }
 
+void ESceneManager::SceneResourceManager::ClearResource() 
+{
+    _models.RenderResource.clear();
+
+    _textures.RenderResource.clear();
+
+    _fonts.RenderResource.clear();
+
+    _sdfFonts.RenderResource.clear();
+}
+
 void ESceneManager::SceneResourceManager::Engine::CleanUp(SceneResourceManager& manager) 
 {
     manager._models.ResourceLoadQueue.clear();

@@ -5,6 +5,16 @@
 #include <directxtk12/DDSTextureLoader.h>
 #include <DirectXTex.h>
 
+Texture::Texture()
+{
+    Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _textureHandle, &_ID);
+}
+
+Texture::~Texture()
+{
+    Global::viewManager->ReturnShaderResourceDescriptorHeap(_ID);
+}
+
 bool Texture::IsValid() const
 {
     return _handle.GPU.ptr != Global::dummyTextureHandle.ptr;
@@ -17,8 +27,7 @@ void Texture::SetResource(ID3D12Resource* resource)
 
 void Texture::CreateShaderResourceView()
 {
-    ID3D12Device* device = Global::device->GetDevice();
-    Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _handle, &_ID);
+    ID3D12Device* device = Global::device->GetDevice();    
 
     D3D12_SHADER_RESOURCE_VIEW_DESC srvd{};
 
@@ -29,10 +38,12 @@ void Texture::CreateShaderResourceView()
     // srvd.Texture2D = { 0, -1, 0, 0 };											//기본지정.
     srvd.Texture2D.MipLevels = desc.MipLevels; // 밉멥레벨 수동지정.(상동)
 
-    device->CreateShaderResourceView(_resource.Get(), &srvd, _handle.CPU);
+    device->CreateShaderResourceView(_resource.Get(), &srvd, _textureHandle.CPU);
 
     _size.cx = (LONG)desc.Width;
     _size.cy = (LONG)desc.Height;
+
+    _handle = _textureHandle;
 }
 
 void Texture::LoadResource(const std::filesystem::path& filePath, const std::function<void()>& callback)

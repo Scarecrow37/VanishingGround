@@ -15,18 +15,19 @@ ItemInfoUIManager::~ItemInfoUIManager() = default;
 
 void ItemInfoUIManager::SetItemInfoUI(const DropItemInfo& info) 
 {
-    SetItemName(info.Name);
+    SetItemName(info);
     SetItemIcon(info);
     SetItemDescription(info);
     SetWeaponStats(info);
 }
 
-void ItemInfoUIManager::SetItemName(const std::string& name) 
+void ItemInfoUIManager::SetItemName(const DropItemInfo& info)
 {
     // 이름 UI 갱신
     if (_uiComponents.ItemName)
     {
-        _uiComponents.ItemName->Text = name;
+        _uiComponents.ItemName->Text  = info.Name;
+        _uiComponents.ItemName->Color = info.NameColor;
     }
 }
 
@@ -169,11 +170,13 @@ void ItemInfoUIManager::ClearWeaponStats()
     }
 }
 
-void ItemInfoUIManager::Awake() 
+void ItemInfoUIManager::Added() 
 {
-    Base::Awake();
-    gameObject->AddTag(TAG);
-    FindComponents();
+    if (UmCore->IsPlay())
+    {       
+        gameObject->AddTag(TAG);
+        FindComponents();
+    }
 }
 
 void ItemInfoUIManager::FindComponents() 

@@ -48,6 +48,7 @@ namespace Monster
             inline const ActionContext&         GetActionContext() const { return _actionContext; }
             inline size_t                       GetActionParamCount() const { return _actionParams.size(); }
             inline size_t                       GetTokenParamCount() const { return _tokenParams.size(); }
+            std::vector<int>                    GetActionTooltipIDs() const;
 
             // 액션 파라미터를 얻어옵니다. 인덱스는 0부터가 아닌 1부터 시작합니다.
             ActionParam GetActionParam(size_t index) const;

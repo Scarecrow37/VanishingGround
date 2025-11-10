@@ -8,6 +8,7 @@
 #include "BattleSystem/Battle.h"
 #include "WeaponSystem/WeaponSystem.h"
 #include "TutorialSystem/TutorialSystem.h"
+#include "QTE/System/QTESystem.h"
 
 REGISTER_CLASS(FSMStateFactory, TurnListEmptyState)
 
@@ -62,15 +63,33 @@ void TurnListEmptyState::OnEnter()
         if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
         {
             system->Show(805903); // 연격 튜토리얼
-            if (_turnMode->IsCurrentTurnActiveRevelation)
-            {
-                system->Show(805904); //계시 발동 튜토리얼
-            }
         } 
+     
+        // 미스 튜토리얼
+        if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
+        {
+            if (QTESystem* qteSystem = SingletonComponent<QTESystem>::GetInstance())
+            {
+                auto& result = qteSystem->GetQTEOverallResult();
+                if (0 < result.MissCount)
+                {
+                    system->Show(805912); // 미스 튜토리얼
+                }
+            }
+        }
     }
     else
     {
         UpdateCharacterDead();
+    }
+
+    // 계시 발동시 튜토리얼
+    if (_turnMode->IsCurrentTurnActiveRevelation)
+    {
+        if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
+        {
+            system->Show(805904); // 계시 튜토리얼
+        }
     }
 
     _turnMode->FinishCurrentTurn();

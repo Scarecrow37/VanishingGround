@@ -14,6 +14,7 @@
 #include <WeaponModel/WeaponModelManager.h>
 #include "AccessorySystem/AccessorySystem.h"
 #include "Monster/System/MonsterSystem.h"
+#include "ItemDropSystem/ItemDropSystem.h"
 
 #include <TurnSystem/TurnSystemHelper.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
@@ -201,7 +202,16 @@ void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
             SetAttackReady();
             if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
             {
-                system->Show(805907);
+                if (ItemDropSystem::WinCount == 0)
+                {
+                    // 가운데 적 튜토리얼
+                    system->Show(805910);
+                }
+                else
+                {
+                    // 왼쪽, 오른쪽 적 튜토리얼
+                    system->Show(805911);
+                }         
             }
         }
         else

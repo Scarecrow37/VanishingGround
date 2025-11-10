@@ -8,6 +8,7 @@
 #include "ItemDropSystem/UI/ItemDropUIRootManager.h"
 #include "RevelationSystem/RevelationSystem.h"
 #include "Input/InputOkCancelComponent/InputOkCancelComponent.h"
+#include "ItemDropSystem/UI/ItemInfoUIManager.h"
 
 UMREAL_COMPONENT(EraseRevelationUIManager)
 
@@ -106,29 +107,9 @@ void EraseRevelationUIManager::EraseRevelation(int slot)
 
 void EraseRevelationUIManager::SetRevelationInfoUI(const DropItemInfo& info) 
 {
-    if (_revelation.Name)
+    if (_itemInfoManager)
     {
-        _revelation.Name->Text = info.Name;
-    }
-    if (_revelation.Icon)
-    {
-        int iconID = DropItemInfo::GetArtifactIconID(info);
-        const File::Guid& guid = UmFileSystem.GetGuidFromAssetID(iconID);
-        _revelation.Icon->SetImage(guid);
-    }
-    if (_revelation.Description)
-    {
-        _revelation.Description->Description = DropItemInfo::GetArtifactDescription(info);
-    }
-    if (_revelation.Flavor)
-    {
-        //TODO: 플레이버 텍스트 추가 필요
-        _revelation.Flavor->Description = "";
-    }
-    if (_revelation.Keyword)
-    {
-        //키워드 텍스트 추가 필요
-        _revelation.Keyword->Description = "";
+        _itemInfoManager->SetItemInfoUI(info);
     }
 }
 
@@ -210,25 +191,9 @@ void EraseRevelationUIManager::FindElements()
                 Transform::ForeachDFS(*child, [this](Transform* curr) 
                 {
                     GameObject& object = curr->gameObject;
-                    if (object.CompareTag("Name"))
+                    if (object.CompareTag("Revelation Info"))
                     {
-                        _revelation.Name = object.GetComponent<TextElement>();
-                    }
-                    else if(object.CompareTag("Icon"))
-                    {
-                        _revelation.Icon = object.GetComponent<ImageElement>();
-                    }
-                    else if (object.CompareTag("Description"))
-                    {
-                        _revelation.Description = object.GetComponent<DescriptionPanel>();
-                    }
-                    else if (object.CompareTag("Flavor"))
-                    {
-                        _revelation.Flavor = object.GetComponent<DescriptionPanel>();
-                    }
-                    else if (object.CompareTag("Keyword"))
-                    {
-                        _revelation.Keyword = object.GetComponent<DescriptionPanel>();
+                        _itemInfoManager = object.GetComponent<ItemInfoUIManager>();
                     }
                 });
             }

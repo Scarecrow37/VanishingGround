@@ -4,6 +4,7 @@
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include <Animation/AnimationComponent.h>
 #include <Particle/ParticleComponent.h>
+#include "KeyCallbackUINavi/KeyCallbackUINavi.h"
 
 REGISTER_CLASS(FSMStateFactory, EnemyDeadState)
 
@@ -44,6 +45,37 @@ void EnemyDeadState::OnEnter()
         if (GameObject* monsterHUD = enemy.GetMonsterHUD())
         {
             monsterHUD->ActiveSelf = false;
+            Monster::SpawnPoint point = enemy.SpawnPoint;
+            KeyCallbackUINavi*  navi  = nullptr;
+            switch (point)
+            {
+            case Monster::SpawnPoint::Invalid:
+                break;
+            case Monster::SpawnPoint::Left:
+                if (auto callbackNavi = GameObject::FindComponentWithTag<KeyCallbackUINavi>("Enemy Left Panel UI Navi").lock())
+                {
+                    navi = callbackNavi.get();
+                }
+                break;
+            case Monster::SpawnPoint::Middle:
+                if (auto callbackNavi = GameObject::FindComponentWithTag<KeyCallbackUINavi>("Enemy Middle Panel UI Navi").lock())
+                {
+                    navi = callbackNavi.get();
+                }
+                break;
+            case Monster::SpawnPoint::Right:
+                if (auto callbackNavi = GameObject::FindComponentWithTag<KeyCallbackUINavi>("Enemy Right Panel UI Navi").lock())
+                {
+                    navi = callbackNavi.get();
+                }
+                break;
+            default:
+                break;
+            }
+            if (navi)
+            {
+                navi->Enable = false;
+            }
         }
     });
     enemy.Dead();

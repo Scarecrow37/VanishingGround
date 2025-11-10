@@ -76,6 +76,4 @@ private:
     void DrawLogSetting();
 
     bool  _isShowLog;
-    bool  _isShowSetting;
-
 };

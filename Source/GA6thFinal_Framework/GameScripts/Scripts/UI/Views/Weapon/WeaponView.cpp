@@ -137,7 +137,7 @@ void WeaponView::Start()
                         {
                             if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
                             {
-                                system->Show(805901);
+                                system->Show(805901); //무기 튜토리얼
                             }
                             if (auto focusNavi = GameObject::FindComponentWithTag<KeyCallbackUINavi>("Weapon Panel UI Navi").lock())
                             {

@@ -53,6 +53,7 @@ private:
     void Awake() override;
     void Update() override;
     void OnDestroy() override;
+    void OnLoadScene(Scene& loadScene, LoadSceneMode mode) override;
 
     void SerializedReflectEvent() override;
     void DeserializedReflectEvent() override;

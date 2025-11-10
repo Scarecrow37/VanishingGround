@@ -666,6 +666,7 @@
     <ClInclude Include="Scripts\ViewModels\TokenHUD\TokenHUDViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\TurnQueue\TurnQueueViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Weapon\WeaponViewModel.h" />
+    <ClInclude Include="Scripts\Vinette\VinetteManager.h" />
     <ClInclude Include="Scripts\WeaponModel\WeaponModelManager.h" />
     <ClInclude Include="Scripts\WeaponModel\WeaponModelData.h" />
     <ClInclude Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.h" />
@@ -686,7 +687,6 @@
     <ClInclude Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.h" />
     <ClInclude Include="Scripts\MainMenu\CreditsBackButton.h" />
     <ClInclude Include="Scripts\BattleIntroUIController\BattleIntroUIController.h" />
-    <ClInclude Include="Scripts\Vinette\VinetteManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\KeyCallbackUINavi\KeyCallbackUINavi.cpp" />
@@ -1055,6 +1055,7 @@
     <ClCompile Include="Scripts\ViewModels\TokenHUD\TokenHUDViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\TurnQueue\TurnQueueViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Weapon\WeaponViewModel.cpp" />
+    <ClCompile Include="Scripts\Vinette\VinetteManager.cpp" />
     <ClCompile Include="Scripts\WeaponModel\WeaponModelData.cpp" />
     <ClCompile Include="Scripts\WeaponModel\WeaponModelManager.cpp" />
     <ClCompile Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.cpp" />
@@ -1075,7 +1076,6 @@
     <ClCompile Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.cpp" />
     <ClCompile Include="Scripts\MainMenu\CreditsBackButton.cpp" />
     <ClCompile Include="Scripts\BattleIntroUIController\BattleIntroUIController.cpp" />
-    <ClCompile Include="Scripts\Vinette\VinetteManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

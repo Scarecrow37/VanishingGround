@@ -5,6 +5,7 @@
 #include "Map/MapManager.h"
 #include "QTE/System/QTESystem.h"
 #include "TutorialSystem/TutorialSystem.h"
+#include "ItemDropSystem/ItemDropSystem.h"
 
 UMREAL_COMPONENT(NewGame)
 
@@ -76,6 +77,7 @@ void NewGame::TransitionToNextScene()
                 {
                     GameObject::Destroy(mapManager);
                 }
+                ItemDropSystem::WinCount = 0;
             });
         }
     }

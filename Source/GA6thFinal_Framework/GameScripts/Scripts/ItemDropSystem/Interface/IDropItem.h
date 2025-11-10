@@ -21,6 +21,7 @@ struct DropItemInfo
     ArtifactDropType Category;     // 분류 타입
     int              ID;           // 아이템 아이디
     std::string      Name;         // 아이템 이름
+    Color            NameColor = Color(1.f, 1.f, 1.f, 1.f); // 아이템 이름 색
 
     /// <summary>
     /// 엑셀 데이터 베이스의 이름을 반환합니다.
