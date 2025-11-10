@@ -187,15 +187,6 @@ void Player::TakeDamage(int damage, const bool playAnim)
     }
     int takeDamage = damage;
 
-    //인내의 가루 효과 그냥 강제 적용
-    if (AccessorySystem* system = SingletonComponent<AccessorySystem>::GetInstance())
-    {
-        if (system->HasPlayerAccessory(203011))
-        {
-            takeDamage = std::min(takeDamage, 20);
-        }
-    }
-
     Base::TakeDamage(takeDamage, playAnim);
     ShowDamage(damage, {});
     if (turnMode)
