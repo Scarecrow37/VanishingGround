@@ -329,6 +329,7 @@
     <ClInclude Include="Scripts\QTE\UI\Input\QTEInputNodeUI.h" />
     <ClInclude Include="Scripts\QTE\UI\Input\QTEInputViewerUI.h" />
     <ClInclude Include="Scripts\QTE\UI\QTEUIManager.h" />
+    <ClInclude Include="Scripts\Test\DevTools\Debugging.h" />
     <ClInclude Include="Scripts\UI\Contents\TooltipDescriptionPanel.h" />
     <ClInclude Include="Scripts\UI\Contents\TooltipElement.h" />
     <ClInclude Include="Scripts\UI\Contents\TooltipType.h" />
@@ -709,6 +710,7 @@
     <ClCompile Include="Scripts\QTE\UI\Input\QTEInputNodeUI.cpp" />
     <ClCompile Include="Scripts\QTE\UI\Input\QTEInputViewerUI.cpp" />
     <ClCompile Include="Scripts\QTE\UI\QTEUIManager.cpp" />
+    <ClCompile Include="Scripts\Test\DevTools\Debugging.cpp" />
     <ClCompile Include="Scripts\UI\Contents\TooltipDescriptionPanel.cpp" />
     <ClCompile Include="Scripts\UI\Contents\TooltipElement.cpp" />
     <ClCompile Include="Scripts\Utility\AutoRotateComponent.cpp" />

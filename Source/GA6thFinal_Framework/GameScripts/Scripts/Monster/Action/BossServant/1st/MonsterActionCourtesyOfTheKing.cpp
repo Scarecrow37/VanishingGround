@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "MonsterActionCourtesyOfTheKing.h"
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
+#include "Particle/ParticleComponent.h"
 
 REGISTER_MONSTER_ACTION(Monster::Action::CourtesyOfTheKing)
 namespace Monster
@@ -26,6 +27,10 @@ namespace Monster
                 {
                     TokenInventory& tokenInventory = target->GetTokenInventory();
                     tokenInventory.AddTokenStackFromID(tokenParam.TokenID, tokenParam.Count);
+                    if (ParticleComponent* particle = target->GetParticleComponent())
+                    {
+                        particle->PlayEffect("buff");
+                    }
                 }
             }
         }

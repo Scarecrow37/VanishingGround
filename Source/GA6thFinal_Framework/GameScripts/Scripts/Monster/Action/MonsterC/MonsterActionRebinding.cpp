@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "MonsterActionRebinding.h"
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
+#include "Particle/ParticleComponent.h"
 
 REGISTER_MONSTER_ACTION(Monster::Action::Rebinding)
 namespace Monster
@@ -34,6 +35,10 @@ namespace Monster
                 TokenInventory& tokenInventory = owner->GetTokenInventory();
                 tokenInventory.AddTokenStackFromID(tokenParam1.TokenID, tokenParam1.Count);
                 tokenInventory.AddTokenStackFromID(tokenParam2.TokenID, tokenParam2.Count);
+                if (ParticleComponent* particle = owner->GetParticleComponent())
+                {
+                    particle->PlayEffect("buff");
+                }
             }
         }
     } // namespace Action

@@ -357,6 +357,7 @@ void CharacterBase::OnTurnEnd()
 {
     Base::OnTurnEnd();
     _tokenInventory.NotifyTurnEnd();
+    _tokenInventory.UpdateAvailableToken();
     if (_particleComponent)
     {
         _particleComponent->StopEffect("turn");

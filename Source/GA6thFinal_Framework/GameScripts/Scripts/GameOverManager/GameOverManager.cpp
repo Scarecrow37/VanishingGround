@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "GameOverManager.h"
 #include "UI/Elements/SpriteAnimation/SpriteAnimationElement.h"
+#include "UI/Animations/FadeImageElement/FadeImageElement.h"
 #include "UI/Panels/Overlay/OverlayPanel.h"
 #include "SceneTransition/SceneTransitionComponent.h"
 #include "Utility/SceneGuid.h"
@@ -30,7 +31,7 @@ void GameOverManager::Start()
             }
             if (child->gameObject->CompareTag("Vanished Background"))
             {
-                _vanishedBackground = child->gameObject->GetComponent<ImageElement>();
+                _vanishedBackground = child->gameObject->GetComponent<FadeImageElement>();
             }
         }
     }
@@ -40,24 +41,12 @@ void GameOverManager::Start()
     }
     if (_vanishedBackground)
     {
-        _vanishedBackground->Alpha                  = 0.0f;
         _vanishedBackground->gameObject->ActiveSelf = false;
     }
-    _backgroundFader.SetDuration(1.0f);
-    _backgroundFader.SetFadeMode(Fader::FADE_IN);
-    _backgroundFader.SetFadeInType(Mathf::EASE_OUT, Mathf::CUBIC);
 }
 
 void GameOverManager::Update() 
 {
-    if (_isBeginProcess)
-    {
-        const float factor = _backgroundFader.Fade();
-        if (_vanishedBackground)
-        {
-            _vanishedBackground->Alpha = factor;
-        }
-    }
 }
 
 void GameOverManager::ImGuiDrawPropertysEvent() 
@@ -76,17 +65,19 @@ void GameOverManager::ProcessGameOver()
         UmAudio.FadeOut(); // BGM 페이드 아웃 하면 좋을지도?
         UmAudio.Play("-451910");
 
-        _backgroundFader.Reset();
+        _isBeginProcess = true;
+
         if (_vanishedBackground)
         {
             _vanishedBackground->gameObject->ActiveSelf = true;
+            _vanishedBackground->Begin();
+            _vanishedBackground->FadeIn();
         }
         if (_vanishedAnimation)
         {
             _vanishedAnimation->gameObject->ActiveSelf = true;
             _vanishedAnimation->Setup();
             _vanishedAnimation->StartAnimation();
-            _isBeginProcess = true;
             PushInputLayer();
 
             const float duration = _vanishedAnimation->Duration;

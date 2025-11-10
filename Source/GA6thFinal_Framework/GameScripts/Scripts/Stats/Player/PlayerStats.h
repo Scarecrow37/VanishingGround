@@ -30,9 +30,13 @@ public:
     {
         if (this != &rhs)
         {
-            reflect_fields_struct& myFields  = *this->ReflectFields;
-            reflect_fields_struct& rhsFields = *this->ReflectFields;
-            myFields                         = rhsFields;
+            *ReflectFields          = *rhs.ReflectFields;
+            _hpModel                = rhs._hpModel.Get();
+            _currentHP              = rhs._currentHP;
+            _reduceHpModel          = rhs._reduceHpModel.Get();
+            _currentChainCount      = rhs._currentChainCount.Get();
+            _currentChainRoundCount = rhs._currentChainRoundCount;
+            _sturnResistanceModel   = rhs._sturnResistanceModel.Get();
         }
         return *this;
     }

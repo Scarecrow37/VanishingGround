@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "MonsterActionCower.h"
 #include "TurnSystem/TurnActor/Character/CharacterBase.h"
+#include "Particle/ParticleComponent.h"
 
 REGISTER_MONSTER_ACTION(Monster::Action::Cower)
 namespace Monster
@@ -31,15 +32,23 @@ namespace Monster
                 {
                     TokenInventory& tokenInventory = target->GetTokenInventory();
                     tokenInventory.AddTokenStackFromID(tokenParam.TokenID, tokenParam.Count);
+                    if (ParticleComponent* particle = target->GetParticleComponent())
+                    {
+                        particle->PlayEffect("buff");
+                    }
                 }
             }
             {   // 대상: Player
                 TokenParam tokenParam = GetTokenParam(2);
-                auto       weakTarget = GetTargetFromString("Self");
+                auto       weakTarget = GetTargetFromString("Player");
                 if (auto target = weakTarget.lock())
                 {
                     TokenInventory& tokenInventory = target->GetTokenInventory();
                     tokenInventory.AddTokenStackFromID(tokenParam.TokenID, tokenParam.Count);
+                    if (ParticleComponent* particle = target->GetParticleComponent())
+                    {
+                        particle->PlayEffect("debuff");
+                    }
                 }
             }
         }

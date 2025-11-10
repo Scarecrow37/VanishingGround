@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "MonsterActionEnjoymentOfLoyalty.h"
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
+#include "Particle/ParticleComponent.h"
 
 REGISTER_MONSTER_ACTION(Monster::Action::EnjoymentOfLoyalty)
 namespace Monster
@@ -20,9 +21,9 @@ namespace Monster
         */
         void EnjoymentOfLoyalty::Behavior() 
         {
-            if (auto* owner = GetTarget())
+            if (auto* target = GetTarget())
             {
-                TokenInventory& tokenInventory = owner->GetTokenInventory();
+                TokenInventory&  tokenInventory  = target->GetTokenInventory();
                 size_t tokenParamCount = GetTokenParamCount();
                 std::vector<int> availableTokenID;
 
@@ -34,11 +35,15 @@ namespace Monster
                     {
                         availableTokenID.push_back(tokenParam.TokenID);
                     }
-                }
-                if (false == availableTokenID.empty())
-                {
-                    size_t randomIndex = Random::Index(availableTokenID.size());
-                    tokenInventory.RemoveTokenStackFromID(availableTokenID[randomIndex]);
+                    if (false == availableTokenID.empty())
+                    {
+                        size_t randomIndex = Random::Index(availableTokenID.size());
+                        tokenInventory.RemoveTokenStackFromID(availableTokenID[randomIndex]);
+                        if (ParticleComponent* particle = target->GetParticleComponent())
+                        {
+                            particle->PlayEffect("buff");
+                        }
+                    }
                 }
             }
         }

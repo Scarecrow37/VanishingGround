@@ -219,7 +219,12 @@ void TurnMode::FinishCurrentTurn()
 {
     if (false == _turnList.empty())
     {
-        _turnList.pop_front();
+        const auto& turnList = _turnList;
+        const auto& [slot, actor] = turnList.front();
+        if (actor == _currTurnActor.Get())
+        {
+            _turnList.pop_front();
+        }  
     }
     _currTurnActor = nullptr;
     _currentTurnRevelationActiveFlag = false;

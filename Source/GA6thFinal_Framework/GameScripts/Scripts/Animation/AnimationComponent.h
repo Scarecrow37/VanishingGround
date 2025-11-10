@@ -26,6 +26,19 @@ class AnimationComponent : public Component
     using EventQueue = std::vector<std::function<void()>>;
 
 public:
+    REFLECT_PROPERTY()
+
+    SETTER(float, SpeedScale) { ReflectFields->AnimationSpeedScale = value; }
+    GETTER(float, SpeedScale) { return ReflectFields->AnimationSpeedScale; }
+    PROPERTY(SpeedScale)
+
+    GETTER_ONLY(const std::string&, MainAnimationName) { return _mainAnimationData._animationName; }
+    PROPERTY(MainAnimationName)
+        
+    GETTER_ONLY(float, MainAnimationDuration) { return _mainAnimationData._maxFrame; }
+    PROPERTY(MainAnimationDuration)
+
+public:
     void Added() override;
     void Update() override;
     void OnDestroy() override;

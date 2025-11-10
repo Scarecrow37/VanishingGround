@@ -71,7 +71,7 @@ void TurnListEmptyState::OnEnter()
             if (QTESystem* qteSystem = SingletonComponent<QTESystem>::GetInstance())
             {
                 auto& result = qteSystem->GetQTEOverallResult();
-                if (0 < result.MissCount)
+                if (0 < result.InvalidCount)
                 {
                     system->Show(805912); // 미스 튜토리얼
                 }

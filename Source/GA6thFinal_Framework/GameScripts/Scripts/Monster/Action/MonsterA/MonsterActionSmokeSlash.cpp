@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "MonsterActionSmokeSlash.h"
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
+#include "Particle/ParticleComponent.h"
 
 REGISTER_MONSTER_ACTION(Monster::Action::SmokeSlash)
 namespace Monster
@@ -39,6 +40,10 @@ namespace Monster
                 TokenParam      tokenParam     = GetTokenParam(1);
                 TokenInventory& tokenInventory = owner->GetTokenInventory();
                 tokenInventory.AddTokenStackFromID(tokenParam.TokenID, tokenParam.Count);
+                if (ParticleComponent* particle = owner->GetParticleComponent())
+                {
+                    particle->PlayEffect("buff");
+                }
             }
             ProcessBattle(damage.Param);
         }

@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "MonsterActionBloodRitual.h"
 #include "TurnSystem/TurnActor/Character/CharacterBase.h"
+#include "Particle/ParticleComponent.h"
 
 REGISTER_MONSTER_ACTION(Monster::Action::BloodRitual)
 namespace Monster
@@ -33,6 +34,10 @@ namespace Monster
                 TokenParam      tokenParam     = GetTokenParam(1);
                 TokenInventory& tokenInventory = target->GetTokenInventory();
                 tokenInventory.AddTokenStackFromID(tokenParam.TokenID, tokenParam.Count);
+                if (ParticleComponent* particle = target->GetParticleComponent())
+                {
+                    particle->PlayEffect("buff");
+                }
             }
         }
     } // namespace Action
