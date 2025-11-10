@@ -42,7 +42,7 @@ struct WeaponStats : public TurnActorStats
         case WeaponGrade::COMMON:
             return {1.f, 1.f, 1.f, 1.f}; // 흰색
         case WeaponGrade::RARE:
-            return {0.176f, 0.803f, 1.f, 1.f}; // 파랑
+            return {0.227f, 0.718f, 1.f, 1.f}; // 파랑
         case WeaponGrade::BIZARRE:
             return {1.f, 0.f, 1.f, 1.f}; // 보라
         default:
