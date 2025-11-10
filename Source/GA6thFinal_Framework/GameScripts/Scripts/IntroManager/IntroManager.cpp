@@ -360,6 +360,7 @@ void IntroManager::SkipStep()
         break;
     case Step::WAIT_PROMPT:
         _isLevelSelected = true;
+        UmAudio.Play("-901002");
         break;
     case Step::FADE_IN_PROMPT:
         _step = Step::END;
@@ -387,6 +388,7 @@ void IntroManager::SelectNormal()
             sharedNormalSelection->FadeIn();
         }
         _isSelectHard = false;
+        UmAudio.Play("-901000");
     }
 }
 
@@ -408,6 +410,7 @@ void IntroManager::SelectHard()
             sharedHardSelection->FadeIn();
         }
         _isSelectHard = true;
+        UmAudio.Play("-901000");
     }
 }
 
