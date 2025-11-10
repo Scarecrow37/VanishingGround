@@ -129,6 +129,7 @@ void GraphicsCore::SyncGlobalVariable()
     Global::commandController        = _commandController;
     Global::sceneTransitionCore      = _sceneTransitionCore;
     Global::renderPassDatas          = _renderPassDatas;
+    Global::dummyTextureHandle       = &_dummyTextureHandle;
 }
 
 void GraphicsCore::AddRenderScene(const std::string_view sceneName, const RenderTechniqueFlag flag) const
@@ -289,6 +290,7 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     Global::threadPool               = _threadPool;
     Global::sceneTransitionCore      = _sceneTransitionCore;
     Global::isRayTracing             = isRayTracing;
+    Global::dummyTextureHandle       = &_dummyTextureHandle;
 
     _device->SetUpDevice(hwnd, width, height, feature);
     _viewManager->Initialize();

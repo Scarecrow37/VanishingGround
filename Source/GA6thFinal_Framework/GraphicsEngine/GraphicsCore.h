@@ -99,4 +99,5 @@ private:
     class PipelineStateManager*       _pipelineStateManager;
     class ThreadPool*                 _threadPool;
     class SceneTransitionCore*        _sceneTransitionCore;
+    D3D12_GPU_DESCRIPTOR_HANDLE       _dummyTextureHandle;
 };

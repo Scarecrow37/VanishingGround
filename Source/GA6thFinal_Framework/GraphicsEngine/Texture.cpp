@@ -17,7 +17,7 @@ Texture::~Texture()
 
 bool Texture::IsValid() const
 {
-    return _handle.GPU.ptr != Global::dummyTextureHandle.ptr;
+    return _handle.GPU.ptr != (*Global::dummyTextureHandle).ptr;
 }
 
 void Texture::SetResource(ID3D12Resource* resource)
@@ -48,7 +48,7 @@ void Texture::CreateShaderResourceView()
 
 void Texture::LoadResource(const std::filesystem::path& filePath, const std::function<void()>& callback)
 {
-    _handle.GPU = Global::dummyTextureHandle;
+    _handle.GPU = (*Global::dummyTextureHandle);
 
     Global::threadPool->AddTask(ThreadPool::ThreadType::PARALLEL, [this, filePath, callback](ID3D12GraphicsCommandList*)
         {
