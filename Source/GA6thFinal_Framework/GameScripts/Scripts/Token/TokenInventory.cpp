@@ -513,6 +513,12 @@ void TokenInventory::RemoveAllToken()
 
 void TokenInventory::AddTokenStackFromID(int tokenID, int count /* = 1 */)
 {
+    // owner가 죽었으면 Add하지 않음
+    if (_owner.IsDead())
+    {
+        return;
+    }
+
     if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
     {
         turnMode->ApplyActions([&](TurnAction& action) 
