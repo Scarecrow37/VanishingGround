@@ -32,16 +32,12 @@ void QTESystem::Reset()
 
 void QTESystem::Awake()
 {
-    if (_singletonComponent.TrySingleTon() &&
-        _singletonObject.TrySingleTon(true))
+    if (_singletonObject.TrySingleTon(true) &&
+        _singletonComponent.TrySingleTon())
     {
         BindInputAction(ControllerButton::X, Action::PRESSED, this, this, &QTESystem::PressedButtonX);
         BindInputAction(ControllerButton::Y, Action::PRESSED, this, this, &QTESystem::PressedButtonY);
         BindInputAction(ControllerButton::B, Action::PRESSED, this, this, &QTESystem::PressedButtonB);
-    }
-    else
-    {
-        UmLogger.Log(LogLevel::LEVEL_ERROR, (const char*)u8"씬에 QTESystem이 2개 이상 존재하는지 확인해주세요.");
     }
 }
 
