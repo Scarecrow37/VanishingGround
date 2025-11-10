@@ -13,8 +13,8 @@ public:
     {
         inline static constexpr int RANDOMSPEED_MAX = 3;
         inline static constexpr int RANDOMSPEED_MIN = 0;
-        inline static constexpr int ROUNDSPEED_MAX = 99;
-        inline static constexpr int ROUNDSPEED_MIN = -99;
+        inline static constexpr int ROUNDSPEED_MAX  = 99;
+        inline static constexpr int ROUNDSPEED_MIN  = -99;
     };
     enum class STATE
     {
