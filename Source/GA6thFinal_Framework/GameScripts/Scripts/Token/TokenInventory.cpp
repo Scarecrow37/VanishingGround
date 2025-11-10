@@ -88,7 +88,7 @@ void TokenInventory::Initialize()
 void TokenInventory::Clear()
 {
     _validTokenTable.clear();
-    _vaildTokenVector.clear();
+    _validTokenVector.clear();
 }
 
 void TokenInventory::NotifyCombatStart()
@@ -480,7 +480,7 @@ std::vector<int> TokenInventory::GetTokensTooltips()
         if (std::unique_ptr<ExcelDataBase> dataBase = excelDataSystem->FindExcelDataBase(u8"툴팁"))
         {
             std::vector<int> ids;
-            for (auto& tokenID : _vaildTokenVector)
+            for (auto& tokenID : _validTokenVector)
             {
                const char* name = TokenSystem::TokenIDToName(tokenID);
                if (STR_NULL != name)
@@ -508,7 +508,7 @@ void TokenInventory::RemoveAllToken()
     {
         RemoveTokenFromID(id);
     }
-    _vaildTokenVector.clear();
+    _validTokenVector.clear();
 }
 
 void TokenInventory::AddTokenStackFromID(int tokenID, int count /* = 1 */)
@@ -722,7 +722,7 @@ int TokenInventory::GetTokenStackFromTag(const std::string& tag) const
 
 int TokenInventory::GetValidTokenCount() const
 {
-    return static_cast<int>(_vaildTokenVector.size());
+    return static_cast<int>(_validTokenVector.size());
 }
 
 int TokenInventory::GetValidTokenCount(const std::string& tag) const
@@ -760,7 +760,7 @@ int TokenInventory::GetValidTokenCountByTag() const
 
 bool TokenInventory::IsEmpty() const
 {
-    return _vaildTokenVector.empty();
+    return _validTokenVector.empty();
 }
 
 void TokenInventory::DrawImGuiDebugData() 
@@ -771,9 +771,9 @@ void TokenInventory::DrawImGuiDebugData()
         const auto& instances = tokenSystem->GetTokenInstances();
         ImGui::Text("ValidTokenStack");
         ImGui::BeginChild("##ValidTokenStack", ImVec2(0, 0), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY);
-        for (size_t i = 0; i < _vaildTokenVector.size(); ++i)
+        for (size_t i = 0; i < _validTokenVector.size(); ++i)
         {
-            TokenID     tokenID     = _vaildTokenVector[i];
+            TokenID     tokenID     = _validTokenVector[i];
             const auto& tokenName   = GetTokenNameFromID(tokenID);
             int         tokenCount  = GetTokenStackFromID(tokenID);
             std::string tokenInfo   = std::format("{} ({})", tokenName, tokenCount);
@@ -781,7 +781,7 @@ void TokenInventory::DrawImGuiDebugData()
             {
                 // 선택된 토큰에 대한 추가 작업이 필요하면 여기에 작성
             }
-            if (i < _vaildTokenVector.size() - 1)
+            if (i < _validTokenVector.size() - 1)
             {
                 ImGui::Separator();
             }
@@ -792,7 +792,7 @@ void TokenInventory::DrawImGuiDebugData()
         {
             if (ImGui::TreeNodeEx("Token Instances##token inventory"))
             {
-                ImGui::Text("Token Count: %zu", _vaildTokenVector.size());
+                ImGui::Text("Token Count: %zu", _validTokenVector.size());
                 ImGui::Text("Total Tokens: %zu", instances.size());
                 ImGui::BeginChild("TokenList", ImVec2(0, 200), true);
                 for (const auto& token : instances)
@@ -889,20 +889,20 @@ void TokenInventory::UpdateToken(TokenID tokenID)
         if (0 < count)
         {
             // 현재 유효한 토큰 리스트에 없다면 벡터에 추가
-            auto it = std::find(_vaildTokenVector.begin(), _vaildTokenVector.end(), tokenID);
-            if (it == _vaildTokenVector.end())
+            auto it = std::find(_validTokenVector.begin(), _validTokenVector.end(), tokenID);
+            if (it == _validTokenVector.end())
             {
-                _vaildTokenVector.push_back(tokenID);
+                _validTokenVector.push_back(tokenID);
                 _owner.OnTokenEnter(tokenID);
             }
         }
         else
         {
             // 현재 유효한 토큰 리스트에 있다면 벡터에서 제거
-            auto it = std::find(_vaildTokenVector.begin(), _vaildTokenVector.end(), tokenID);
-            if (it != _vaildTokenVector.end())
+            auto it = std::find(_validTokenVector.begin(), _validTokenVector.end(), tokenID);
+            if (it != _validTokenVector.end())
             {
-                _vaildTokenVector.erase(it);
+                _validTokenVector.erase(it);
                 _owner.OnTokenExit(tokenID);
             }
             _validTokenTable.erase(tokenID);
@@ -915,8 +915,8 @@ bool TokenInventory::CheckValidTokenFromID(TokenID tokenID)
     auto iter = _validTokenTable.find(tokenID);
     if (iter != _validTokenTable.end())
     {
-        auto it = std::find(_vaildTokenVector.begin(), _vaildTokenVector.end(), tokenID);
-        if (it != _vaildTokenVector.end())
+        auto it = std::find(_validTokenVector.begin(), _validTokenVector.end(), tokenID);
+        if (it != _validTokenVector.end())
         {
             return true;
         }
