@@ -62,7 +62,7 @@ void Player::AddCallback()
 {
     _callbacks.push_back(KeyCallbackUINavi::AddCallbackFocusIn("Player Navi", [this]() { FocusIn(); }));
     _callbacks.push_back(KeyCallbackUINavi::AddCallbackFocusOut("Player Navi", [this]() { FocusOut(); }));
-    _callbacks.push_back(KeyCallbackUINavi::AddCallbackShowTooltips("Player Navi", [this]() { ShowTooltip(); }));
+    _callbacks.push_back(KeyCallbackUINavi::AddCallbackShowTooltips("Player Navi", [this]() { ShowTooltip(); UmAudio.Play("-901006"); }));
     _callbacks.push_back(KeyCallbackUINavi::AddCallbackHideTooltips("Player Navi", [this]() { HideTooltip(); }));
 }
 

@@ -21,33 +21,22 @@ namespace Monster
         
         /*
         자신에게 T_Param(1)을 부여한다.
-        플레이어에게 T_Param(2)을 부여한다.
+        자신에게 T_Param(2)을 부여한다.
         */
         void Cower::Behavior()
         {
             {   // 대상: Self
-                TokenParam tokenParam = GetTokenParam(1);
+                TokenParam tokenParam1 = GetTokenParam(1);
+                TokenParam tokenParam2 = GetTokenParam(2);
                 auto       weakTarget = GetTargetFromString("Self");
                 if (auto target = weakTarget.lock())
                 {
                     TokenInventory& tokenInventory = target->GetTokenInventory();
-                    tokenInventory.AddTokenStackFromID(tokenParam.TokenID, tokenParam.Count);
+                    tokenInventory.AddTokenStackFromID(tokenParam1.TokenID, tokenParam1.Count);
+                    tokenInventory.AddTokenStackFromID(tokenParam2.TokenID, tokenParam2.Count);
                     if (ParticleComponent* particle = target->GetParticleComponent())
                     {
                         particle->PlayEffect("buff");
-                    }
-                }
-            }
-            {   // 대상: Player
-                TokenParam tokenParam = GetTokenParam(2);
-                auto       weakTarget = GetTargetFromString("Player");
-                if (auto target = weakTarget.lock())
-                {
-                    TokenInventory& tokenInventory = target->GetTokenInventory();
-                    tokenInventory.AddTokenStackFromID(tokenParam.TokenID, tokenParam.Count);
-                    if (ParticleComponent* particle = target->GetParticleComponent())
-                    {
-                        particle->PlayEffect("debuff");
                     }
                 }
             }

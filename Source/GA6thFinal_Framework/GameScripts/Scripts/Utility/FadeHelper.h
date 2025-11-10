@@ -23,6 +23,9 @@ public:
     inline bool IsFadeOutEnd() const { return 0.0001f >= _fadeFactor; }
 
 public:
+    /// <summary>페이드를 UnScaledDeltaTime을 쓸지 여부를 변경합니다.</summary>
+    inline void UseUnScaledDeltaTime(bool useUnScaledTime) { _useUnscaledTime = useUnScaledTime; }
+
     /// <summary>페이드 인이 끝났을 때 호출될 콜백 함수를 설정합니다. 생명관리를 하지 않으므로 사용 시 주의해야 합니다.</summary>
     /// <param name="callback">페이드 인 종료 시 실행할 콜백 함수입니다.</param>
     inline void SetOnFadeInEndCallback(const std::function<void()>& callback) { _onFadeInEndCallback = callback; }
@@ -100,10 +103,11 @@ private:
     float FadeOut();
 
 private:
-    float _duration   = 0.0f;
-    float _timer      = 0.0f;
-    float _fadeFactor = 0.0f;
-    Mode  _fadeMode   = FADE_NONE;
+    bool  _useUnscaledTime  = false;
+    float _duration         = 0.0f;
+    float _timer            = 0.0f;
+    float _fadeFactor       = 0.0f;
+    Mode  _fadeMode         = FADE_NONE;
 
     Mathf::EaseType     _fadeInEaseType  = Mathf::EASE_IN;
     Mathf::EaseFuncType _fadeInFuncType  = Mathf::SINE;

@@ -48,5 +48,5 @@ private:
 
     void ImGuiDrawPropertysEvent() override;
 
-    void OnEnemyTokenTakeDamage(int tokenID, int& damage) override;
+    void OnEnemyTokenTakeDamage(int tokenID, int tokenCount, int& damage) override;
 };

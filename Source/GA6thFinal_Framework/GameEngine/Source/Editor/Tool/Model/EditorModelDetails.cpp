@@ -364,7 +364,8 @@ void EditorModelDetails::OnFrameRender()
 
                     ImGui::EndTable();
                 }
-                ImGui::TreePop();*/
+                */
+                ImGui::TreePop();
             }
             ImGui::Separator();
 

@@ -345,7 +345,7 @@ void WeaponView::AddCallBack()
     auto focusOut = KeyCallbackUINavi::AddCallbackFocusOut("Weapon Panel", [this]() { FocusOut(); });
     _keyCallbackHandels.push_back(focusOut);
 
-    auto showTooltips = KeyCallbackUINavi::AddCallbackShowTooltips("Weapon Panel", [this]() { ShowTooltips(); });
+    auto showTooltips = KeyCallbackUINavi::AddCallbackShowTooltips("Weapon Panel", [this]() { ShowTooltips(); UmAudio.Play("-901006"); });
     _keyCallbackHandels.push_back(showTooltips);
 
     auto hideTooltips = KeyCallbackUINavi::AddCallbackHideTooltips("Weapon Panel", [this]() { HideTooltips(); });
