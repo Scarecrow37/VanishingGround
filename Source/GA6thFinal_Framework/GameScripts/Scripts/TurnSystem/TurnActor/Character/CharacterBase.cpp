@@ -91,6 +91,11 @@ CharacterBase::CharacterBase() :
 
 CharacterBase::~CharacterBase() = default;
 
+void CharacterBase::Added() 
+{
+    FindComponent();
+}
+
 void CharacterBase::Awake()
 {
     Base::Awake();
@@ -98,8 +103,6 @@ void CharacterBase::Awake()
     _skeletalMeshRenderer = nullptr;
     _animationComponent   = nullptr;
     _particleComponent    = nullptr;
-
-    FindComponent();
     InitializeAnimation();
 }
 
@@ -118,26 +121,6 @@ bool CharacterBase::FindComponent()
         _skeletalMeshRenderer = model.GetComponent<SkeletalMeshRenderer>();
         _animationComponent   = model.GetComponent<AnimationComponent>();
         _particleComponent    = model.GetComponent<ParticleComponent>();
-
-        if (nullptr == _skeletalMeshRenderer)
-        {
-            std::string msg = std::format("{}{}", model.ToString(), (const char*)u8"의 컴포넌트에 SkeletalMeshRenderer가 없습니다.");
-            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
-        }
-        
-        if (nullptr == _animationComponent)
-        {
-            std::string msg = std::format("{}{}", model.ToString(), (const char*)u8"의 컴포넌트에 AnimationComponent가 없습니다.");
-            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
-
-        }
-
-        if (nullptr == _particleComponent)
-        {
-            std::string msg = std::format("{}{}", model.ToString(), (const char*)u8"의 컴포넌트에 ParticleComponent가 없습니다.");
-            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
-        }
-
         valid = _skeletalMeshRenderer && _animationComponent && _particleComponent;
     }
     return valid;
