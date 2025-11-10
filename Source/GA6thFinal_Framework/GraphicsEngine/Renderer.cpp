@@ -34,7 +34,7 @@
 
 namespace Global
 {
-    D3D12_GPU_DESCRIPTOR_HANDLE dummyTextureHandle;
+    D3D12_GPU_DESCRIPTOR_HANDLE* dummyTextureHandle;
 }
 
 Renderer::Renderer() = default;
@@ -536,7 +536,7 @@ void Renderer::CreateDefaultTexture()
     std::shared_ptr<Texture> textureResource = std::make_shared<Texture>();
     textureResource->SetResource(texture.Get());
     textureResource->CreateShaderResourceView();
-    Global::dummyTextureHandle = textureResource->GetGPUHandle();
+    (*Global::dummyTextureHandle) = textureResource->GetGPUHandle();
 
     Global::resourceManager->AddResource("BlackTexture", textureResource);
     _defaultResource.push_back(textureResource);
