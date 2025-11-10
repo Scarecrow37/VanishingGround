@@ -64,6 +64,19 @@ void TurnListEmptyState::OnEnter()
         {
             system->Show(805903); // 연격 튜토리얼
         } 
+     
+        // 미스 튜토리얼
+        if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
+        {
+            if (QTESystem* qteSystem = SingletonComponent<QTESystem>::GetInstance())
+            {
+                auto& result = qteSystem->GetQTEOverallResult();
+                if (0 < result.MissCount)
+                {
+                    system->Show(805912); // 미스 튜토리얼
+                }
+            }
+        }
     }
     else
     {
@@ -76,19 +89,6 @@ void TurnListEmptyState::OnEnter()
         if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
         {
             system->Show(805904); // 계시 튜토리얼
-        }
-    }
-
-    // 미스 튜토리얼
-    if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
-    {
-        if (QTESystem* qteSystem = SingletonComponent<QTESystem>::GetInstance())
-        {
-            auto& result = qteSystem->GetQTEOverallResult();
-            if (0 < result.MissCount)
-            {
-                system->Show(805912); // 미스 튜토리얼
-            }
         }
     }
 
