@@ -349,7 +349,6 @@ void ItemDropSystem::RollArtifactsCurrent()
     }
 
     // 카테고리 유지하고 뽑기
-    size_t index = 0;
     _dropItemsModel.for_each([&](DropItemInfo& artifact) 
     {
         // 현재 종류
@@ -462,7 +461,6 @@ void ItemDropSystem::RollArtifactsCurrent()
         default:
             break;
         }
-        ++index;
     });  
 
     //보너스 적용
