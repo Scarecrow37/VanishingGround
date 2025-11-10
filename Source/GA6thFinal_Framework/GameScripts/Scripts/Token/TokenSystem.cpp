@@ -56,6 +56,30 @@ void TokenSystem::OnDestroy()
 
 void TokenSystem::ImGuiDrawPropertysEvent() 
 {
+    ImGui::PushID("Token Instance");
+    if (ImGui::TreeNodeEx("Sorted Token Instance##token system"))
+    {
+        ImGui::BeginChild("##token instances list", ImVec2(0, 300), ImGuiChildFlags_Border);
+        for (const auto& instance : _tokenInstances)
+        {
+            if (instance)
+            {
+                ImGuiHelper::StyleBuilder style;
+                ImVec4 color = ImColor(100, 255, 100);
+                style.PushStyleColor(ImGuiCol_Text, color);
+                const std::string label = std::format("{} : {}({})", 
+                    instance->GetTokenID(),
+                    instance->GetTokenName(),
+                    instance->GetTokenOrder()
+                );
+                ImGui::Selectable(label.c_str());
+            }
+        }
+        ImGui::EndChild();
+        ImGui::TreePop();
+    }
+    ImGui::PopID();
+
     if (ImGui::TreeNodeEx("Token Data##token system"))
     {
         ImGui::Text("Total Token Data Count: %zu", _tokenDataTable.size());

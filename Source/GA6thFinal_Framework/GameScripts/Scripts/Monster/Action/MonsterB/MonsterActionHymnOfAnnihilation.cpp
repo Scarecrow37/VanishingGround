@@ -15,17 +15,6 @@ namespace Monster
         HymnOfAnnihilation::~HymnOfAnnihilation() = default;
         void HymnOfAnnihilation::OnActionEnter() 
         {
-            if (AnimationComponent* animator = GetAnimationComponent())
-            {
-                auto weakOwner = GetWeakOwner();
-                animator->SetCurrentAnimationEndCallback([weakOwner, this]() {
-                    if (auto owner = weakOwner.lock())
-                    {
-                        this->SetActionEnd();
-                        owner->gameObject->SetActive(false);
-                    }
-                });
-            }
         }
         void HymnOfAnnihilation::OnActionUpdate() {}
         void HymnOfAnnihilation::OnActionExit() {}

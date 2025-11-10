@@ -18,7 +18,7 @@ void EnemyDeadState::OnEnter()
     std::string message = std::format("{} {}", enemy.gameObject->ToString(), (const char*)u8"사망.");
     UmLogger.Message(LogLevel::LEVEL_DEBUG, message);
 
-    float deactiveDelay = 3.0f;
+    float deactiveDelay = 2.0f;
 
     if (false == _dontChangeAnimation)
     {

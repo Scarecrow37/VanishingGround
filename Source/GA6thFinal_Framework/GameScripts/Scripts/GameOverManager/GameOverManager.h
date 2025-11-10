@@ -3,7 +3,7 @@
 #include "Utility/FadeHelper.h"
 
 class OverlayPanel;
-class ImageElement;
+class FadeImageElement;
 class SpriteAnimationElement;
 
 class GameOverManager : public Component, public InputReceiver
@@ -33,8 +33,6 @@ private:
 
     bool                        _isBeginProcess       = false;
     OverlayPanel*               _vanishedOverlay      = nullptr;
-    ImageElement*               _vanishedBackground   = nullptr;
+    FadeImageElement*           _vanishedBackground   = nullptr;
     SpriteAnimationElement*     _vanishedAnimation    = nullptr;
-
-    Fader _backgroundFader;
 };

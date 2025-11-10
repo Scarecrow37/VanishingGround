@@ -2,6 +2,7 @@
 #include "MonsterActionAmbush.h"
 #include "TurnSystem/TurnMode/TurnMode.h"
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
+#include "Particle/ParticleComponent.h"
 
 REGISTER_MONSTER_ACTION(Monster::Action::Ambush)
 namespace Monster
@@ -42,6 +43,10 @@ namespace Monster
                     TokenParam      tokenParam     = GetTokenParam(1);
                     TokenInventory& tokenInventory = player->GetTokenInventory();
                     tokenInventory.AddTokenStackFromID(tokenParam.TokenID, tokenParam.Count);
+                    if (ParticleComponent* particle = player->GetParticleComponent())
+                    {
+                        particle->PlayEffect("debuff");
+                    }
                 }
             }
             ProcessBattle(damage.Param);
