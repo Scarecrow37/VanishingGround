@@ -598,15 +598,17 @@ void PlayerPlayTurnState::SetWeaponModelTransform(WeaponModelData& modelData, QT
                 {
                     if (auto gameObject = modelData.GameObject.lock())
                     {
-                        const Vector3 offsetPosition = weaponModelManager->GetWeaponOffsetPosition(modelData.Type);
+                        const Vector3    enemyPosition  = spawnPoint->transform->GetWorldPosition();
+                        const Quaternion enemyRotation  = spawnPoint->transform->Rotation;
+                        const Vector3    enemyScale     = spawnPoint->transform->Scale;
+
+                        const Vector3 offsetPosition = weaponModelManager->GetWeaponOffsetPosition(modelData.Type) * enemyScale;
                         const Vector3 offsetRotation = weaponModelManager->GetWeaponOffsetRotation(modelData.Type);
                         const float   offsetDistance = weaponModelManager->GetWeaponOffsetDistance(modelData.Type);
 
-                        const Vector3 enemyPosition = spawnPoint->transform->GetWorldPosition();
                         const Vector3 enemyForward  = spawnPoint->transform->Forward * offsetDistance;
                         gameObject->transform->SetWorldPosition(enemyPosition + enemyForward + offsetPosition);
 
-                        const Quaternion enemyRotation = spawnPoint->transform->Rotation;
                         gameObject->transform->Rotation = enemyRotation;
                         gameObject->transform->EulerAngle += offsetRotation;
 
@@ -619,7 +621,7 @@ void PlayerPlayTurnState::SetWeaponModelTransform(WeaponModelData& modelData, QT
                         }
                         gameObject->transform->Rotation *= addRotation;
 
-                        gameObject->transform->Scale = spawnPoint->transform->Scale;
+                        gameObject->transform->Scale = enemyScale;
                     }
                 }
             }
