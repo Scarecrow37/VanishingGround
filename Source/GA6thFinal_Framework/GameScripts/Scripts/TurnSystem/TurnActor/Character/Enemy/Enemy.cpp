@@ -634,7 +634,7 @@ void Enemy::AddCallback(const std::string& key)
 {
     _callbacks.push_back(KeyCallbackUINavi::AddCallbackFocusIn(key, [this]() { FocusIn(); }));
     _callbacks.push_back(KeyCallbackUINavi::AddCallbackFocusOut(key, [this]() { FocusOut(); }));
-    _callbacks.push_back(KeyCallbackUINavi::AddCallbackShowTooltips(key, [this]() { ShowTooltip(); }));
+    _callbacks.push_back(KeyCallbackUINavi::AddCallbackShowTooltips(key, [this]() { ShowTooltip(); UmAudio.Play("-901006"); }));
     _callbacks.push_back(KeyCallbackUINavi::AddCallbackHideTooltips(key, [this]() { HideTooltip(); }));
 }
 
