@@ -71,7 +71,6 @@ private:
     void SetupData();
     void SetupCallback();
     void HoldA(const Input::Controller& controller);
-    void ReleaseA(const Input::Controller& controller);
     void ShowNextTutorialOrHide();
 
     void Lock();

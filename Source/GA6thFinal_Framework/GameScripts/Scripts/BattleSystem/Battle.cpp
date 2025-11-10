@@ -21,11 +21,13 @@ void Battle::operator()(Player& attacker, EnemyTargetFlag targetFlag, QTE::NoteR
     TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
     if (turnMode)
     {
-        // 진입 전 초기화
+        // 배틀에 발동된 계시 목록 초기화
         if (RevelationSystem* system = SingletonComponent<RevelationSystem>::GetInstance())
         {
             system->ClearBattleActiveRevelations();
         }
+        // 계시 발동 체크 플래그 초기화
+        turnMode->RevelationActiveFlag = false;
 
         //연격은 최우선적으로 계산
         currentChainDamageSet.clear();
@@ -51,7 +53,6 @@ void Battle::operator()(Player& attacker, EnemyTargetFlag targetFlag, QTE::NoteR
             {
                 system->ClearBattleActiveRevelations();
             }
-
             // 계시 발동 체크 플래그 초기화
             turnMode->RevelationActiveFlag = false;
         }

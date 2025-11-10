@@ -7,6 +7,7 @@
 #include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
 #include "ItemDropSystem/UINavi/ArtifactButtonNavi.h"
 #include "AccessorySystem/AccessorySystem.h"
+#include "RevelationSystem/RevelationSystem.h"
 
 UMREAL_COMPONENT(ArtifactUIManager)
 

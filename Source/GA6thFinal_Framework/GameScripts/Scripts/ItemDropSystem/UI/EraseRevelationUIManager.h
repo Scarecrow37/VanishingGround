@@ -7,6 +7,7 @@ class TextElement;
 class ImageElement;
 class EraseRevelationNavi;
 class InputOkCancelComponent;
+class ItemInfoUIManager;
 class EraseRevelationUIManager : public Component, public InputReceiver
 {
     USING_PROPERTY(EraseRevelationUIManager)
@@ -47,15 +48,7 @@ private:
     std::vector<EraseRevelationNavi*> _focusNaviElements;
     std::vector<ImageElement*>        _revelationImages;
 
-    struct RevelationInfoUI
-    {
-        TextElement*      Name        = nullptr;
-        ImageElement*     Icon        = nullptr;
-        DescriptionPanel* Description = nullptr;
-        DescriptionPanel* Flavor      = nullptr;
-        DescriptionPanel* Keyword     = nullptr;
-    };
-    RevelationInfoUI _revelation;
+    ItemInfoUIManager* _itemInfoManager = nullptr;
 
 private:
     void FindElements();

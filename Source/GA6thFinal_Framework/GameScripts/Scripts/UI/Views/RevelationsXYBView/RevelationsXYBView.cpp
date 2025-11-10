@@ -6,6 +6,7 @@
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
 #include "Stats/CharacterStats.h"
 #include "TurnSystem/TurnAction/Condition/ChainCondition/ChainCondition.h"
+#include "TutorialSystem/TutorialSystem.h"
 
 UMREAL_COMPONENT(RevelationsXYBView)
 

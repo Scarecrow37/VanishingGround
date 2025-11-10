@@ -81,9 +81,10 @@ void SelectPopup::SetSelectMagicBook(const File::Guid& imgaeGuid, const std::str
                             if (auto component = playerSystem->GetPlayerStats())
                             {
                                 auto& stats = component->GetStats();
-                                stats.MaxHP = 70;
+                                stats.MaxHP = 75;
                                 stats.StunResistance = 3;
                             }
+                            playerSystem->SetStatsGameStart();
                         }
 
                         if (WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance())
@@ -146,6 +147,7 @@ void SelectPopup::SetSelectMagicBook(const File::Guid& imgaeGuid, const std::str
                                 stats.MaxHP          = 65;
                                 stats.StunResistance = 3;
                             }
+                            playerSystem->SetStatsGameStart();
                         }
 
                         if (WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance())
@@ -208,6 +210,7 @@ void SelectPopup::SetSelectMagicBook(const File::Guid& imgaeGuid, const std::str
                                 stats.MaxHP          = 80;
                                 stats.StunResistance = 4;
                             }
+                            playerSystem->SetStatsGameStart();
                         }
 
                         if (WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance())

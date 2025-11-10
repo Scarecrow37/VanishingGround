@@ -521,6 +521,8 @@ public:
         void RequestSDFFontResource(const Component* component, const File::Path& path, const std::function<void()>& func);
 
         bool CheckAllResourceLoad();
+
+        void ClearResource();
     private:
         template <typename T>
         struct RenderResource

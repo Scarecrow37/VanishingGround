@@ -62,6 +62,14 @@ void QTESystem::OnDestroy()
     ClearTrack();
 }
 
+void QTESystem::OnLoadScene(Scene& loadScene, LoadSceneMode mode) 
+{
+    if (mode == LoadSceneMode::SINGLE)
+    {
+        PopInputLayer();
+    }
+}
+
 void QTESystem::SerializedReflectEvent()
 {
     ReflectFields->WeaponQTETrackGuids.clear();

@@ -215,14 +215,13 @@ void CombatStartPhase::OnExit()
     }
 
     if (ItemDropSystem* itemDropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
-    {
-        // 소멸 계시 추가시 튜토리얼
+    {        
         int stageClearCount = itemDropSystem->StageClearCount;
         if (TutorialSystem* tutorial = SingletonComponent<TutorialSystem>::GetInstance())
         {
             if (0 < stageClearCount)
             {
-                tutorial->Show(805908);
+                tutorial->Show(805908); // 소멸 계시 추가시 튜토리얼
             }
         }      
     }

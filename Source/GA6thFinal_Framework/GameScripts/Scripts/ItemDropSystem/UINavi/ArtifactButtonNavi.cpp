@@ -10,6 +10,7 @@
 #include "AccessorySystem/AccessorySystem.h"
 #include "ItemDropSystem/UI/EraseRevelationUIManager.h"
 #include "Input/InputOkCancelComponent/InputOkCancelComponent.h"
+#include "ItemDropSystem/ItemDropSystem.h"
 
 UMREAL_COMPONENT(ArtifactButtonNavi)
 
@@ -148,6 +149,15 @@ void ArtifactButtonNavi::Submit()
                                 if (element)
                                 {
                                     accessoryManager->EquipAccessory(*element);
+
+                                    // 장신구 등장 확률 보정에 대한 값 초기화
+                                    if (ItemDropSystem* itemDrop = SingletonComponent<ItemDropSystem>::GetInstance())
+                                    {
+                                        if (AccessoryGrade::COMMON != element->Grade)
+                                        {
+                                            itemDrop->ResetItemDropRateBonus(ItemDropBonusType::ACCESSORY);
+                                        }
+                                    }                                  
                                 }
                                 manager->ObtainFocusNavi(_buttonIndex);
                             }
@@ -174,6 +184,15 @@ void ArtifactButtonNavi::Submit()
                                 if (element)
                                 {
                                     revelationManager->PushBackRevelation(*element);
+
+                                    // 계시 등장 확률 보정에 대한 값 초기화
+                                    if (ItemDropSystem* itemDrop = SingletonComponent<ItemDropSystem>::GetInstance())
+                                    {
+                                        if (RevelationGrade::COMMON != element->Grade)
+                                        {
+                                            itemDrop->ResetItemDropRateBonus(ItemDropBonusType::REVELATION);
+                                        }
+                                    }    
                                 }
                                 manager->ObtainFocusNavi(_buttonIndex);
                             }

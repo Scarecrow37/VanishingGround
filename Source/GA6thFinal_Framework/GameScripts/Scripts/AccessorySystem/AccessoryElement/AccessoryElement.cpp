@@ -82,9 +82,20 @@ void AccessoryElement::DeepCopyAction(const std::vector<std::unique_ptr<TurnActi
 
 DropItemInfo AccessoryElement::GetItemInfo() const
 {
+    ImU32 imColor = GetGradeColor();
+    auto  ToColor = [](ImU32 col) 
+    {
+        float r = (float)((col >> IM_COL32_R_SHIFT) & 0xFF) / 255.0f;
+        float g = (float)((col >> IM_COL32_G_SHIFT) & 0xFF) / 255.0f;
+        float b = (float)((col >> IM_COL32_B_SHIFT) & 0xFF) / 255.0f;
+        float a = (float)((col >> IM_COL32_A_SHIFT) & 0xFF) / 255.0f;
+        return SimpleMath::Color(r, g, b, a);
+    };
+
     DropItemInfo info;
-    info.Category = ArtifactDropType::ACCESSORY;
-    info.ID       = ReflectFields->ID;
-    info.Name     = ReflectFields->AccessoryName;
+    info.Category  = ArtifactDropType::ACCESSORY;
+    info.ID        = ReflectFields->ID;
+    info.Name      = ReflectFields->AccessoryName;
+    info.NameColor = ToColor(imColor);
     return info;
 }

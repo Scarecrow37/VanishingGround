@@ -88,7 +88,7 @@ protected:
     void DeserializedReflectEvent() override;
 
 public:
-    ImU32 GetGradeColor() 
+    ImU32 GetGradeColor() const
     { 
         RevelationGrade garde = ReflectFields->Grade;
         switch (garde)

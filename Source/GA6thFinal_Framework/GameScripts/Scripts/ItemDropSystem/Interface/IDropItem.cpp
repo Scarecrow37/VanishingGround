@@ -143,6 +143,23 @@ int DropItemInfo::GetArtifactIconID(DropItemInfo itemInfo)
         return 0;
     };
 
+    auto GetEraseRevelationAssetID = []() 
+    {
+        if (RevelationSystem* system = SingletonComponent<RevelationSystem>::GetInstance())
+        {
+            size_t playerCount = system->GetPlayerElementList().size();
+            if (playerCount <= 3)
+            {
+                return DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::ERASE_REVELATION, false);
+            }
+            else
+            {
+                return DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::ERASE_REVELATION, true);
+            }           
+        }
+        return 0;
+    };
+
     switch (itemInfo.Category)
     {
     case ArtifactDropType::DAGGER:
@@ -156,7 +173,7 @@ int DropItemInfo::GetArtifactIconID(DropItemInfo itemInfo)
     case ArtifactDropType::REVELATION:
         return GetRevelationDefaultIcon(itemInfo);
     case ArtifactDropType::ERASE_REVELATION:
-        return DropItemInfo::GetArtifactCategoryAssetID(itemInfo.Category, true);
+        return GetEraseRevelationAssetID();
     default:
         return 0;
     }
@@ -191,6 +208,18 @@ std::vector<int> DropItemInfo::GetArtifactTooltipIDs(DropItemInfo itemInfo)
 
 std::string DropItemInfo::GetArtifactDescription(DropItemInfo itemInfo)
 {
+    using namespace u8_literals;
+    if (itemInfo.Category == ArtifactDropType::ERASE_REVELATION)
+    {
+        return u8R"(
+        <Description>
+        <Text color="#d7d7d7"> 보유한 계시 중 한 개를 제거합니다.</Text>
+        <Break/>
+        <Text color="#d7d7d7"> 보유 계시가 3개일 경우 제거할 수 없습니다.</Text>
+        </Description>
+        )"_c_str;
+    }
+
     if (ExcelDataSystem* excelDataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
     {
         std::u8string_view dbName = GetDataBaseName(itemInfo.Category);

@@ -58,7 +58,7 @@ public:
     /// <param name="info :">출력할 아이템 정보 구조체</param>
     void SetItemInfoUI(const DropItemInfo& info);
 
-    void SetItemName(const std::string& name);
+    void SetItemName(const DropItemInfo& info);
 
     void SetItemIcon(const DropItemInfo& info);
 
@@ -81,7 +81,7 @@ protected:
     REFLECT_FIELDS_END(ItemInfoUIManager)
 
 protected:
-    void Awake() override;
+    void Added() override;
     void FindComponents();
 
 private:

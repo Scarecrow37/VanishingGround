@@ -13,7 +13,7 @@
 #include "BattleSystem/Battle.h"
 #include "Stats/Enemy/EnemyStatsComponent.h"
 #include "Stats/Enemy/EnemyStats.h"
-
+#include "ExcelDataSystem/ExcelDataSystem.h"
 
 namespace Monster
 {
@@ -47,6 +47,30 @@ namespace Monster
         void Base::ProcessAnimationEvent(const Timeline::EventContext* context) 
         {
             OnNotifiedAnimationEvent(context);
+        }
+        std::vector<int> Base::GetActionTooltipIDs() const
+        {
+            if (ExcelDataSystem* excelSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
+            {
+                if (auto dataBase = excelSystem->FindExcelDataBase(u8"스킬 기본 정의"))
+                {
+                    int skillID = GetActionID();
+                    std::string skillIDStr = std::to_string(skillID);
+                    size_t rowIndex = dataBase->FindRowIndex((const char8_t*)skillIDStr.c_str(), u8"ID");
+                    if (rowIndex != dataBase->FIND_INDEX_FAIL)
+                    {                      
+                        std::string_view data = dataBase->FindData(rowIndex, u8"ToolTip ID");
+                        if (data != dataBase->FIND_STR_FAIL)
+                        {
+                            std::vector<int> id;
+                            int tooltipID = std::stoi(data.data());
+                            id.push_back(tooltipID);
+                            return id;
+                        }
+                    }
+                }               
+            }       
+            return std::vector<int>();
         }
         ActionParam Base::GetActionParam(size_t index) const
         {

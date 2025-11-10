@@ -114,8 +114,7 @@ void ExcelDataSystem::ImGuiDrawExcelParserEdit()
             }
             ++currRowIndex;
         });
-        _excelParser.ShowParser = false;
-        _drawDataBaseView       = true;
+        _drawDataBaseView = true;
     }
 #endif 
 }

@@ -55,11 +55,16 @@ void ReturnToMapNavi::Submit()
         auto transitionComponent = transitionManager->GetComponent<SceneTransitionComponent>();
         if (transitionComponent)
         {
-            transitionComponent->SceneTransitionFade("in", "out", [path]() { UmSceneManager.LoadScene(path.string()); });
+            transitionComponent->SceneTransitionFade("in", "out", [path]() 
+            {
+                UmSceneManager.LoadScene(path.string()); 
+                UmSceneManager.ResourceManager.ClearResource();
+            });
         }
         else
         {
             UmSceneManager.LoadScene(path.string());
+            UmSceneManager.ResourceManager.ClearResource();
         }
     }
 }
