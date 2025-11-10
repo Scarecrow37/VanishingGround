@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "MonsterActionSmashStrike.h"
 #include "TurnSystem/TurnActor/Character/CharacterBase.h"
+#include "Particle/ParticleComponent.h"
 
 REGISTER_MONSTER_ACTION(Monster::Action::SmashStrike)
 namespace Monster

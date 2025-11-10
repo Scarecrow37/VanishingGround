@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 
-class EnableButton : public UISFXNavigationComponent,public InputReceiver
+class EnableButton : public UISFXNavigationComponent, public InputReceiver
 {
     USING_PROPERTY(EnableButton)
 

@@ -279,7 +279,7 @@ void EnableButton::ChangeOptionDpad(const Input::Controller& controller)
     {
         _isOptionOn = !_isOptionOn;
         _isOptionDirty = true;
-        UmAudio.Play("-40000");
+        UmAudio.Play("-901000");
     }
 }
 
@@ -292,7 +292,7 @@ void EnableButton::ChangeOptionStick(const Input::Controller& controller)
         {
             _isOptionOn = !_isOptionOn;
             _isOptionDirty = true;
-            UmAudio.Play("-40000");
+            UmAudio.Play("-901000");
         }
     }
 }

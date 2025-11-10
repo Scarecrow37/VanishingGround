@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "MonsterActionCourtesyOfTheKing.h"
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
+#include "Particle/ParticleComponent.h"
 
 REGISTER_MONSTER_ACTION(Monster::Action::CourtesyOfTheKing)
 namespace Monster
