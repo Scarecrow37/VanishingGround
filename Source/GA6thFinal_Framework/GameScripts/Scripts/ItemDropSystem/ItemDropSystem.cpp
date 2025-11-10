@@ -550,7 +550,9 @@ void ItemDropSystem::PlayItemDropUISequence()
            
             if (BGMManager* bgmManager = SingletonComponent<BGMManager>::GetInstance())
             {
-                bgmManager->PlayBGM("-460000", true);
+                UmTime.Invoke(bgmManager, 0.1f, [bgmManager]() {
+                    bgmManager->PlayBGM("-460000", true);
+                });
             }
 
             // UI 갱신

@@ -41,7 +41,14 @@ float Fader::Fade()
 
 float Fader::FadeIn()
 {
-    _timer += UmTime.DeltaTime();
+    if (_useUnscaledTime)
+    {
+        _timer += UmTime.UnscaledDeltaTime();
+    }
+    else
+    {
+        _timer += UmTime.DeltaTime();
+    }
     _timer = std::min(_timer, _duration);
 
     float factor = std::min(_timer / _duration, 1.0f);
