@@ -62,34 +62,31 @@ void TurnListEmptyState::OnEnter()
         UpdateCharacterDead();
         if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
         {
-            system->Show(805903); // 연격 튜토리얼
-        } 
-     
-        // 미스 튜토리얼
-        if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
-        {
-            if (QTESystem* qteSystem = SingletonComponent<QTESystem>::GetInstance())
+            bool isShow = false;
+            isShow = system->Show(805903); // 연격 튜토리얼
+            if (isShow == false)
             {
-                auto& result = qteSystem->GetQTEOverallResult();
-                if (0 < result.InvalidCount)
+                if (_turnMode->IsCurrentTurnActiveRevelation)
                 {
-                    system->Show(805912); // 미스 튜토리얼
+                    isShow = system->Show(805904); // 계시 발동시 튜토리얼
+                }           
+            }
+            if (isShow == false)
+            {
+                if (QTESystem* qteSystem = SingletonComponent<QTESystem>::GetInstance())
+                {
+                    auto& result = qteSystem->GetQTEOverallResult();
+                    if (0 < result.InvalidCount)
+                    {
+                        system->Show(805912); // 미스 튜토리얼
+                    }
                 }
             }
-        }
+        } 
     }
     else
     {
         UpdateCharacterDead();
-    }
-
-    // 계시 발동시 튜토리얼
-    if (_turnMode->IsCurrentTurnActiveRevelation)
-    {
-        if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
-        {
-            system->Show(805904); // 계시 튜토리얼
-        }
     }
 
     _turnMode->FinishCurrentTurn();

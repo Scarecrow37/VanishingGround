@@ -54,6 +54,7 @@ protected:
     void Awake() override;
     void Start() override;
     void OnDestroy() override;
+    void OnApplicationQuit() override;
 
     void ImGuiDrawPropertysEvent() override;
 

@@ -80,11 +80,6 @@ WeaponElement WeaponSystem::EquipWeapon(int slot, const WeaponElement& weapon)
 
 void WeaponSystem::SetCurrentWeaponSlot(int slot)
 {
-    if (slot == _currentWeaponSlot)
-    {
-        return;
-    }
-
     if (slot < 0 || slot >= _equipWeapons.size())
     {
         UmLogger.Log(LogLevel::LEVEL_DEBUG, "out of index");
