@@ -7,8 +7,5 @@ namespace TokenObject
     class ProphecyDoom : public Token
     {
         TOKEN_DATA(205044)
-    private:
-        void OnTurnEnd(CharacterBase* owner) override;
-
     };
 } // namespace TokenObject
