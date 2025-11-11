@@ -350,21 +350,6 @@ namespace Audio
                               "Failed to create source voice.");
             }
 
-            // XAUDIO2_BUFFER 설정
-            XAUDIO2_BUFFER buffer{};
-            buffer.Flags      = NULL;
-            buffer.AudioBytes = sound._bytes;
-            buffer.pAudioData = sound._buffer;
-            buffer.PlayBegin  = 0;
-            buffer.PlayLength = 0; // 0이면 전체 재생
-            buffer.LoopBegin  = 0;
-            buffer.LoopLength = 0; // 0이면 전체 루프
-            buffer.LoopCount  = isLoop ? XAUDIO2_LOOP_INFINITE : XAUDIO2_NO_LOOP_REGION;
-            buffer.pContext   = nullptr;
-
-            // Submit 후 시작
-            throwIfFailed(unusedSourceVoice->SubmitSourceBuffer(&buffer), "Failed to submit source buffer.");
-
             // Group 설정
             if (groups.empty() == false)
             {
@@ -413,6 +398,20 @@ namespace Audio
                 throwIfFailed(unusedSourceVoice->SetOutputVoices(&voiceSends), "Failed to set output voices.");
             }
 
+            // XAUDIO2_BUFFER 설정
+            XAUDIO2_BUFFER buffer{};
+            buffer.Flags      = NULL;
+            buffer.AudioBytes = sound._bytes;
+            buffer.pAudioData = sound._buffer;
+            buffer.PlayBegin  = 0;
+            buffer.PlayLength = 0; // 0이면 전체 재생
+            buffer.LoopBegin  = 0;
+            buffer.LoopLength = 0; // 0이면 전체 루프
+            buffer.LoopCount  = isLoop ? XAUDIO2_LOOP_INFINITE : XAUDIO2_NO_LOOP_REGION;
+            buffer.pContext   = nullptr;
+
+            // Submit 후 시작
+            throwIfFailed(unusedSourceVoice->SubmitSourceBuffer(&buffer), "Failed to submit source buffer.");
             throwIfFailed(unusedSourceVoice->Start(0), "Failed to start source voice.");
         }
         catch (...)
@@ -751,7 +750,7 @@ namespace Audio
         constexpr IncreaseGeneration increaseGeneration;
 
         auto& [generation, callback, voice] = _voicePools.at(handle._hash).at(handle._index);
-        throwIfFailed(voice->FlushSourceBuffers(), "Failed to flush source buffers.");
+        //throwIfFailed(voice->FlushSourceBuffers(), "Failed to flush source buffers.");
         callback.SetHandle(AudioHandle());
         increaseGeneration(generation);
     }
