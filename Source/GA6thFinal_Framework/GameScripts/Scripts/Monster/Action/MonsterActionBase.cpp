@@ -134,7 +134,7 @@ namespace Monster
                         animator->BeginBuildOverrideAnimation();
                         {
                             animator->ClearOverrideAnimations();
-                            animator->SetNextAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE | ANIMATION_FLAG_USE_BLEND);
+                            animator->SetNextAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
                             result = animator->PushBackOverrideAnimation(animKey);
                             if (result)
                             {

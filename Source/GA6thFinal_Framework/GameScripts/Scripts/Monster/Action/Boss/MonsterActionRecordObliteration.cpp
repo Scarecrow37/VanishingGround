@@ -7,7 +7,7 @@ namespace Monster
 {
     namespace Action
     {
-        RecordObliteration::RecordObliteration() : Base("Attack1") {}
+        RecordObliteration::RecordObliteration() : Base("Attack2") {}
         RecordObliteration::~RecordObliteration() = default;
         void RecordObliteration::OnActionEnter() {}
         void RecordObliteration::OnActionUpdate() {}
