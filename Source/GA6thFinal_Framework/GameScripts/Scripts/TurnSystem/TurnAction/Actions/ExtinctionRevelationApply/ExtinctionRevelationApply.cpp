@@ -44,8 +44,12 @@ void ExtinctionRevelationApply::OnRandomExtinctionPushPlayer(size_t& count)
 {
     if (EvaluateConditions())
     {
-        if (ReflectFields->PlusCount <= count)
-            count += ReflectFields->PlusCount;
+        int extinctionCount = static_cast<int>(count);
+        if (ReflectFields->PlusCount <= extinctionCount)
+        {
+            extinctionCount += ReflectFields->PlusCount;
+            count = static_cast<size_t>(extinctionCount);
+        }          
     }
 }
 
