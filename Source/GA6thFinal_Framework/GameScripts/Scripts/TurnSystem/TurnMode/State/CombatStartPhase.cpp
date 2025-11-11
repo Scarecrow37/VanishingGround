@@ -234,8 +234,8 @@ void CombatStartPhase::OnUpdate()
                     {
                         if (Stage* stage = manager->GetCurrentSelectedStage())
                         {
-                            int battleCount = stage->BattleCount;
                             int level = stage->MainLevel;
+                            int battleCount = stage->BattleCount;
                             if (level == 6) 
                             {
                                 battleCount = 3; //보스전은 바로 촛불 3개
