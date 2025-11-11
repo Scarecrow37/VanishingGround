@@ -32,9 +32,11 @@ void EndingDialogManager::Reset()
     _totalDialogCount   = 0;
     _isDialogFading     = false;
     _skipRequested      = false;
+}
 
+void EndingDialogManager::Awake()
+{
     BindInputAction(ControllerButton::A, Action::PRESSED, this, &EndingDialogManager::SkipCurrentDialog);
-
     auto EndingDialog = GameObject::FindWithTag("EndingDialogPannel").lock();
     if (EndingDialog.get())
     {
@@ -52,10 +54,7 @@ void EndingDialogManager::Reset()
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, "EndingDialogPannel not found!");
     }
-}
 
-void EndingDialogManager::Awake()
-{
     StartDialogSequence();
 }
 
