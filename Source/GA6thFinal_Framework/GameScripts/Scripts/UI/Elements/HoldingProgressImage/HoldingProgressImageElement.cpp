@@ -27,6 +27,20 @@ void HoldingProgressImageElement::SetElapsedTime(const float t)
     _elapsedTime = t;
 }
 
+void HoldingProgressImageElement::End()
+{
+    if (false == _isCompleted)
+    {
+        _elapsedTime = HoldDuration;
+        _isCompleted = true;
+        ResetType();
+        if (_progressCompleteCallback)
+        {
+            _progressCompleteCallback();
+        }
+    }
+}
+
 void HoldingProgressImageElement::Reset()
 {
     ImageElement::Reset();
