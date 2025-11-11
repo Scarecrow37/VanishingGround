@@ -57,7 +57,7 @@ Audio::AudioHandle Audio::Manager::Play(const std::string& key, const Group grou
         try
         {
             const auto& sound       = _sources.at(key);
-            auto& groupHandle = _groups.at(group);
+            auto&       groupHandle = _groups.at(group);
 
             return _system.Play(sound, std::span(&groupHandle, 1), isLoop);
         }
