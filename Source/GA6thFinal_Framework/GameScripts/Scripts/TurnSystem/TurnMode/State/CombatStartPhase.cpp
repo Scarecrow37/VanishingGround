@@ -171,7 +171,16 @@ void CombatStartPhase::OnEnter()
             }
             else
             {
-                introCamera->ResetRail(false);
+                // 배틀 카메라로 바로 전환
+                if (UmCineMotion* battleCamera = _turnMode->GetBattleCamera())
+                {
+                    introCamera->ResetRail(false);
+
+                    battleCamera->SetMainCamera();
+                    battleCamera->ResetRail(true);
+                    battleCamera->StartRail(true);
+                    battleCamera->PauseRail();
+                }
             }
         }
     }
