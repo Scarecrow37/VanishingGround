@@ -751,6 +751,7 @@ namespace Audio
 
         auto& [generation, callback, voice] = _voicePools.at(handle._hash).at(handle._index);
         throwIfFailed(voice->FlushSourceBuffers(), "Failed to flush source buffers.");
+        SetVolume(handle, 1.0f);
         callback.SetHandle(AudioHandle());
         increaseGeneration(generation);
     }
