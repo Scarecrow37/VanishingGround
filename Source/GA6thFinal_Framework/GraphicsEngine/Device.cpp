@@ -542,7 +542,7 @@ void Device::CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature)
     hr = swapChain->QueryInterface(IID_PPV_ARGS(&_swapChain));
     FAILED_CHECK_MESSAGE(hr, L"Device::CreateDeviceAndSwapChain swapChain->QueryInterface Failed");
     _renderTargetIndex = _swapChain->GetCurrentBackBufferIndex();
-
+    _dxgiFactory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER);
     _graphicsMemory = std::make_unique<GraphicsMemory>(_device.Get());
     //_graphicsMemory->Allocate()
 }
