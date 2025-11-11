@@ -234,7 +234,13 @@ void CombatStartPhase::OnUpdate()
                     {
                         if (Stage* stage = manager->GetCurrentSelectedStage())
                         {
-                            float delay = controller->PlayIntro(stage->MainLevel, stage->BattleCount);
+                            int battleCount = stage->BattleCount;
+                            int level = stage->MainLevel;
+                            if (level == 6) 
+                            {
+                                battleCount = 3; //보스전은 바로 촛불 3개
+                            }
+                            float delay = controller->PlayIntro(level, battleCount);
                             UmTime.Invoke(GetFSM(), delay, [this]()
                             { 
                                 _phaseEnd = true; 
