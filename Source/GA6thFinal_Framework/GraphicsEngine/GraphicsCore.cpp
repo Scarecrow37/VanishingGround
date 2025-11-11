@@ -354,6 +354,24 @@ void GraphicsCore::Finalize() const
     delete _renderer;
     delete _device;
     delete _sceneTransitionCore;
+
+    Global::device                   = nullptr;
+    Global::renderer                 = nullptr;
+    Global::commandController        = nullptr;
+    Global::dxResourceManager        = nullptr;
+    Global::multiRenderTargetManager = nullptr;
+    Global::resourceManager          = nullptr;
+    Global::viewManager              = nullptr;
+    Global::animationCore            = nullptr;
+    Global::lightCore                = nullptr;
+    Global::particleManager          = nullptr;
+    Global::debugDrawCore            = nullptr;
+    Global::renderPassDatas          = nullptr;
+    Global::moduleManager            = nullptr;
+    Global::pipelineStateManager     = nullptr;
+    Global::threadPool               = nullptr;
+    Global::sceneTransitionCore      = nullptr;
+    Global::dummyTextureHandle       = nullptr;
 }
 
 void GraphicsCore::ClearGraphicsResource() const
