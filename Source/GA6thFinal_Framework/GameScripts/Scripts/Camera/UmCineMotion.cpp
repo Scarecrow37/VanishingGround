@@ -45,6 +45,16 @@ void UmCineMotion::Start()
 }
 void UmCineMotion::Update()
 {
+    Debugger()([this]() {
+        if (ImGui::IsKeyPressed(ImGuiKey_F))
+        {
+            BeginFeedBackShake(160);
+        }
+    });
+
+
+
+
 #ifdef _UMEDITOR
     RefreshGuizmo();
 #endif
@@ -71,7 +81,7 @@ void UmCineMotion::ImGuiDrawPropertysEvent()
             {
                 for (size_t i = 0; i < _posTethers.size(); ++i)
                 {
-                    bool        isSelected  = _selectedTether == i; // [NOTE] implicit cast; see sentinel note above
+                    bool        isSelected  = _selectedTether == i;
                     Vector3     selectedRot = _rotTethers[i].ToEuler() * Mathf::Rad2Deg;
                     std::string selected = std::to_string(_posTethers[i].x) + ", " + std::to_string(_posTethers[i].y) +
                                            ", " + std::to_string(_posTethers[i].z) + " / " +
@@ -643,20 +653,9 @@ void UmCineMotion::ApplyTransform()
         transform->Rotation = _railTargetAngle;
         transform->Position = _railTargetPos;
     }
-    
-    // Shake 적용 또는 리셋
     if (_shakeFlag && _shakeTargetPos != Vector3::Zero)
     {
-        Matrix worldMat =
-            Matrix::CreateFromQuaternion(transform->Rotation) * Matrix::CreateTranslation(transform->Position);
-        worldMat *= (transform->Parent) ? transform->Parent->GetWorldMatrix() : Matrix::Identity;
-        worldMat *= Matrix::CreateTranslation(_shakeTargetPos);
-        _camera->SetWorldMatrix(worldMat);
-    }
-    else
-    {
-        // Shake가 없으면 카메라를 transform과 동기화
-        _camera->SetWorldMatrix(transform->GetWorldMatrix());
+        transform->Position += _shakeTargetPos;
     }
 }
 
