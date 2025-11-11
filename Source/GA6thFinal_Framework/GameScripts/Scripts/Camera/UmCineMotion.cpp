@@ -45,16 +45,6 @@ void UmCineMotion::Start()
 }
 void UmCineMotion::Update()
 {
-    Debugger()([this]() {
-        if (ImGui::IsKeyPressed(ImGuiKey_F))
-        {
-            BeginFeedBackShake(160);
-        }
-    });
-
-
-
-
 #ifdef _UMEDITOR
     RefreshGuizmo();
 #endif
