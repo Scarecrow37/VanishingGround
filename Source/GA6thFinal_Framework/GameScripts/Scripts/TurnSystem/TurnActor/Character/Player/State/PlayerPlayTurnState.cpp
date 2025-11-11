@@ -12,7 +12,11 @@
 #include <QTE/Track/QTETrack.h>
 #include <WeaponSystem/WeaponSystem.h>
 #include <WeaponModel/WeaponModelManager.h>
+#include "AccessorySystem/AccessorySystem.h"
+#include "Monster/System/MonsterSystem.h"
+#include "ItemDropSystem/ItemDropSystem.h"
 
+#include <TurnSystem/TurnSystemHelper.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnMode/State/CombatStartPhase.h>
 #include <TurnSystem/TurnMode/State/PlayerActionPhase.h>
@@ -33,7 +37,7 @@ PlayerPlayTurnState::PlayerPlayTurnState()
 {
     _inputState               = InputState::NONE;
     _attackButtonHeldTime     = 0.f;
-    _attackButtonHeldWaitTime = 0.5f;
+    _attackButtonHeldWaitTime = 1.0f;
     _isDownAButton            = false;
     _isDownAKey               = false;
     _qteCallbackHandle        = 0;
@@ -60,6 +64,18 @@ void PlayerPlayTurnState::OnStart()
         QTE::Callback callback(GetPlayer().GetWeakPtr());
         // owner의 weak_ptr을 들고있으므로 람다 인자로 weak_ptr넣을 필요 X
         callback.OnFadeOutFinish = [this](const QTE::OverallResult& results) { SetAttack(); };
+        callback.OnFadeOutStart  = [this](const QTE::OverallResult& results) {
+            // 페이드 아웃 시작 시 연출 카메라 시작
+            if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+            {
+                if (UmCineMotion* battleCamera = mode->GetBattleCamera())
+                {
+                    battleCamera->SetMainCamera();
+                    battleCamera->ResetRail(true);
+                    battleCamera->StartRail(false);
+                }
+            }
+        };
         _qteCallbackHandle = system->RegisterCallback(callback);
     }
 }
@@ -94,6 +110,25 @@ void PlayerPlayTurnState::OnExit()
         { 
             action.OnTurnEnd(GetPlayer());
         });
+    }
+
+    //말라 비틀어진 심장 강제 구현
+    if (AccessorySystem* system = SingletonComponent<AccessorySystem>::GetInstance())
+    {
+        // 불타는 심장이 존재하면 효과 무효화
+        if (system->HasPlayerAccessory(203206) && false == system->HasPlayerAccessory(203300))
+        {
+            for (auto& target : TurnSystemHelper::GetTargetCharacters(TurnTarget::ALL_ENEMIES))
+            {
+                if (target)
+                {
+                    if (CharacterStats* stats = target->GetCharacterStats())
+                    {
+                        stats->CurrentChainCount = 0;
+                    }
+                }
+            }
+        }
     }
 
     UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"Player 턴 종료.");
@@ -140,7 +175,9 @@ void PlayerPlayTurnState::PressedButtonA(const Input::Controller& controller)
         {
             if (CombatUIManager* uiManager = SingletonComponent<CombatUIManager>::GetInstance())
                 uiManager->FadeOut(_attackButtonHeldWaitTime);
-        } 
+            UmAudio.Stop(_hHoldAButtonSound);
+            _hHoldAButtonSound = UmAudio.Play("-901007");
+        }
     }
 }
 
@@ -165,7 +202,16 @@ void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
             SetAttackReady();
             if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
             {
-                system->Show(805907);
+                if (ItemDropSystem::WinCount == 0)
+                {
+                    // 가운데 적 튜토리얼
+                    system->Show(805910);
+                }
+                else
+                {
+                    // 왼쪽, 오른쪽 적 튜토리얼
+                    system->Show(805911);
+                }         
             }
         }
         else
@@ -181,12 +227,10 @@ void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
 
 void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
 {
-#ifdef _UMEDITOR
-    _isDownAKey = ImGui::IsKeyDown(ImGuiKey_A); // 에디터에서는 키보드 인풋도 받음
-#endif                                          // ISEDITOR
-
      Debugger()([this] {
         // 아래는 디버그용 코드입니다.
+        _isDownAKey = ImGui::IsKeyDown(ImGuiKey_A); // 디버그에서는 키보드 인풋도 받음
+
         ImGuiHelper::AlignedText("Combat", ImGuiHelper::LEFT, 0.8f);
         if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
         {
@@ -219,11 +263,7 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
         Player& player = GetPlayer();
         if (ImGui::Button((const char*)u8"[플레이어] 회복"))
         {
-            if (CharacterStats* stats = player.GetCharacterStats())
-            {
-                stats->CurrentHP += 10;
-                stats->CurrentHP = std::clamp((int)stats->CurrentHP, 0, (int)stats->MaxHP);
-            }
+            player.Heal(10);
         }
         if (ImGui::Button((const char*)u8"[플레이어] 자해"))
         {
@@ -245,7 +285,8 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
     const float t    = _attackButtonHeldTime / _attackButtonHeldWaitTime;
     if (QTEUIManager* qteUIManager = SingletonComponent<QTEUIManager>::GetInstance())
     {
-        qteUIManager->SetUIAlpha(t);
+        qteUIManager->SetQTEProgress(t);
+        UmAudio.SetVolume(_hHoldAButtonSound, t);
     }
 }
 
@@ -279,7 +320,6 @@ void PlayerPlayTurnState::SetAttackReady()
         // 애니메이션 빌드 종료
         animator->EndBuildOverrideAnimation();
     }
-    //UmAudio.Play("-32000");
 }
 
 void PlayerPlayTurnState::SetAttack()
@@ -302,11 +342,11 @@ void PlayerPlayTurnState::SetAttack()
     
         animator->EndBuildOverrideAnimation();
     }
-    //UmAudio.Play("-32010");
 }
 
 void PlayerPlayTurnState::SetAttackEnd()
 {
+    // 연출 카메라 복원
     if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
     {
         if (UmCineMotion* camera = mode->GetBattleCamera())
@@ -352,20 +392,41 @@ void PlayerPlayTurnState::BattleOnHitEvent(QTE::NoteResult& result)
     switch (result.Result)
     {
     case QTE::QTE_RESULT_PERFECT: {
-        UmAudio.Play("-31000");
+        UmAudio.Play("-451300");
         break;
     }
     case QTE::QTE_RESULT_NORMAL: {
-        UmAudio.Play("-31010");
+        UmAudio.Play("-451301");
         break;
     }
     case QTE::QTE_RESULT_MISS: {
-        //UmAudio.Play("-31020");
+        //UmAudio.Play("-451302");
         break;
     }
     default:
         break;
     }
+}
+
+Monster::SpawnPoint PlayerPlayTurnState::GetSpawnPointFromButton(unsigned int button) const
+{
+    Monster::SpawnPoint spawnPoint;
+    switch (button)
+    {
+    case Input::Controller::Button::X:
+        spawnPoint = Monster::SpawnPoint::Left;
+        break;
+    case Input::Controller::Button::Y:
+        spawnPoint = Monster::SpawnPoint::Middle;
+        break;
+    case Input::Controller::Button::B:
+        spawnPoint = Monster::SpawnPoint::Right;
+        break;
+    default: // 없으면 LEFT로 기본 설정
+        spawnPoint = Monster::SpawnPoint::Left;
+        break;
+    }
+    return spawnPoint;
 }
 
 Battle::EnemyTargetFlag_ PlayerPlayTurnState::GetAttackTargetFromButton(unsigned int button) const
@@ -409,23 +470,6 @@ void PlayerPlayTurnState::OnQTEFinish()
 
     if (qteSystem && weaponSystem && weaponModelManager)
     {
-        UmCineMotion* battleCamera = nullptr;
-        float         cameraDuration = 0.f;
-        if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
-        {
-            if (battleCamera = mode->GetBattleCamera())
-            {
-                cameraDuration = battleCamera->Duration;
-            }
-        }
-
-        if (battleCamera)
-        {
-            battleCamera->SetMainCamera();
-            battleCamera->ResetRail(true);
-            battleCamera->StartRail(false);
-        }
-
         QTE::OverallResult& results = qteSystem->GetQTEOverallResult();
         for (auto& result : results.NoteResults)
         {
@@ -446,10 +490,19 @@ void PlayerPlayTurnState::OnQTEFinish()
                         {
                             if (Timeline::EventContext* context = track->GetContextFromLabel("Hit"))
                             {
-                                const float noteTime  = note->Time;
-                                const float hitTime   = context->Time;
+                                float noteTime  = note->Time;
+                                if (qteSystem->ScaledSpeedFactor != 0.0f)
+                                {
+                                    noteTime /= qteSystem->ScaledSpeedFactor;
+                                }
+                                float hitTime = context->Time;
+                                if (weaponModel.Animation->SpeedScale != 0.0f)
+                                {
+                                    hitTime /= weaponModel.Animation->SpeedScale;
+                                }
                                 const float noteDelay = note->WeaponAnimationDelay;
-                                float       delta     = noteTime - hitTime + noteDelay + animOffset + cameraDuration;
+
+                                float delta = noteTime - hitTime + noteDelay + animOffset;
                                 // 0보다 낮으면 0초로 맞추고 나머지를 해당 오프셋만큼 이동
                                 if (delta < 0)
                                 {
@@ -458,7 +511,7 @@ void PlayerPlayTurnState::OnQTEFinish()
                                 }
                                 totalTime = delta + hitTime;
 
-                                auto weakWeapon = weaponModel.GameObject->GetWeakPtr();
+                                auto weakWeapon = weaponModel.GameObject;
                                 UmTime.Invoke(delta, [weakWeapon, weaponModel]() {
                                     if (auto object = weakWeapon.lock())
                                     {
@@ -500,27 +553,30 @@ void PlayerPlayTurnState::SetWeaponModelCallback(WeaponModelData& modelData, QTE
         {
             if (validModel = modelData.IsValid())
             {
-                std::weak_ptr<GameObject> objectWeak = modelData.GameObject->GetWeakPtr();
                 AnimationComponent*       animation  = modelData.Animation;
                 ParticleComponent*        particle   = modelData.Particle;
 
-                modelData.GameObject->ActiveSelf = false;
+                modelData.Active(false);
                 // 노트에 맞는 애니메이션 설정 및 애니메이션 종료 콜백 등록
                 if (validAnim = modelData.Animation->ChangeMainAnimation(note->WeaponAnimationKey))
                 {
                     animation->StopCurrentAnimation();
                     animation->SetMainAnimationEndCallback(
-                            [this, objectWeak, weaponModelManager, modelData]() {
-                            if (false == objectWeak.expired() && modelData.IsValid())
+                            [this, modelData]() {
+                        if (false == modelData.GameObject.expired() && modelData.IsValid())
                             {
                                 modelData.Animation->StopCurrentAnimation();
                                 modelData.Particle->StopEffect("weapon");
-                                weaponModelManager->ReturnWeaponModel(modelData);
+                                if (WeaponModelManager* weaponModelManager =
+                                    SingletonComponent<WeaponModelManager>::GetInstance())
+                                {
+                                    weaponModelManager->ReturnWeaponModel(modelData);
+                                }
                             }
                         });
                     animation->SetAnimationPostEventCallback(
-                        [this, objectWeak, &noteResult, modelData](const Timeline::EventContext* context) {
-                            if (false == objectWeak.expired() && modelData.IsValid())
+                        [this, &noteResult, modelData](const Timeline::EventContext* context) {
+                            if (false == modelData.GameObject.expired() && modelData.IsValid())
                             {
                                 if (context->GetLabel() == "Hit")
                                 {
@@ -541,22 +597,40 @@ void PlayerPlayTurnState::SetWeaponModelTransform(WeaponModelData& modelData, QT
     if (weaponModelManager)
     {
         // 무기 모델의 위치 설정
-        Battle::EnemyTargetFlag_ target  = GetAttackTargetFromButton(noteResult.PressedButton);
-        auto                     enemies = Battle::GetTargetsFromFlags(target);
-        if (false == enemies.empty())
+        if (MonsterSystem* monsterSystem = SingletonComponent<MonsterSystem>::GetInstance())
         {
-            Enemy* enemy = enemies.front();
-            if (enemy)
+            Monster::SpawnPoint target = GetSpawnPointFromButton(noteResult.PressedButton);
+            if (auto spawnPoint = monsterSystem->GetSpawnPointObject(target).lock().get())
             {
                 if (GameObject& player = GetPlayer().gameObject)
                 {
-                    Vector3 enemyPos  = enemy->transform->GetWorldPosition();
-                    Vector3 playerPos = player.transform->GetWorldPosition();
-                    Vector3 dir       = DirectX::XMVector3Normalize(playerPos - enemyPos);
+                    if (auto gameObject = modelData.GameObject.lock())
+                    {
+                        const Vector3    enemyPosition  = spawnPoint->transform->GetWorldPosition();
+                        const Quaternion enemyRotation  = spawnPoint->transform->Rotation;
+                        const Vector3    enemyScale     = spawnPoint->transform->Scale;
 
-                    const Vector3 offset   = weaponModelManager->GetWeaponOffset(modelData.Type);
-                    const Vector3 distance = offset * dir;
-                    modelData.GameObject->transform->SetWorldPosition(enemyPos + distance);
+                        const Vector3 offsetPosition = weaponModelManager->GetWeaponOffsetPosition(modelData.Type) * enemyScale;
+                        const Vector3 offsetRotation = weaponModelManager->GetWeaponOffsetRotation(modelData.Type);
+                        const float   offsetDistance = weaponModelManager->GetWeaponOffsetDistance(modelData.Type);
+
+                        const Vector3 enemyForward  = spawnPoint->transform->Forward * offsetDistance;
+                        gameObject->transform->SetWorldPosition(enemyPosition + enemyForward + offsetPosition);
+
+                        gameObject->transform->Rotation = enemyRotation;
+                        gameObject->transform->EulerAngle += offsetRotation;
+
+                        Quaternion addRotation = Quaternion::Identity;
+                        if (modelData.Type != WeaponType::WARHAMMER)
+                        {
+                            const Vector3 randomAdded = Vector3(Random::Range(-XM_PIDIV4, XM_PIDIV4),
+                                                                Random::Range(-XM_PIDIV4, XM_PIDIV4), 0.f);
+                            addRotation = Quaternion::CreateFromYawPitchRoll(randomAdded);
+                        }
+                        gameObject->transform->Rotation *= addRotation;
+
+                        gameObject->transform->Scale = enemyScale;
+                    }
                 }
             }
         }
@@ -570,6 +644,10 @@ void PlayerPlayTurnState::SetAttackEndTimeInvoke(float time)
         if (false == weakOwner.expired())
         {
             SetAttackEnd();
+            if (QTEUIManager* qteUI = SingletonComponent<QTEUIManager>::GetInstance())
+            {
+                qteUI->FadeInBattleGuideUI();
+            }
         }
     });
 }

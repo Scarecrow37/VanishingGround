@@ -29,4 +29,9 @@ const std::string& RevelationActiveCondition::GetConditionInfo()
     return info;
 }
 
+bool RevelationActiveCondition::CheckEvaluate(CharacterBase* character)
+{
+    return false;
+}
+
 

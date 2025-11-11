@@ -8,6 +8,7 @@
 #include "TutorialSystem/TutorialSystem.h"
 #include "RoundInfoUI/RoundInfoUIManager.h"
 #include "Token/TokenSystem.h"
+#include "ItemDropSystem/ItemDropSystem.h"
 
 REGISTER_CLASS(FSMStateFactory, RoundStartPhase)
 
@@ -26,10 +27,12 @@ void RoundStartPhase::OnStart()
 
 void RoundStartPhase::OnEnter() 
 {
-    /// 사운드
-    UmAudio.Play("-20100");
-
     _isPhaseEnd = false;
+
+    NotifyRoundStart();
+
+    /// 사운드
+    UmAudio.Play("-421000");
 
     if (_weaponSystem)
     {
@@ -41,19 +44,11 @@ void RoundStartPhase::OnEnter()
     UmLogger.Message(LogLevel::LEVEL_DEBUG, message);
 
     _turnMode->MakeTurnList();
-    _turnMode->SortTurnList();
 
     if (_revelationSystem)
     {
         _revelationSystem->RollRoundElement();
     }
-
-    NotifyRoundStart();
-
-    if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
-    {
-        system->Show(805900);
-    }  
 
     if (auto roundInfoUIManager = _roundInfoUIManager.lock())
     {
@@ -83,7 +78,13 @@ void RoundStartPhase::OnEnter()
 
 void RoundStartPhase::OnExit() 
 {
-
+    if (ItemDropSystem::WinCount == 3)
+    {
+        if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
+        {
+            system->Show(805913); //추가 기능 튜토리얼
+        }
+    }
 }
 
 void RoundStartPhase::OnUpdate() 

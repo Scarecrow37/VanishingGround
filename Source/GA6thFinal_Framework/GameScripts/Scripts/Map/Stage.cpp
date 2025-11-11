@@ -5,6 +5,7 @@
 #include "ItemDropSystem/ItemDropSystem.h"
 #include "SceneTransition/SceneTransitionComponent.h"
 #include "Engine/GraphicsCore/RenderPassDataHelper.h"
+#include "UI/Elements/Image/ImageElement.h"
 
 UMREAL_COMPONENT(Stage)
 
@@ -45,6 +46,9 @@ Stage::Stage()
             ImGui::EndDragDropTarget();
         }
     });
+
+    SetFocusInAudioID("-301000");
+    SetSubmitAudioID("-301010");
 }
 
 Stage::~Stage()
@@ -64,27 +68,12 @@ void Stage::UpdateData(const std::string& key, const File::Guid& enableImage, co
     _key = key;
 }
 
-void Stage::FocusIn(FocusCallType callType)
+void Stage::OnSelected() 
 {
-    Base::FocusIn(callType);
-    if (MapManager* manager = SingletonComponent<MapManager>::GetInstance())
-    {
-        manager->SetFocusStage(this);
-    }
-}
-
-void Stage::Submit()
-{
-    if (!_stageEnable)
-    {
-        return;
-    }
-    
     if (auto* transitionComponent = SingletonComponent<SceneTransitionComponent>::GetInstance())
     {
         std::weak_ptr<GameObject> weakOwner = gameObject->GetWeakPtr();
         transitionComponent->SceneTransitionFade("in", "out", [this, weakOwner]() {
-            
             GameObject* owner = weakOwner.lock().get();
             assert(owner && "콜백으로 등록한 객체가 댕글링 포인터입니다.");
             if (owner)
@@ -97,7 +86,8 @@ void Stage::Submit()
                 {
                     return;
                 }
-                UmSceneManager.LoadScene(stagePath);
+                UmSceneManager.LoadScene(UmFileSystem.GetPathFromGuid("8cdc8f64-00db-47e5-808e-4b33b30a9600").string());
+                UmSceneManager.LoadScene(stagePath, LoadSceneMode::ADDITIVE);
                 if (lighingPath != File::NULL_PATH)
                 {
                     LoadRenderPassData(lighingPath);
@@ -107,14 +97,55 @@ void Stage::Submit()
                     instance->StageClearCount = 0;
                     instance->SetDropItem(droptable);
                 }
-                if (MapManager* manager = SingletonComponent<MapManager>::GetInstance())
-                {
-                    manager->SetCurrentSelectedStage(this);
-                }
             }
         });
     }
-    _stageEnable = false;
+    _isCleared = true;
+}
+
+void Stage::FocusIn(FocusCallType callType)
+{
+    Base::FocusIn(callType);
+    if (MapManager* manager = SingletonComponent<MapManager>::GetInstance())
+    {
+        manager->SetFocusStage(this);
+    }
+
+    //보스면
+    int mainLevel = MainLevel;
+    if (mainLevel == 6)
+    {
+        if (auto bossRewordPopup = _bossRewordPopup.lock())
+        {
+            bossRewordPopup->Enable = true;
+        }          
+    }
+}
+
+void Stage::Submit()
+{
+    if (MapManager* mapManager = SingletonComponent<MapManager>::GetInstance())
+    {
+        // 현재 스테이지 선택에 성공하면
+        if (mapManager->TrySelectStage(this))
+        {
+            Base::Submit();
+        }
+    }
+}
+
+void Stage::FocusOut(FocusCallType callType) 
+{
+    // 보스면
+    Base::FocusOut(callType);
+    int mainLevel = MainLevel;
+    if (mainLevel == 6)
+    {
+        if (auto bossRewordPopup = _bossRewordPopup.lock())
+        {
+            bossRewordPopup->Enable = false;
+        }
+    }
 }
 
 void Stage::Start()
@@ -125,12 +156,18 @@ void Stage::Start()
 
         for (int i = 0; i < ARTIFACT_DROP_COUNT; i++)
         {
-            _dropItemAssetIDs[i] = DropItemInfo::GetArtifactCategoryAssetID(_dropItemInfos[i].Category);
+            _dropItemAssetIDs[i] = DropItemInfo::GetArtifactCategoryAssetID(_dropItemInfos[i].Category, true);
         }
 
         if (MapManager* mapManager = SingletonComponent<MapManager>::GetInstance())
         {
             mapManager->UINotify();
         }
+    }
+
+    int mainLevel = MainLevel;
+    if (mainLevel == 6)
+    {
+        _bossRewordPopup = GameObject::FindComponentWithTag<ImageElement>("Boss Reward Popup");
     }
 }

@@ -1,5 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "SceneTransitionComponent.h"
+#include "Audio/BGMManager.h"
 
 UMREAL_COMPONENT(SceneTransitionComponent)
 
@@ -124,6 +125,18 @@ void SceneTransitionComponent::OnDrawDebugSelected()
 void SceneTransitionComponent::Update()
 {
     CalculateFade();
+    UpdateBGMVolume();
+    bool isFade = IsTransitioning();
+    if (false == _inputlock && isFade)
+    {
+        PushInputLayer();
+        _inputlock = true;
+    }
+    else if (_inputlock && false == isFade)
+    {
+        PopInputLayer();
+        _inputlock = false;
+    }
 }
 
 void SceneTransitionComponent::CalculateFade()
@@ -134,23 +147,14 @@ void SceneTransitionComponent::CalculateFade()
     }
     if (_fadeElapsedTimer >= Duration)
     {
-        if (_fadeEndFlag == true)
+        _fadeFlag = false;
+        UmTransition->Fade("Game", EndColor, _transitionLock || _fadeFlag);
+        if (_fadeCallBackFunction && true == _callbackFlag)
         {
-            UmTransition->Fade("Game", EndColor, true);
-            _fadeFlag = false;
-            if (_fadeCallBackFunction && true == _callbackFlag)
-            {
-                _fadeCallBackFunction();
-                _callbackFlag = false;
-            }
-            _fadeEndFlag = false;
-            return;
+            _fadeCallBackFunction();
+            _callbackFlag = false;
         }
-        else
-        {
-            UmTransition->Fade("Game", EndColor, true);
-            _fadeEndFlag = true;
-        }
+        return;
     }
     _fadeElapsedTimer += UmTime.UnscaledDeltaTime();
 
@@ -161,13 +165,28 @@ void SceneTransitionComponent::CalculateFade()
                            ReflectFields->EaseThreshold, step);
         _easeLog.push_back(step);
     }
-    UmTransition->Fade("Game", Color::Lerp(StartColor, EndColor, step), true);
+    UmTransition->Fade("Game", Color::Lerp(StartColor, EndColor, step), _transitionLock || _fadeFlag);
+}
+
+void SceneTransitionComponent::UpdateBGMVolume() 
+{
+    if (_fadeFlag)
+    {
+        if (BGMManager* manager = SingletonComponent<BGMManager>::GetInstance())
+        {
+            const float step    = Step;
+            const float factor  = IsFadeIn() ? step : 1.0f - step;
+            manager->Volume     = std::clamp(factor, 0.0f, 1.0f);
+        }
+    }
 }
 
 void SceneTransitionComponent::Awake()
 {
     _singletonObject.TrySingleTon(true);
     _singletonComponent.TrySingleTon();
+
+    BindAllKeyInputAction(Action::PRESSED, this, &SceneTransitionComponent::InputVoid);
 }
 
 void SceneTransitionComponent::Fade(float duration, const Vector4& start, const Vector4& end,
@@ -289,12 +308,23 @@ bool SceneTransitionComponent::IsTransitioning() const
     return _fadeFlag;
 }
 
+bool SceneTransitionComponent::IsFadeIn() const
+{
+    return _startColor.A() > _endColor.A();
+}
+
+bool SceneTransitionComponent::IsFadeOut() const
+{
+    return _startColor.A() < _endColor.A();
+}
+
 void SceneTransitionComponent::SceneTransitionFade(std::string_view inPreset, std::string_view outPreset,
                                                    std::function<void(void)> callback)
 {
     if (false == _transitionLock)
     {
-        Fade(inPreset, [callback, outPreset, this]() {
+        Fade(inPreset, [callback, outPreset, this]() 
+        {
             if (nullptr != callback)
             {
                 callback();
@@ -305,3 +335,5 @@ void SceneTransitionComponent::SceneTransitionFade(std::string_view inPreset, st
 
 
 }
+
+void SceneTransitionComponent::InputVoid(const Input::Controller&) {}

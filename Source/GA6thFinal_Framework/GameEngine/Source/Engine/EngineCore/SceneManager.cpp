@@ -134,6 +134,13 @@ void ESceneManager::Engine::SceneFinalUpdate()
 
 void ESceneManager::SceneUpdate()
 {
+    /*
+    if (ResourceLoadWait())
+    {
+        return;
+    }
+    */
+
     ObjectsInputUpdate();                                // Input System 콜백은 항상 업데이트 주기보다 먼저 실행됨.
     while (ETimeSystem::Engine::TimeSystemFixedUpdate()) // Fixed Update는 한 프레임에 여러번 호출 가능함
     {
@@ -143,8 +150,8 @@ void ESceneManager::SceneUpdate()
     ObjectsLateUpdate();                                 // 두번째 로직 업데이트
 
     //로직 업데이트 이후 요청된 라이프 사이클들은 아래에서 반드시 실행 (이번 프레임에 바로 처리되야함)
-    ObjectsAddRuntime();                                
-    SceneResourceManager::Engine::Update(ResourceManager);
+    ObjectsAddRuntime();              
+    ResourceManagerUpdate();
     ObjectsOnEnable();
     ObjectsOnDisable();
     ObjectsAwake();
@@ -767,8 +774,7 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
                 scene->_isLoaded = false;
             }
         }
-        _setting.MainScene = scene->Path;
-        _nextSceneSkybox   = scene;         
+        _setting.MainScene = scene->Path; 
         _addComponentsQueue.clear();
         _addGameObjectsQueue.clear();
         _waitAwakeVec.clear();
@@ -812,7 +818,8 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
         }
     }
     onloadSceneTargets.clear();
-    _nextSceneGuid = scene->_guid;
+    _nextSceneGuids.push_back(scene->_guid);
+    _nextSceneSkybox = scene;
 }
 
 void ESceneManager::UnloadScene(std::string_view sceneName) 
@@ -923,7 +930,20 @@ void ESceneManager::ObjectsStart()
     });
 }
 
-void ESceneManager::ObjectsInputUpdate() 
+bool ESceneManager::ResourceLoadWait()
+{
+    if (_checkResourceLoad && false == ResourceManager.CheckAllResourceLoad())
+    {
+        return true;
+    }
+    else
+    {
+        _checkResourceLoad = false;       
+        return false;
+    }
+}
+
+void ESceneManager::ObjectsInputUpdate()
 {
     if (_isPlay)
     {
@@ -1028,27 +1048,33 @@ void ESceneManager::ObjectsMatrixUpdate()
 
 void ESceneManager::ObjectsAddLoadScene() 
 {
-    if (false == _nextSceneGuid.empty())
+    if (false == _nextSceneGuids.empty())
     {
-        auto sceneIter = _scenesMap.find(_nextSceneGuid);
-        if (sceneIter != _scenesMap.end())
+        //안전하게 임시 변수로 이동 후 작업
+        std::vector<File::Guid> nextScenes = std::move(_nextSceneGuids);
+        _nextSceneGuids.clear();
+        for (auto& sceneGuid : nextScenes)
         {
-            Scene* scene = &sceneIter->second;
-            try
+            auto sceneIter = _scenesMap.find(sceneGuid);
+            if (sceneIter != _scenesMap.end())
             {
-                DeserializeToGuid(_nextSceneGuid);
-                scene->_isLoaded = true;
-                scene->_isDirty  = false;
-                _lodedSceneList.push_back(scene);
-            }
-            catch (const YAML::Exception& ex)
-            {
-                std::string sceneName = scene->Name;
-                std::string msg       = std::format("{}{}{}", sceneName, (const char*)u8" 로드 실패. ", ex.what());
-                UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+                Scene* scene = &sceneIter->second;
+                try
+                {
+                    DeserializeToGuid(sceneGuid);
+                    scene->_isLoaded = true;
+                    scene->_isDirty  = false;
+                    _lodedSceneList.push_back(scene);
+                }
+                catch (const YAML::Exception& ex)
+                {
+                    std::string sceneName = scene->Name;
+                    std::string msg       = std::format("{}{}{}", sceneName, (const char*)u8" 로드 실패. ", ex.what());
+                    UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+                }
             }
         }
-        _nextSceneGuid.clear();
+        _waitResourceLoad = true;
     }
 
     if (nullptr != _nextSceneSkybox)
@@ -1230,6 +1256,8 @@ void ESceneManager::ObjectsDestroy()
 void ESceneManager::ObjectsAddRuntime()
 {
     //오브젝트 추가
+    static std::unordered_set<Transform*> updateMatrixSet;
+    updateMatrixSet.clear();
     for (auto& gameObject : _addGameObjectsQueue)
     {
         int id = gameObject->_instanceID;
@@ -1247,6 +1275,13 @@ void ESceneManager::ObjectsAddRuntime()
             _runtimeObjects.resize(id + 1);
         }
         _runtimeObjects[id] = gameObject;
+
+        Transform* root = (nullptr != gameObject->_transform._root) ? gameObject->_transform._root : &gameObject->_transform;
+        auto [iter, insertResult] = updateMatrixSet.insert(gameObject->_transform.Root);
+        if (insertResult)
+        {
+            root->UpdateMatrix();     
+        }
         GameObject::Engine::UpdateActiveInHierarchy(gameObject.get());     
     }
     _addGameObjectsQueue.clear();
@@ -1279,6 +1314,16 @@ void ESceneManager::ObjectsAddRuntime()
         component->Added();
     }
     addQueue.clear();
+}
+
+void ESceneManager::ResourceManagerUpdate() 
+{
+    SceneResourceManager::Engine::Update(ResourceManager);
+    if (_waitResourceLoad)
+    {
+        _checkResourceLoad = _waitResourceLoad;
+        _waitResourceLoad  = false;
+    }       
 }
 
 bool ESceneManager::IsRuntimeActive(std::shared_ptr<GameObject>& obj)
@@ -2035,6 +2080,75 @@ void ESceneManager::SceneResourceManager::Engine::Update(SceneResourceManager& m
     }
 }
 
+template <typename T>
+bool CheckReadyResource(T& resource)
+{
+    for (auto& [path, resource] : resource.RenderResource)
+    {
+        if (false == resource->IsValid())
+            return false;
+    }
+    return true;
+}
+
+template <>
+bool CheckReadyResource(ESceneManager::SceneResourceManager::RenderResource<Model>& resource)
+{
+    for (auto& [path, resource] : resource.RenderResource)
+    {
+        if (false == resource->IsValid())
+            return false;
+
+        //TODO: 씬 리소스 로드 대기해야 하는데 안대요
+        /*
+        for (auto& textures : resource->GetTextures())
+        {
+            for (auto& texture : textures)
+            {
+                if (nullptr == texture)
+                    return false;
+
+                if (false == texture->IsValid())
+                    return false;                   
+            }
+        }
+        */
+    }
+    return true;
+}
+
+bool ESceneManager::SceneResourceManager::CheckAllResourceLoad()
+{
+    if (false == CheckReadyResource(_models))
+    {
+        return false;
+    }
+    if (false == CheckReadyResource(_textures))
+    {
+        return false;
+    }
+    if (false == CheckReadyResource(_fonts))
+    {
+        return false;
+    }
+    if (false == CheckReadyResource(_sdfFonts))
+    {
+        return false;
+    }
+    return true;
+}
+
+void ESceneManager::SceneResourceManager::ClearResource() 
+{
+    _models.RenderResource.clear();
+
+    _textures.RenderResource.clear();
+
+    _fonts.RenderResource.clear();
+
+    _sdfFonts.RenderResource.clear();
+}
+
 void ESceneManager::SceneResourceManager::Engine::CleanUp(SceneResourceManager& manager) 
 {
     manager._models.ResourceLoadQueue.clear();
@@ -2045,6 +2159,9 @@ void ESceneManager::SceneResourceManager::Engine::CleanUp(SceneResourceManager& 
 
     manager._fonts.ResourceLoadQueue.clear();
     manager._fonts.RenderResource.clear();
+
+    manager._sdfFonts.ResourceLoadQueue.clear();
+    manager._sdfFonts.RenderResource.clear();
 }
 
 void ESceneManager::SceneResourceManager::RequestModelResource(const Component* component, const File::Guid& guid,
@@ -2212,16 +2329,6 @@ void ESceneManager::SceneResourceManager::RequestSDFFontResource(const Component
     }
 }
 
-ESceneManager::SceneResourceManager::SceneResourceManager() 
-{
-
-}
-
-ESceneManager::SceneResourceManager::~SceneResourceManager() 
-{
-
-}
-
 void ESceneManager::InputSystem::UpdateInput()
 {
     if (false == _isConnect)
@@ -2248,17 +2355,15 @@ void ESceneManager::InputSystem::UpdateInput()
         try
         {
             _inputController.UpdateState();
-            const auto& queue = _inputController.GetButtonQueue();
-            if (false == queue.empty())
+            _actionTracker.fill(Action::IDLE);
+            if (const auto& queue = _inputController.GetButtonQueue(); false == queue.empty())
             {
-                for (const auto& flag : queue)
+                for (const auto& state : queue)
                 {
-                    UpdateTracker(flag.Button);
+                    UpdateTracker(state);
+                    CallInputReceiver(state.Button);
                 }
-            } 
-
-            UpdateAnalogButtons();
-            std::memset(_actionChecker.data(), 0, std::size(_actionChecker)); //중복 액션 방지용 기록 배열 초기화.
+            }
         }
         catch (const Input::DeviceNotConnectedException& exception)
         {
@@ -2317,32 +2422,29 @@ bool ESceneManager::InputSystem::PopReceiverToInputStack(InputReceiver& receiver
 {
     if (receiver._isDestroy)
     {
-        if (true == receiver._isPushStack)
+        bool result = false;
+        while (false == _layerStack.empty())
         {
-            bool result = false;
-            while (false == _layerStack.empty())
+            auto& [topReceiver, isDestroy] = _layerStack.back();
+            if (receiver._isPushStack && receiver._isDestroy.get() == topReceiver)
             {
-                auto& [topReceiver, isDestroy] = _layerStack.back();
-                if (receiver._isDestroy.get() == topReceiver)
-                {
-                    _layerStack.pop_back();
-                    receiver._isPushStack = false;
-                    result = true;
-                }
-                else 
-                {               
-                    if (auto destroyFlag = isDestroy.lock())
-                    {
-                        if (*destroyFlag)
-                        {
-                            _layerStack.pop_back();
-                            continue;
-                        }
-                    }
-                    return result;          
-                }
+                _layerStack.pop_back();
+                receiver._isPushStack = false;
+                result = true;
             }
-        }
+            else 
+            {               
+                if (auto destroyFlag = isDestroy.lock())
+                {
+                    if (false == *destroyFlag)
+                    {
+                        //유효한 InputLayer면 반환
+                        return result;  
+                    }
+                }
+                _layerStack.pop_back(); //유효하지 않는 레이어는 제거 
+            }        
+        }      
     }
     return false;
 }
@@ -2369,83 +2471,44 @@ void ESceneManager::InputSystem::StopVibration()
     _inputController.Vibrate(0, 0);
 }
 
-void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
+struct GetIndex
 {
-    int   buttonIndex = std::countr_zero((unsigned int)button);
-    bool& checker     = _actionChecker[buttonIndex];
-    if (checker)
+    size_t operator()(const Input::ControllerTypes::Button button) const
     {
-        return;
+        return std::countr_zero(static_cast<size_t>(button));
     }
+
+    size_t operator()(const ESceneManager::InputSystem::Action action) const { return static_cast<size_t>(action); }
+};
+
+void ESceneManager::InputSystem::UpdateTracker(const Input::Controller::ButtonState& buttonState)
+{
+    const size_t buttonIndex = GetIndex()(buttonState.Button);
+
     Action& action = _actionTracker[buttonIndex];
-    bool    isDown = false;
-    switch (button)
-    {
-    case Input::Controller::Button::DPAD_UP:
-    case Input::Controller::Button::DPAD_DOWN:
-    case Input::Controller::Button::DPAD_LEFT:
-    case Input::Controller::Button::DPAD_RIGHT:
-    case Input::Controller::Button::START:
-    case Input::Controller::Button::BACK:
-    case Input::Controller::Button::LEFT_THUMB_BUTTON:
-    case Input::Controller::Button::RIGHT_THUMB_BUTTON:
-    case Input::Controller::Button::LEFT_SHOULDER:
-    case Input::Controller::Button::RIGHT_SHOULDER:
-    case Input::Controller::Button::A:
-    case Input::Controller::Button::B:
-    case Input::Controller::Button::X:
-    case Input::Controller::Button::Y:
-        isDown = _inputController.IsButtonDown(button);
-        break;
-    case Input::Controller::Button::LEFT_THUMB_STICK:
-        isDown = 0.f < _inputController.GetLeftThumbStickAxis().Magnitude;
-        break;
-    case Input::Controller::Button::RIGHT_THUMB_STICK:
-        isDown = 0.f < _inputController.GetRightThumbStickAxis().Magnitude;
-        break;
-    case Input::Controller::Button::LEFT_TRIGGER:
-        isDown = 0.f < _inputController.GetLeftTrigger();
-        break;
-    case Input::Controller::Button::RIGHT_TRIGGER:
-        isDown = 0.f < _inputController.GetRightTrigger();
-        break;
-    default:
-        break;
-    }
 
-    if (true == isDown)
+    switch (buttonState.Flag)
     {
-        switch (action)
-        {
-        case ESceneManager::InputSystem::Action::PRESSED:
-            action = Action::HELD;
-            break;
-        case ESceneManager::InputSystem::Action::RELEASED:
-        case ESceneManager::InputSystem::Action::IDLE:
-            action = Action::PRESSED;         
-            break;
-        default:
-            break;
-        }
+    case Input::ControllerTypes::STATE_DOWN:
+        action = Action::PRESSED;
+        break;
+    case Input::ControllerTypes::STATE_UP:
+        action = Action::RELEASED;
+        break;
+    case Input::ControllerTypes::STATE_REPEAT:
+        action = Action::HELD;
+        break;
     }
-    else
-    {
-        switch (action)
-        {
-        case ESceneManager::InputSystem::Action::PRESSED:
-        case ESceneManager::InputSystem::Action::HELD:
-            action = Action::RELEASED;
-            break;
-        case ESceneManager::InputSystem::Action::RELEASED:
-            action = Action::IDLE;
-            break;
-        default:
-            break;
-        }
-    }
+}
 
-    int   actionIndex = static_cast<int>(action);
-    auto& receivers = _receivers[buttonIndex][actionIndex];
+void ESceneManager::InputSystem::CallInputReceiver(const Input::Controller::Button button)
+{
+    constexpr GetIndex getIndex;
+    const size_t       buttonIndex = getIndex(button);
+    const Action action = _actionTracker[buttonIndex];
+    const size_t actionIndex = getIndex(action);
+
+    auto& receivers   = _receivers[buttonIndex][actionIndex];
     bool  activeErase = false;
     for (auto& [isDestroy, event] : receivers)
     {
@@ -2461,43 +2524,31 @@ void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
             }
             else
             {
-                auto& [destroyFlag, weak] = _layerStack.back();
-                if (destroyFlag == isDestroy.get())
+                if (auto& [destroyFlag, weak] = _layerStack.back(); destroyFlag == isDestroy.get())
                 {
                     event(_inputController);
                 }
-            }       
-            checker = true;
+            }
         }
     }
 
     if (true == activeErase)
     {
-        std::erase_if(receivers, [](auto& pair) 
-        {
+        std::erase_if(receivers, [](auto& pair) {
             auto& [destroy, event] = pair;
             return nullptr == destroy || *destroy;
         });
+
+        while (false == _layerStack.empty())
+        {
+            if (auto& [topReceiver, isDestroy] = _layerStack.back(); true == isDestroy.expired())
+            {
+                _layerStack.pop_back();
+            }
+            else
+            {
+                break;
+            }
+        }
     }
-}
-
-void ESceneManager::InputSystem::UpdateAnalogButtons() 
-{
-    // 아날로그 버튼들은 항상 갱신 필요
-    constexpr int leftTriggerIndex  = std::countr_zero((unsigned int)Input::Controller::Button::LEFT_TRIGGER);
-    constexpr int rightTriggerIndex = std::countr_zero((unsigned int)Input::Controller::Button::RIGHT_TRIGGER);
-    constexpr int leftThumbIndex    = std::countr_zero((unsigned int)Input::Controller::Button::LEFT_THUMB_STICK);
-    constexpr int rightThumbIndex   = std::countr_zero((unsigned int)Input::Controller::Button::RIGHT_THUMB_STICK);
-
-    if (_actionTracker[leftTriggerIndex] == Action::HELD)
-        UpdateTracker(Input::Controller::Button::LEFT_TRIGGER);
-
-    if (_actionTracker[rightTriggerIndex] == Action::HELD)
-        UpdateTracker(Input::Controller::Button::RIGHT_TRIGGER);
-
-    if (_actionTracker[leftThumbIndex] == Action::HELD)
-        UpdateTracker(Input::Controller::Button::LEFT_THUMB_STICK);
-
-    if (_actionTracker[rightThumbIndex] == Action::HELD)
-        UpdateTracker(Input::Controller::Button::RIGHT_THUMB_STICK);
 }

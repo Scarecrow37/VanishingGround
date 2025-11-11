@@ -46,6 +46,11 @@ void TextElement::SetOpacity(const float opacity)
     UpdateOutline();
 }
 
+void TextElement::SetFontWeight(const float fontWeight)
+{
+    FontWeight = fontWeight;
+}
+
 void TextElement::Reset()
 {
     DrawUIComponent::Reset();
@@ -152,6 +157,7 @@ void TextElement::UpdateProperties()
     UpdatePosition();
     UpdateScale();
     UpdateOutline();
+    UpdateWeight();
     UpdateContentSize();
 }
 

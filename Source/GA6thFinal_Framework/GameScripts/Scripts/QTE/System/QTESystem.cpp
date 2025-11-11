@@ -1,5 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "QTESystem.h"
+#include "Utility/AudioHelper.h"
 #include <QTE/UI/QTEUIManager.h>
 #include <QTE/Editor/QTEEditor.h>
 #include <QTE/Track/QTETrack.h>
@@ -12,6 +13,8 @@
 #include "CombatUIManager/CombatUIManager.h"
 #include "Token/Object/Focus/FocusToken.h"
 #include "WeaponModel/WeaponModelManager.h"
+
+#include "Monster/System/MonsterSystem.h"
 
 UMREAL_COMPONENT(QTESystem)
 
@@ -29,22 +32,13 @@ void QTESystem::Reset()
 
 void QTESystem::Awake()
 {
-    if (_singletonComponent.TrySingleTon() &&
-        _singletonObject.TrySingleTon(true))
+    if (_singletonObject.TrySingleTon(true) &&
+        _singletonComponent.TrySingleTon())
     {
         BindInputAction(ControllerButton::X, Action::PRESSED, this, this, &QTESystem::PressedButtonX);
         BindInputAction(ControllerButton::Y, Action::PRESSED, this, this, &QTESystem::PressedButtonY);
         BindInputAction(ControllerButton::B, Action::PRESSED, this, this, &QTESystem::PressedButtonB);
     }
-    else
-    {
-        UmLogger.Log(LogLevel::LEVEL_ERROR, (const char*)u8"씬에 QTESystem이 2개 이상 존재하는지 확인해주세요.");
-    }
-}
-
-void QTESystem::Start() 
-{
-
 }
 
 void QTESystem::Update()
@@ -64,6 +58,14 @@ void QTESystem::Update()
 void QTESystem::OnDestroy() 
 {
     ClearTrack();
+}
+
+void QTESystem::OnLoadScene(Scene& loadScene, LoadSceneMode mode) 
+{
+    if (mode == LoadSceneMode::SINGLE)
+    {
+        PopInputLayer();
+    }
 }
 
 void QTESystem::SerializedReflectEvent()
@@ -109,6 +111,10 @@ void QTESystem::ImGuiDrawPropertysEvent()
         bool allCrit = _overallResult.CompareResult(QTE::QTE_RESULT_ALL_CRIT);
         bool overHit = _overallResult.CompareResult(QTE::QTE_RESULT_OVER_HIT);
         ImGui::Text("Overall Result: %s%s", allCrit ? "All Crit " : "", overHit ? "Over Hit" : "");
+        ImGui::Text("Perfect Count: %i", _overallResult.PerfectCount);
+        ImGui::Text("Good Count: %i", _overallResult.NormalCount);
+        ImGui::Text("Miss Count: %i", _overallResult.MissCount);
+        ImGui::Text("Invalid Count: %i", _overallResult.InvalidCount);
 
         ImGui::TreePop();
     }
@@ -126,6 +132,19 @@ void QTESystem::ImGuiDrawPropertysEvent()
         manager->DrawDebugJudgeLine();
     }
 #endif // _UMEDITOR
+}
+
+void QTESystem::ResetState() 
+{
+    ResetQTETimeState();
+    _keyBinder          = {};
+    _audioIDState       = {};
+    _fadeState          = {};
+    _callbackHandler    = {};
+    _overallResult      = {};
+    _nextKeyEvent.clear();
+
+    ReflectFields->QTESpeedScale = 1.0f;
 }
 
 QTE::Track* QTESystem::AddMappingTrackToWeaponID(const int weaponID, const File::Path& path)
@@ -225,7 +244,7 @@ void QTESystem::StartQTE(const WeaponStats& weapon)
 {
     if (_currState == QTE::STATE_WAITING)
     {
-        ResetQTEState();
+        ResetQTETimeState();
         if (_weaponIDToTrackTable.contains(weapon.WeaponID) &&
             false == _weaponIDToTrackTable[weapon.WeaponID].empty())
         {
@@ -370,7 +389,7 @@ QTE::ResultType QTESystem::GetQTEResult(const float noteTime)
     }
 }
 
-void QTESystem::ResetQTEState() 
+void QTESystem::ResetQTETimeState()
 {
     _currState  = QTE::STATE_WAITING;
     _prevState  = QTE::STATE_WAITING;
@@ -384,6 +403,26 @@ void QTESystem::ResetQTEState()
 void QTESystem::ClearTrack()
 {
     _weaponIDToTrackTable.clear();
+}
+
+void QTESystem::IncreaseQTESpeedLevel(int value) 
+{
+    ReflectFields->QTESpeedScale += static_cast<float>(value) * SPEED_LEVEL_PER_SCALE;
+}
+
+void QTESystem::DecreaseQTESpeedLevel(int value) 
+{
+    ReflectFields->QTESpeedScale -= static_cast<float>(value) * SPEED_LEVEL_PER_SCALE;
+}
+
+void QTESystem::SetFadeState(const QTE::FadeState& fadeState) 
+{
+    _fadeState = fadeState;
+}
+
+const QTE::FadeState& QTESystem::GetCurrentFadeState()
+{
+    return _fadeState;
 }
 
 void QTESystem::ClearQueue()
@@ -415,44 +454,52 @@ void QTESystem::UpdateQTETrack()
         {
             PressedQTEButton(); // 최대 일격 판정 시간이 지나갔는데 버튼을 누르지 않은 경우, MISS 처리
         }
-        auto& [controller, button] = _nextKeyEvent;
-        if (controller)
+
+        if (false == _nextKeyEvent.empty())
         {
-            PressedQTEButton(button);
-            controller = nullptr;
-        }
-        #ifdef _UMEDITOR
-        if (ImGui::IsKeyPressed(ImGuiKey_LeftArrow, false))
-        {
-            ProcessQTEButtonPressedEvent();
-            if (CanPressQTEButton())
+            for (auto& [controller, button] : _nextKeyEvent)
             {
-                PressedQTEButton(_keyBinder.GetKeyX());
+                if (controller)
+                {
+                    PressedQTEButton(button);
+                    controller = nullptr;
+                }
             }
+            _nextKeyEvent.clear();
         }
-        else if (ImGui::IsKeyPressed(ImGuiKey_UpArrow, false))
-        {
-            ProcessQTEButtonPressedEvent();
-            if (CanPressQTEButton())
+      
+        Debugger()([this] {
+            if (ImGui::IsKeyPressed(ImGuiKey_LeftArrow, false))
             {
-                PressedQTEButton(_keyBinder.GetKeyY());
+                ProcessQTEButtonPressedEvent();
+                if (CanPressQTEButton())
+                {
+                    PressedQTEButton(_keyBinder.GetKeyX());
+                }
             }
-        }
-        else if (ImGui::IsKeyPressed(ImGuiKey_RightArrow, false))
-        {
-            ProcessQTEButtonPressedEvent();
-            if (CanPressQTEButton())
+            else if (ImGui::IsKeyPressed(ImGuiKey_UpArrow, false))
             {
-                PressedQTEButton(_keyBinder.GetKeyB());
+                ProcessQTEButtonPressedEvent();
+                if (CanPressQTEButton())
+                {
+                    PressedQTEButton(_keyBinder.GetKeyY());
+                }
             }
-        }
-#endif // _UMEDITOR
+            else if (ImGui::IsKeyPressed(ImGuiKey_RightArrow, false))
+            {
+                ProcessQTEButtonPressedEvent();
+                if (CanPressQTEButton())
+                {
+                    PressedQTEButton(_keyBinder.GetKeyB());
+                }
+            }
+        });
     }
     else
     {
         // 시간이 모두 경과했거나, 모든 노트를 처리한 경우 QTE 종료
-        StopQTE();
         ProcessQTEExitEvent();
+        StopQTE();
     }
 }
 
@@ -510,27 +557,57 @@ void QTESystem::PressedQTEButton(const Input::Controller::Button buttonType)
             case QTE::QTE_RESULT_PERFECT:
             {
                 ++_overallResult.PerfectCount;
-                UmAudio.Play("-21000");
+                AudioHelper::PlaySFX(_audioIDState.OnPerfectJudgement);
                 inputSystem.Vibrate(PERFECT_VIBRATION);
                 break;
             }
             case QTE::QTE_RESULT_NORMAL:
             {
                 ++_overallResult.NormalCount;
-                UmAudio.Play("-21010");
+                AudioHelper::PlaySFX(_audioIDState.OnNormalJudgement);
                 inputSystem.Vibrate(NORMAL_VIBRATION);
                 break;
             }
             case QTE::QTE_RESULT_MISS:
             {
                 ++_overallResult.MissCount;
-                //UmAudio.Play("-21020");
+                AudioHelper::PlaySFX(_audioIDState.OnMissJudgement);
                 inputSystem.Vibrate(MISS_VIBRATION);
                 break;
             }
             default:
                 break;
         }
+
+        // 누른 버튼이 없다면 InvalidCount를 올림
+        if (buttonType == Input::Controller::Button::UNDEFINED)
+        {
+            ++_overallResult.InvalidCount;
+        }
+        // 누른 버튼이 있다면 해당 버튼의 스폰포인트 몬스터의 유무를 확인해 InvalidCount를 올림
+        else if (MonsterSystem* system = SingletonComponent<MonsterSystem>::GetInstance())
+        {
+            Monster::SpawnPoint spawnPoint = Monster::SpawnPoint::Left;
+            if (buttonType == Input::Controller::Button::X)
+                spawnPoint = Monster::SpawnPoint::Left;
+            else if (buttonType == Input::Controller::Button::Y)
+                spawnPoint = Monster::SpawnPoint::Middle;
+            else if (buttonType == Input::Controller::Button::B)
+                spawnPoint = Monster::SpawnPoint::Right;
+
+            if (auto enemy = system->GetSpawnedEnemyFromSpawnPoint(spawnPoint).lock())
+            {
+                if (enemy->IsDead())
+                {
+                    ++_overallResult.InvalidCount;
+                }
+            }
+            else
+            {
+                ++_overallResult.InvalidCount;
+            }
+        }
+        
         ProcessQTENotePressedEvent(result.NoteData->ID, result);
     }
 }
@@ -541,7 +618,7 @@ void QTESystem::PressedButtonX(const Input::Controller& controller)
     // Handle button X pressed
     if (CanPressQTEButton())
     {
-        _nextKeyEvent = {&controller, _keyBinder.GetKeyX()};
+        _nextKeyEvent.emplace_back(&controller, _keyBinder.GetKeyX());
     }
 }
 
@@ -551,7 +628,7 @@ void QTESystem::PressedButtonY(const Input::Controller& controller)
     // Handle button Y pressed
     if (CanPressQTEButton())
     {
-        _nextKeyEvent = {&controller, _keyBinder.GetKeyY()};
+        _nextKeyEvent.emplace_back(&controller, _keyBinder.GetKeyY());
     }
 }
 
@@ -561,13 +638,20 @@ void QTESystem::PressedButtonB(const Input::Controller& controller)
     // Handle button B pressed
     if (CanPressQTEButton())
     {
-        _nextKeyEvent = {&controller, _keyBinder.GetKeyB()};
+        _nextKeyEvent.emplace_back(&controller, _keyBinder.GetKeyB());
     }
 }
 
 void QTESystem::ProcessQTEEnterEvent() 
 {
+    // 인풋 레이어 푸쉬
+    PushInputLayer();
+
+    // 오디오 페이드
     UmAudio.FadeOut();
+
+    // QTE 진입 사운드 재생 (튜토리얼 대응하기 위해 Invoke 사용)
+    UmTime.Invoke(this, 0.05f, [this]() { AudioHelper::PlaySFX(_audioIDState.OnQTEAppear); });
 
     _currState = QTE::STATE_FADE_IN;
     _callbackHandler.ProcessQTEFadeInStartEvent();
@@ -600,6 +684,11 @@ void QTESystem::ProcessQTEEnterEvent()
 
 void QTESystem::ProcessQTEExitEvent() 
 {
+    if (_currState == QTE::STATE_FADE_OUT)
+    {
+        return;
+    }
+
     UmAudio.FadeIn();
 
     _overallResult.UpdateResult(); // 결과 갱신
@@ -639,6 +728,8 @@ void QTESystem::ProcessQTEFadeInEndEvent()
 
 void QTESystem::ProcessQTEFadeOutEndEvent() 
 {
+    // 인풋 레이어 팝
+    PopInputLayer();
     _currState = QTE::STATE_WAITING;
     _callbackHandler.ProcessQTEFadeOutFinishEvent(_overallResult);
 }
@@ -646,6 +737,7 @@ void QTESystem::ProcessQTEFadeOutEndEvent()
 void QTESystem::ProcessQTEPlayingEvent() 
 {
     UpdateQTETrack();
+
     QTEUIManager* uiManager = SingletonComponent<QTEUIManager>::GetInstance();
     if (uiManager)
     {

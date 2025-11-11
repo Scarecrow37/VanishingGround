@@ -15,6 +15,7 @@ struct RevelationUI
     TextElement*                NameElement;
     DescriptionPanel*           DescriptionElement;
     ChildsAnimationsController* AnimationsController;
+    ImageElement*               FocusElement;
 };
 
 class RevelationsView : public Component
@@ -54,6 +55,19 @@ private:
 
     std::weak_ptr<SpriteAnimationElement> _startAnimation;
     std::weak_ptr<SpriteAnimationElement> _reloadAnimation;
+    std::weak_ptr<ImageElement>           _endAnimation;
 
     RevelationsViewModel::Handle _watchHandle;
+
+private:
+    void AddCallback();
+    void ClearCallback();
+
+    void FocusIn(size_t index);
+    void FocusOut(size_t index);
+    void ShowTooltip(size_t index);
+    void HideToolTip(size_t index);
+
+    std::vector<std::pair<UmDelegate<>*, UmDelegate<>::Handle>> _callbacks;
+
 };

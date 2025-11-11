@@ -32,14 +32,14 @@ void CustomShaderPass::Begin(ID3D12GraphicsCommandList* commandList)
         renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
     }
 
-    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[4]{};
+    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[MAX_FORWARD_GROUP]{};
     rtvHandles[0] = _meshRenderTarget->GetRTVHandle();
-    for (int i = 1; i < 4; i++)
+    for (int i = 1; i < MAX_FORWARD_GROUP; i++)
     {
         rtvHandles[i] = renderTargetGroup[i - 1]->GetRTVHandle();
     }
 
-    commandList->OMSetRenderTargets(4, rtvHandles, FALSE, &_ownerScene->_depthStencilView->GetDSVHandle());
+    commandList->OMSetRenderTargets(MAX_FORWARD_GROUP, rtvHandles, FALSE, &_ownerScene->_depthStencilView->GetDSVHandle());
     commandList->RSSetScissorRects(1, &_meshRenderTarget->GetScissorRect());
     commandList->RSSetViewports(1, &_meshRenderTarget->GetViewport());
 }

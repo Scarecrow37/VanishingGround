@@ -2,8 +2,10 @@
 #include "DLLExportDefine.h"
 #include "QTE/Common/QTECommon.h"
 #include "QTE/Callback/Callback.h"
+#include "QTE/Fade/QTEFadeState.h"
 #include "QTE/Result/QTEResult.h"
 #include "QTE/KeyBinder/QTEKeyBinder.h"
+#include "QTE/Audio/QTEAudioState.h"
 #include "QTE/Track/QTETrack.h"
 #include "Utility/SingletonHelper.h"
 #include "Stats/Weapon/WeaponStats.h"
@@ -49,25 +51,39 @@ public:
 private:
     void Reset() override;
     void Awake() override;
-    void Start() override;
     void Update() override;
     void OnDestroy() override;
+    void OnLoadScene(Scene& loadScene, LoadSceneMode mode) override;
 
     void SerializedReflectEvent() override;
     void DeserializedReflectEvent() override;
     void ImGuiDrawPropertysEvent() override;
 
 public:
+    void ResetState();
+
     /// <summary>QTE를 시작합니다. 현재 무기에 맞는 트랙이 있는 경우 트랙으로, 없으면 무기 기반으로 재생합니다.</summary>
     void StartQTE();
     /// <summary>무기 기반으로 트랙을 생성하여 QTE를 시작합니다.</summary>
     void StartQTE(const WeaponStats& weapon);
+        // 이후 추가할거... 가이드 노트, QTE 종료 페이드 아웃 듀레이션 등.
     /// <summary>QTE를 중지합니다.</summary>
     void StopQTE();
     /// <summary>QTE를 일시정지하거나 재개합니다. QTE플레이 중이 아니라면 무시됩니다.</summary>
     void PauseQTE(bool pause);
     /// <summary>QTE 트랙을 비웁니다.</summary>
     void ClearTrack();
+
+public:
+    // QTE 스피드 조정(인자로 단계 수 입력)
+    void IncreaseQTESpeedLevel(int value);
+    void DecreaseQTESpeedLevel(int value);
+
+public:
+    /// <summary>QTE 페이드 상태를 설정합니다.</summary>
+    void SetFadeState(const QTE::FadeState& fadeState);
+    /// <summary>QTE 현재 페이드 상태를 가져옵니다.</summary>
+    const QTE::FadeState& GetCurrentFadeState();
 
 public:
     /// <summary>QTE 키 바인드 상태를 초기화합니다.</summary>
@@ -91,7 +107,7 @@ public:
     inline const TrackTable&                 GetWeaponIDToTrackTable() const { return _weaponIDToTrackTable; }
 
 private:
-    void ResetQTEState();
+    void ResetQTETimeState();
     void ClearQueue();
     void UpdateQTETrack();
     QTE::ResultType GetQTEResult(float noteTime);
@@ -161,10 +177,12 @@ private:
 
     QTE::PlayState                  _currState = QTE::STATE_WAITING;            // QTE 현재 상태
     QTE::PlayState                  _prevState = QTE::STATE_WAITING;            // QTE 이전 상태
+    QTE::FadeState                  _fadeState;
+    QTE::AudioIDState               _audioIDState;                              // QTE 오디오 아이디
     QTE::KeyBinder                  _keyBinder;                                 // QTE 키 바인딩 처리
     QTE::CallbackHandler            _callbackHandler;                           // QTE 콜백 처리
     QTE::OverallResult              _overallResult;                             // QTE 최종 결과
-    ControllerState                 _nextKeyEvent = {nullptr, Input::ControllerTypes::UNDEFINED};
+    std::vector<ControllerState>    _nextKeyEvent;
 
     float                           _currTime           = 0.0f;                 // QTE 타이머
     float                           _totalTime          = 0.0f;                 // QTE 최대 시간
@@ -202,4 +220,6 @@ private:
         .LeftMotorSpeed  = (unsigned short)(0.2f * 65535.0f),
         .RightMotorSpeed = (unsigned short)(0.7f * 65535.0f),
         .Duration        = std::chrono::milliseconds(150)};
+
+    inline constexpr static float SPEED_LEVEL_PER_SCALE = 0.15f; // 단계 당 스피드 변화 값
 };

@@ -31,7 +31,7 @@ void InputOkCancelComponent::GetOkOrCancel(const std::function<void(bool)>& call
         PushInputLayer();
         gameObject->SetActive(true);
         std::function<void(bool)> callbackFunc = callback;
-        UmTime.Invoke(this, 0.1f, [this, callbackFunc] { _callback = callbackFunc; });
+        UmTime.Invoke(this, 0.2f, [this, callbackFunc] { _callback = callbackFunc; });
     }
 }
 
@@ -41,6 +41,7 @@ void InputOkCancelComponent::OnOk(const Input::Controller&)
     {
         _result  = true;
         _onClose = true;
+        UmAudio.Play("-901002");
     }  
 }
 
@@ -50,5 +51,6 @@ void InputOkCancelComponent::OnCancel(const Input::Controller&)
     {
         _result  = false;
         _onClose = true;
+        UmAudio.Play("-901004");
     }
 }

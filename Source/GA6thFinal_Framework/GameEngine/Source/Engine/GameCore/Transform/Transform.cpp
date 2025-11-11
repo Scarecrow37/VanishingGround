@@ -555,6 +555,8 @@ void Transform::SetParentToIndexEx(Transform* p, int index, bool worldPositionSt
 
 void Transform::DetachChildrenEx(bool callEvent) 
 {
+    std::vector<std::pair<Transform*, Transform*>> eventList;
+    eventList.reserve(_childsList.size());
     for (auto& child : _childsList)
     {
         Transform* prevParent = child->_parent;
@@ -566,7 +568,7 @@ void Transform::DetachChildrenEx(bool callEvent)
 
             if (callEvent)
             {
-                CallUIDetachParent(child, prevParent);
+                eventList.emplace_back(child, prevParent);
             }
         }
     }
@@ -574,6 +576,15 @@ void Transform::DetachChildrenEx(bool callEvent)
     if (_childsList.empty() == false)
     {
         std::erase_if(_childsList, [](Transform* child) { return child->_parent == nullptr; });
+    }
+
+    // 안전하게 호출
+    if (callEvent)
+    {
+        for (auto& [child, prevParent] : eventList)
+        {
+            CallUIDetachParent(child, prevParent);
+        }      
     }
 }
 
@@ -689,4 +700,29 @@ std::vector<GameObject*> Transform::FindBFSwithTag(const std::string& tag)
         }
     });
     return findResult;
+}
+
+void Transform::SetWorldMatrix(const Matrix& matrix)
+{
+    Matrix localMatrix;
+    if (nullptr == _parent)
+    {
+        localMatrix = matrix;
+    }
+    else
+    {
+        const Matrix& parentInversMatrix = _parent->GetInversWorldMatrix();
+        localMatrix                      = matrix * parentInversMatrix;
+    }
+
+    Vector3 scale;
+    Quaternion rotation;
+    Vector3 position;
+    if (localMatrix.Decompose(scale, rotation, position))
+    {
+        Position    = position;
+        Rotation    = rotation;
+        Scale       = scale;
+        _hasChanged = true;
+    }
 }

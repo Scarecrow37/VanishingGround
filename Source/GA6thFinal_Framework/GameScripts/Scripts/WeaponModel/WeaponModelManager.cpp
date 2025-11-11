@@ -11,74 +11,96 @@ WeaponModelManager::~WeaponModelManager() = default;
 
 const File::Guid& WeaponModelManager::GetWeaponPrefabGuid(WeaponType type) const
 {
-    auto iter = _weaponPrefabGuidTable.find(type);
-    if (iter != _weaponPrefabGuidTable.end())
+    auto iter = _weaponPoolTable.find(type);
+    if (iter != _weaponPoolTable.end())
     {
-        return iter->second;
+        return iter->second.PrefabGuid;
     }
     return File::NULL_GUID;
 }
 
-Vector3 WeaponModelManager::GetWeaponOffset(WeaponType type) const
+Vector3 WeaponModelManager::GetWeaponOffsetPosition(WeaponType type) const
 {
-    auto iter = _availableWeaponOffsetsTable.find(type);
-    if (iter != _availableWeaponOffsetsTable.end())
+    auto iter = _weaponOffsetPositionTable.find(type);
+    if (iter != _weaponOffsetPositionTable.end())
     {
         return iter->second;
     }
     return Vector3::Zero;
 }
 
+Vector3 WeaponModelManager::GetWeaponOffsetRotation(WeaponType type) const
+{
+    auto iter = _weaponOffsetRotationTable.find(type);
+    if (iter != _weaponOffsetRotationTable.end())
+    {
+        return iter->second;
+    }
+    return Vector3::Zero;
+}
+
+float WeaponModelManager::GetWeaponOffsetDistance(WeaponType type) const
+{
+    auto iter = _weaponOffsetDistanceTable.find(type);
+    if (iter != _weaponOffsetDistanceTable.end())
+    {
+        return iter->second;
+    }
+    return 0.0f;
+}
+
 WeaponModelData WeaponModelManager::RequestAvailableWeapon(WeaponType type)
 {
-    auto& animationPool    = _weaponAnimationTable[type];
-    auto& particlePool     = _weaponParticleTable[type];
-    auto& availableIndices = _availableWeaponIndicesTable[type];
+    auto& gameObjectPool    = _weaponPoolTable[type].GameObjectPool;
+    auto& animationPool     = _weaponPoolTable[type].AnimationPool;
+    auto& particlePool      = _weaponPoolTable[type].ParticlePool;
+    auto& availableIndices  = _weaponPoolTable[type].AvailableIndices;
     if (false == availableIndices.empty())
     {
-        size_t index = availableIndices.top();
-        availableIndices.pop();
-        AnimationComponent* animation  = animationPool[index];
-        ParticleComponent*  particle   = particlePool[index];
-        GameObject*         gameObject = animation ? &animation->gameObject : nullptr;
+        size_t index = *availableIndices.begin();
 
-        if (gameObject)
+        std::weak_ptr<GameObject>   gameObject = gameObjectPool[index];
+        AnimationComponent*         animation  = animationPool[index];
+        ParticleComponent*          particle   = particlePool[index];
+
+        WeaponModelData modelData(index, type, gameObject, animation, particle);
+
+        if (auto object = gameObject.lock())
         {
-            gameObject->ActiveSelf = true;
+            object->ActiveSelf = true;
+            availableIndices.erase(index);
+            return modelData;
         }
-
-        return WeaponModelData(index, type, gameObject, animation, particle);
     }
     return WeaponModelData();
 }
 
 bool WeaponModelManager::ReturnWeaponModel(WeaponModelData data)
 {
-    if (data.IsValid())
+    const WeaponType type  = data.Type;
+    const size_t     index = data._index;
+    std::set<size_t>& availableIndices = _weaponPoolTable[type].AvailableIndices;
+    if (false == availableIndices.contains(index))
     {
-        if (GameObject* object = &data.Animation->gameObject)
+        if (auto gameObject = data.GameObject.lock())
         {
-            _availableWeaponIndicesTable[data.Type].push(data._index);
-            object->ActiveSelf  = false;
-            data.Animation      = nullptr;
-            data.Particle       = nullptr;
-            data.GameObject     = nullptr;
-            return true;
+            gameObject->ActiveSelf = false;
         }
+        availableIndices.insert(index);
+        return true;
     }
     return false;
 }
 
 bool WeaponModelManager::HasWeaponAnimation(WeaponType type, const std::string& animKey)
 {
-    auto& animList = _weaponAnimationNormalNameList[type];
-    bool  exists   = std::find(animList.begin(), animList.end(), animKey) != animList.end();
-    return exists;
+    auto& animSet = _weaponPoolTable[type].WeaponAnimationKeySet;
+    return animSet.contains(animKey);
 }
 
 const std::string* WeaponModelManager::GetRandomWeaponAnimationKeyToNormalAttack(WeaponType type)
 {
-    auto& animList = _weaponAnimationNormalNameList[type];
+    auto& animList = _weaponPoolTable[type].NormalAnimationKeyList;
     if (false == animList.empty())
     {
         size_t randomIndex = Random::Index(animList.size());
@@ -89,7 +111,7 @@ const std::string* WeaponModelManager::GetRandomWeaponAnimationKeyToNormalAttack
 
 const std::string* WeaponModelManager::GetRandomWeaponAnimationKeyToSpecialAttack(WeaponType type)
 {
-    auto& animList = _weaponAnimationSpecialNameList[type];
+    auto& animList = _weaponPoolTable[type].SpecialAnimationKeyList;
     if (false == animList.empty())
     {
         size_t randomIndex = Random::Index(animList.size());
@@ -113,55 +135,10 @@ void WeaponModelManager::Awake()
 
 void WeaponModelManager::Start()
 {
-    for (auto& [type, guid] : _weaponPrefabGuidTable)
-    {
-        const auto* prefab = UmGameObjectFactory.GetOriginPrefab(guid);
-        if (prefab && prefab->front())
-        {
-            for (size_t i = 0; i < WEAPON_POOLING_SIZE; ++i)
-            {
-                GameObject* clone = GameObject::Instantiate(prefab->front().get());
-                if (clone)
-                {
-                    clone->transform->SetParent(transform, false);
-                    std::string typeStr = rfl::enum_to_string(type);
-                    clone->AddTag(typeStr.c_str());
-                    clone->SetActive(false);
-                    AnimationComponent* animation = clone->GetComponent<AnimationComponent>();
-                    ParticleComponent*  particle  = clone->GetComponent<ParticleComponent>();
-                    if (animation)
-                    {
-                        RegisterWeaponAnimation(type, animation);
-                    }
-                    if (particle)
-                    {
-                        RegisterWeaponParticle(type, particle);
-                    }
-                    _availableWeaponIndicesTable[type].push(i);
-                }
-            }
-        }
-    }
-    InitializeAnimationList();
-}
-
-void WeaponModelManager::Update() {}
-
-void WeaponModelManager::OnDestroy() {}
-
-void WeaponModelManager::SerializedReflectEvent() {}
-
-void WeaponModelManager::DeserializedReflectEvent()
-{
-    for (auto& [typeStr, guid] : ReflectFields->WeaponPrefabGuidTable)
-    {
-        auto type = rfl::string_to_enum<WeaponType>(typeStr);
-        if (type)
-        {
-            _weaponPrefabGuidTable[type.value()] = File::Guid(guid);
-        }
-    }
+    InitializeWeaponPool();
     UpdateOffsetPosition();
+    UpdateOffsetRotation();
+    UpdateOffsetDistance();
 }
 
 void WeaponModelManager::ImGuiDrawPropertysEvent()
@@ -174,9 +151,9 @@ void WeaponModelManager::ImGuiDrawPropertysEvent()
         {
             ImGui::PushID(name.data());
 
-            std::string& guidStr = ReflectFields->WeaponPrefabGuidTable[name.data()];
-            File::Guid&  guid    = _weaponPrefabGuidTable[type];
-            std::string  pathStr = guid.ToPath().string();
+            WeaponPool& weaponPool  = _weaponPoolTable[type];
+            File::Guid& guid        = weaponPool.PrefabGuid;
+            std::string pathStr     = guid.ToPath().string();
 
             ImGuiHelper::AlignedText(name.data(), ImGuiHelper::LEFT);
             ImGuiHelper::TextWithVerticalSeparator("Prefab", 150.0f);
@@ -192,8 +169,8 @@ void WeaponModelManager::ImGuiDrawPropertysEvent()
                     const File::Path&    extension = path.extension();
                     if (extension == L".UmPrefab")
                     {
-                        guidStr = data->GetGuid().string();
-                        guid    = data->GetGuid();
+                        guid = data->GetGuid();
+                        ReflectFields->WeaponPrefabGuidTable[name.data()] = guid.string();
                     }
                     else
                     {
@@ -204,12 +181,21 @@ void WeaponModelManager::ImGuiDrawPropertysEvent()
                 ImGui::EndDragDropTarget();
             }
 
-            ImGuiHelper::TextWithVerticalSeparator("Offset", 150.0f);
-            if (ImGui::DragFloat3("##offset", ReflectFields->WeaponPrefabOffsetTable[name.data()].data(), 1.0f))
+            ImGuiHelper::TextWithVerticalSeparator("Offset Position", 150.0f);
+            if (ImGui::DragFloat3("##position", ReflectFields->WeaponOffsetPositionTable[name.data()].data(), 1.0f))
             {
                 UpdateOffsetPosition();
             }
-
+            ImGuiHelper::TextWithVerticalSeparator("Offset Rotation", 150.0f);
+            if (ImGui::DragFloat3("##rotation", ReflectFields->WeaponOffsetRotationTable[name.data()].data(), 1.0f))
+            {
+                UpdateOffsetRotation();
+            }
+            ImGuiHelper::TextWithVerticalSeparator("Offset Distance", 150.0f);
+            if (ImGui::DragFloat("##distance", &ReflectFields->WeaponOffsetDistance[name.data()], 1.0f))
+            {
+                UpdateOffsetDistance();
+            }
             ImGui::PopID();
         }
         ImGui::TreePop();
@@ -218,11 +204,13 @@ void WeaponModelManager::ImGuiDrawPropertysEvent()
     {
         for (auto& [name, type] : WeaponTypeArray)
         {
+            WeaponPool& weaponPool = _weaponPoolTable[type];
+
             ImGui::PushID(name.data());
             ImGuiHelper::TextWithVerticalSeparator(name.data(), 150.0f);
             ImGui::SameLine();
-            size_t availableCount = _availableWeaponIndicesTable[type].size();
-            size_t totalCount     = _weaponAnimationTable[type].size();
+            size_t availableCount = weaponPool.AvailableIndices.size();
+            size_t totalCount     = weaponPool.GameObjectPool.size();
             ImGui::Text("%s : %zu / %zu", name.data(), availableCount, totalCount);
             ImGui::PopID();
         }
@@ -232,60 +220,114 @@ void WeaponModelManager::ImGuiDrawPropertysEvent()
 
 void WeaponModelManager::UpdateOffsetPosition()
 {
-    _availableWeaponOffsetsTable.clear();
-    for (auto& [typeStr, offsetArray] : ReflectFields->WeaponPrefabOffsetTable)
+    _weaponOffsetPositionTable.clear();
+    for (auto& [typeStr, offsetArray] : ReflectFields->WeaponOffsetPositionTable)
     {
         auto type = rfl::string_to_enum<WeaponType>(typeStr);
         if (type)
         {
-            Vector3 offset;
-            offset = Vector3(offsetArray[0], offsetArray[1], offsetArray[2]);
-            _availableWeaponOffsetsTable[type.value()] = offset;
+            Vector3 offset = Vector3(offsetArray[0], offsetArray[1], offsetArray[2]);
+            _weaponOffsetPositionTable[type.value()] = offset;
         }
     }
 }
 
-void WeaponModelManager::RegisterWeaponAnimation(WeaponType type, AnimationComponent* component)
+void WeaponModelManager::UpdateOffsetRotation() 
 {
-    if (component)
+    _weaponOffsetRotationTable.clear();
+    for (auto& [typeStr, offsetArray] : ReflectFields->WeaponOffsetRotationTable)
     {
-        
-        _weaponAnimationTable[type].push_back(component);
-    }
-}
-
-void WeaponModelManager::RegisterWeaponParticle(WeaponType type, ParticleComponent* component)
-{
-    if (component)
-    {
-        _weaponParticleTable[type].push_back(component);
-    }
-}
-
-void WeaponModelManager::InitializeAnimationList() 
-{
-    for (auto& [type, animPool] : _weaponAnimationTable)
-    {
-        auto& normalAnimList  = _weaponAnimationNormalNameList[type];
-        auto& specialAnimList = _weaponAnimationSpecialNameList[type];
-        if (false == animPool.empty())
+        auto type = rfl::string_to_enum<WeaponType>(typeStr);
+        if (type)
         {
-            if (const auto& anim = animPool.front())
+            Vector3 offset = Vector3(offsetArray[0], offsetArray[1], offsetArray[2]);
+            _weaponOffsetRotationTable[type.value()] = offset;
+        }
+    }
+}
+
+void WeaponModelManager::UpdateOffsetDistance() 
+{
+    _weaponOffsetDistanceTable.clear();
+    for (auto& [typeStr, offset] : ReflectFields->WeaponOffsetDistance)
+    {
+        auto type = rfl::string_to_enum<WeaponType>(typeStr);
+        if (type)
+        {
+            _weaponOffsetDistanceTable[type.value()] = offset;
+        }
+    }
+}
+
+void WeaponModelManager::LoadWeaponInstances(WeaponType type, const File::Guid& prefabGuid)
+{
+    WeaponPool& weaponPool   = _weaponPoolTable[type];
+    const auto* weaponPrefab = UmGameObjectFactory.GetOriginPrefab(prefabGuid);
+    if (weaponPrefab && weaponPrefab->front())
+    {
+        auto sharedPrefab = weaponPrefab->front();
+
+        weaponPool.PrefabGuid = prefabGuid;
+        weaponPool.GameObjectPool.resize(WEAPON_POOLING_SIZE);
+        weaponPool.AnimationPool.resize(WEAPON_POOLING_SIZE);
+        weaponPool.ParticlePool.resize(WEAPON_POOLING_SIZE);
+
+        for (size_t i = 0; i < WEAPON_POOLING_SIZE; ++i)
+        {
+            GameObject* clone = GameObject::Instantiate(sharedPrefab.get());
+            if (clone && clone->transform->GetChild(0))
             {
-                const auto& keyMap = anim->GetAnimationKeyMap();
-                for (auto& [key, anim] : keyMap)
-                {
-                    if (key.find("_S_") != std::string::npos)
-                    { // "_S_" 포함된 키 → 스페셜 리스트
-                        specialAnimList.push_back(key);
-                    }
-                    else
-                    { // 나머지 → 일반 리스트
-                        normalAnimList.push_back(key);
-                    }
+                GameObject& model = clone->transform->GetChild(0)->gameObject;
+                clone->transform->SetParent(transform, false);
+                clone->AddTag(rfl::enum_to_string(type));
+                clone->SetActive(false);
+                weaponPool.GameObjectPool[i] = clone->GetWeakPtr();
+                weaponPool.AnimationPool[i]  = model.GetComponent<AnimationComponent>();
+                weaponPool.ParticlePool[i]   = model.GetComponent<ParticleComponent>();
+                weaponPool.AvailableIndices.insert(i);
+            }
+        }
+    }
+
+    if (false == weaponPool.AnimationPool.empty())
+    {
+        if (AnimationComponent* anim = weaponPool.AnimationPool.front())
+        {
+            const auto& keyMap = anim->GetAnimationKeyMap();
+            for (auto& [key, anim] : keyMap)
+            {
+                weaponPool.WeaponAnimationKeySet.insert(key);
+                if (key.find("_S_") != std::string::npos)
+                { // "_S_" 포함된 키 → 스페셜 리스트
+                    weaponPool.SpecialAnimationKeyList.push_back(key);
+                }
+                else
+                { // 나머지 → 일반 리스트
+                    weaponPool.NormalAnimationKeyList.push_back(key);
                 }
             }
         }
     }
+
+   /* if (false == weaponPool.GameObjectPool.empty())
+    {
+        if (auto object = weaponPool.GameObjectPool.front().lock())
+        {
+            _OriginPivotRotation[type] = object->transform->Rotation;
+        }
+    }*/
 }
 
+void WeaponModelManager::InitializeWeaponPool()
+{
+    for (auto& [typeStr, guid] : ReflectFields->WeaponPrefabGuidTable)
+    {
+        auto type = rfl::string_to_enum<WeaponType>(typeStr);
+        if (type)
+        {
+            WeaponType weaponType = type.value();
+            File::Guid prefabGuid = File::Guid(guid);
+            LoadWeaponInstances(weaponType, prefabGuid);
+        }
+    }
+}

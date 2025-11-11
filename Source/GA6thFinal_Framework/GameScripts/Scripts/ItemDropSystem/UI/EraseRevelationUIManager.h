@@ -7,6 +7,7 @@ class TextElement;
 class ImageElement;
 class EraseRevelationNavi;
 class InputOkCancelComponent;
+class ItemInfoUIManager;
 class EraseRevelationUIManager : public Component, public InputReceiver
 {
     USING_PROPERTY(EraseRevelationUIManager)
@@ -38,8 +39,6 @@ protected:
     REFLECT_FIELDS_END(EraseRevelationUIManager)
 
     void Added() override;
-    void Awake() override;
-    void Start() override;
     void Update() override;
     void OnButtonDownB(const Input::Controller&);
 
@@ -49,15 +48,7 @@ private:
     std::vector<EraseRevelationNavi*> _focusNaviElements;
     std::vector<ImageElement*>        _revelationImages;
 
-    struct RevelationInfoUI
-    {
-        TextElement*      Name        = nullptr;
-        ImageElement*     Icon        = nullptr;
-        DescriptionPanel* Description = nullptr;
-        DescriptionPanel* Flavor      = nullptr;
-        DescriptionPanel* Keyword     = nullptr;
-    };
-    RevelationInfoUI _revelation;
+    ItemInfoUIManager* _itemInfoManager = nullptr;
 
 private:
     void FindElements();

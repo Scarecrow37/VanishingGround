@@ -1,11 +1,13 @@
 ﻿#include "pchScripts.h"
 #include "CharacterStats.h"
+#include "TurnSystem/TurnMode/TurnMode.h"
 
 REFLECT_FUNCTION(CharacterStats)
 
-void CharacterStats::ApplyReduce()
+int CharacterStats::GetMaxChainRoundCout()
 {
-    _reduceHpModel = std::make_pair(_currentHP, ReflectFields->MaxHP);
+    int maxChainRoundCount = ReflectFields->MaxChainRoundCount;
+    return maxChainRoundCount;
 }
 
 void CharacterStats::DeserializedReflectEvent() 

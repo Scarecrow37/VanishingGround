@@ -43,19 +43,48 @@ void TutorialSystem::Awake()
         _singletonComponent.TrySingleTon();
     }
 
-    BindInputAction(ControllerButton::A, Action::PRESSED, this, &TutorialSystem::HoldA);
-    BindInputAction(ControllerButton::A, Action::RELEASED, this, &TutorialSystem::ReleaseA);
+    BindInputAction(ControllerButton::A, Action::HELD, this, &TutorialSystem::HoldA);
 }
 
 void TutorialSystem::Start()
 {
     Component::Start();
-
-    FindComponents();
-    Hide();
-
+    _requestFind = true;
     SetupData();
-    SetupCallback();
+}
+
+void TutorialSystem::Update() 
+{
+    if (_requestFind)
+    {
+        FindComponents();
+        SetupCallback();
+        Hide();
+        _requestFind = false;
+    }
+
+    Debugger()([this] 
+    {
+        // 아래는 디버그용 코드입니다.
+        if (ImGui::IsKeyDown(ImGuiKey_A))
+        {
+            if (const std::shared_ptr<HoldingProgressImageElement> confirm = _confirm.lock())
+            {
+                confirm->Held();
+            }
+        }
+    });
+}
+
+void TutorialSystem::OnDestroy() 
+{
+    Unlock();
+}
+
+void TutorialSystem::OnLoadScene(Scene& loadScene, LoadSceneMode mode) 
+{
+    Unlock();
+    UmTime.Invoke(this, 0.1f, [this]() { _requestFind = true; });
 }
 
 void TutorialSystem::ImGuiDrawPropertysEvent()
@@ -168,6 +197,14 @@ void TutorialSystem::Hide()
     Unlock();
 }
 
+void TutorialSystem::ResetTutorials()
+{
+    for (auto& [isCompleted, title, description, image] : _tutorials | std::views::values)
+    {
+        isCompleted = false;
+    }
+}
+
 void TutorialSystem::SetupData()
 {
     if (ExcelDataSystem* excelDataSystemComponent = SingletonComponent<ExcelDataSystem>::GetInstance())
@@ -180,21 +217,28 @@ void TutorialSystem::SetupData()
             {
                 std::string_view idStringView = dataBase->FindData(row, COLUMN_KEY_ID);
                 std::string      idString     = std::string(idStringView);
-                int              id           = std::stoi(idString);
+                if (false == idString.empty())
+                {
+                    int id = std::stoi(idString);
 
-                std::string_view  titleStringView = dataBase->FindData(row, COLUMN_KEY_TITLE);
-                const std::string titleString     = std::string(titleStringView);
+                    std::string_view  titleStringView = dataBase->FindData(row, COLUMN_KEY_TITLE);
+                    const std::string titleString     = std::string(titleStringView);
 
-                std::string_view  descriptionStringView = dataBase->FindData(row, COLUMN_KEY_DESCRIPTION);
-                const std::string descriptionString     = std::string(descriptionStringView);
+                    std::string_view  descriptionStringView = dataBase->FindData(row, COLUMN_KEY_DESCRIPTION);
+                    const std::string descriptionString     = std::string(descriptionStringView);
 
-                std::string_view imageStringView = dataBase->FindData(row, COLUMN_KEY_IMAGE);
-                std::string      imageString     = std::string(imageStringView);
-                const int        image           = std::stoi(idString);
-                File::Guid       imageGuid       = UmFileSystem.GetGuidFromAssetID(image);
+                    std::string_view imageStringView = dataBase->FindData(row, COLUMN_KEY_IMAGE);
+                    File::Guid       imageGuid;
+                    if (false == imageStringView.empty())
+                    {
+                        std::string imageString = std::string(imageStringView);
+                        const int   image       = std::stoi(imageString);
+                        imageGuid               = UmFileSystem.GetGuidFromAssetID(image);
+                    }
 
-                auto [_, succeed] = _tutorials.try_emplace(id, false, titleString, descriptionString, imageGuid);
-                assert(succeed);
+                    auto [_, succeed] = _tutorials.try_emplace(id, false, titleString, descriptionString, imageGuid);
+                    assert(succeed);
+                }           
             }
         }
         else
@@ -220,15 +264,7 @@ void TutorialSystem::HoldA(const Input::Controller& controller)
 {
     if (const std::shared_ptr<HoldingProgressImageElement> confirm = _confirm.lock())
     {
-        confirm->BeginHold();
-    }
-}
-
-void TutorialSystem::ReleaseA(const Input::Controller& controller)
-{
-    if (const std::shared_ptr<HoldingProgressImageElement> confirm = _confirm.lock())
-    {
-        confirm->EndHold();
+        confirm->Held();
     }
 }
 
@@ -258,10 +294,6 @@ void TutorialSystem::Lock()
 
 void TutorialSystem::Unlock()
 {
-    if (const std::shared_ptr<HoldingProgressImageElement> confirm = _confirm.lock())
-    {
-        confirm->EndHold();
-    }
     UmTime.TimeScale = 1.0f;
     PopInputLayer();
 }

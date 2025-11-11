@@ -42,9 +42,12 @@ public:
     void Stop();
     void Begin();
     void End();
+    bool IsComplete() const;
+    void CompleteImmediately();
+    void ReFindTargets();
 
 protected:
-    void Awake() override;
+    void Added() override;
     void Update() override;
     void Reset() override;
     void ImGuiDrawPropertysEvent() override;

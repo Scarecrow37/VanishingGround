@@ -8,6 +8,9 @@
 #include "UI/Elements/SpriteAnimation/SpriteAnimationElement.h"
 #include "UI/Animations/FadeUIComponent/FadeUIComponent.h"
 #include "TutorialSystem/TutorialSystem.h"
+#include "KeyCallbackUINavi/KeyCallbackUINavi.h"
+#include "TooltipSystem/TooltipSystem.h"
+#include "WeaponSystem/WeaponSystem.h"
 
 UMREAL_COMPONENT(WeaponView)
 
@@ -56,6 +59,7 @@ void WeaponView::Awake()
     Component::Awake();
     _singletonComponent.TrySingleTon();
     FindElements();
+    AddCallBack();
 }
 
 void WeaponView::Start()
@@ -133,13 +137,20 @@ void WeaponView::Start()
                         {
                             if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
                             {
-                                system->Show({805901, 805902});
+                                system->Show(805901); //무기 튜토리얼
+                            }
+                            if (auto focusNavi = GameObject::FindComponentWithTag<KeyCallbackUINavi>("Weapon Panel UI Navi").lock())
+                            {
+                                focusNavi->Focus();
                             }
                         });
                     }
                 }
                 else
                 {
+                    //무기 재등장 사운드
+                    UmAudio.Play("-431002");
+
                     _backgroundUI.FocusOff->Setup();
                     _backgroundUI.FocusOff->StartAnimation();
 
@@ -174,6 +185,7 @@ void WeaponView::Start()
 void WeaponView::OnDestroy() 
 {
     UmWatcher.Blind<WeaponViewModel>("Weapon", _watchHandle);
+    ClearCallbackAll();
 }
 
 void WeaponView::FindElements()
@@ -322,5 +334,75 @@ void WeaponView::FindNameUI()
     {
         std::u8string message = u8"WeaponView 자식에 Weapon Name Text가 존재하지 않습니다.";
         UmLogger.Log(LogLevel::LEVEL_WARNING, message);
+    }
+}
+
+void WeaponView::AddCallBack() 
+{
+    auto focusIn = KeyCallbackUINavi::AddCallbackFocusIn("Weapon Panel", [this]() { FocusIn(); });
+    _keyCallbackHandels.push_back(focusIn);
+
+    auto focusOut = KeyCallbackUINavi::AddCallbackFocusOut("Weapon Panel", [this]() { FocusOut(); });
+    _keyCallbackHandels.push_back(focusOut);
+
+    auto showTooltips = KeyCallbackUINavi::AddCallbackShowTooltips("Weapon Panel", [this]() { ShowTooltips(); UmAudio.Play("-901006"); });
+    _keyCallbackHandels.push_back(showTooltips);
+
+    auto hideTooltips = KeyCallbackUINavi::AddCallbackHideTooltips("Weapon Panel", [this]() { HideTooltips(); });
+    _keyCallbackHandels.push_back(hideTooltips);
+}
+
+void WeaponView::ClearCallbackAll()
+{
+    for (auto& [delegate, handel] : _keyCallbackHandels)
+    {
+        delegate->RemoveListener(handel);
+    }
+}
+
+void WeaponView::FocusIn() 
+{
+    if (_backgroundUI.FocusOn)
+    {
+        _backgroundUI.FocusOn->Enable = true;
+    }
+    if (TooltipSystem* system = SingletonComponent<TooltipSystem>::GetInstance())
+    {
+        system->Hide();
+    }
+}
+
+void WeaponView::FocusOut() 
+{
+    if (_backgroundUI.FocusOn)
+    {
+        _backgroundUI.FocusOn->Enable = false;
+    }
+    if (TooltipSystem* system = SingletonComponent<TooltipSystem>::GetInstance())
+    {
+        system->Hide();
+    }
+}
+
+void WeaponView::ShowTooltips()
+{
+    if (TooltipSystem* tooltipSystem = SingletonComponent<TooltipSystem>::GetInstance())
+    {
+        if (WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance())
+        {
+            auto&            weapon = weaponSystem->GetCurrentWeaponElement();
+            DropItemInfo     item   = weapon.GetItemInfo();
+            std::vector<int> ids    = item.GetArtifactTooltipIDs(item);
+
+            tooltipSystem->Show(Tooltip::Group::PLAYER, ids);
+        }
+    }
+}
+
+void WeaponView::HideTooltips() 
+{
+    if (TooltipSystem* system = SingletonComponent<TooltipSystem>::GetInstance())
+    {
+        system->Hide();
     }
 }

@@ -4,6 +4,7 @@
 #include <QTE/Track/QTETrack.h>
 #include <UI/Panels/Overlay/OverlayPanel.h>
 #include <UI/Elements/Image/ImageElement.h>
+#include <UI/Elements/HoldingProgressImage/HoldingProgressImageElement.h>
 #include <Camera/CameraComponent.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
@@ -21,6 +22,7 @@ void QTEUIManager::OnQTEEnter()
 {
     _fieldUI.Active(true);
     _guideUI.Active(true);
+    _guideUI.Alpha(0.0f);
     _inputViewerUI.Active(true);
     _fieldUI.OnQTEEnter();
     _mainFader.SetFadeMode(Fader::FADE_IN);
@@ -40,6 +42,12 @@ void QTEUIManager::OnQTEEnter()
                 }
             }
         }
+    }
+
+    if (_battleGuideUI.Progress)
+    {
+        _battleGuideUI.Progress->SetElapsedTime(1.0f);
+        _battleGuideUI.FadeOut();
     }
 }
 
@@ -93,22 +101,39 @@ void QTEUIManager::OnQTEPlay()
             const float travelTime  = system->NoteTravelTime;
             const float currTime    = system->CurrentTrackTime;
             const float currSpeed   = system->ScaledSpeedFactor;
-            const SIZE  panelSize   = _overlayPanel->Size;
             const POINT overlayPoint= _fieldUI.Overlay->Point;
             const SIZE  overlaySize = _fieldUI.Overlay->Size;
             const POINT judgeCenter = _fieldUI.JudgeNote->CenterPoint;
-            const SIZE  judgeSize   = _fieldUI.JudgeNote->Size;
 
             const float perfectX    = static_cast<float>(judgeCenter.x);
             const float startX      = static_cast<float>(overlayPoint.x);
             const float endX        = static_cast<float>(overlaySize.cx);
 
+
+            // 페이드 x좌표 구하기... 일단 하드코딩
+            float fadeInStartX = system->GetCurrentFadeState().FadeInStartXFactor;
+            float fadeInEndX   = system->GetCurrentFadeState().FadeInEndXFactor;
+            fadeInStartX *= static_cast<float>(overlaySize.cx);
+            fadeInStartX += startX;
+            fadeInEndX *= static_cast<float>(overlaySize.cx);
+            fadeInEndX += startX;
+
+            float fadeOutStartX = system->GetCurrentFadeState().FadeOutStartXFactor;
+            float fadeOutEndX   = system->GetCurrentFadeState().FadeOutEndXFactor;
+            fadeOutEndX *= static_cast<float>(overlaySize.cx);
+            fadeOutEndX += startX;
+            fadeOutStartX *= static_cast<float>(overlaySize.cx);
+            fadeOutStartX += startX;
             for (auto& [id,_] : _activedPoolIndices)
             {
                 int index = GetIndexFromNoteID(id);
                 if (index >= 0)
                 {
-                    _fieldUI.NotePool[index].Update(currTime, travelTime, currSpeed, startX, endX, perfectX, 0.0f);
+                    _fieldUI.NotePool[index].Update(currTime, travelTime, currSpeed,
+                                                    startX, endX, perfectX, 
+                                                    fadeInStartX, fadeInEndX, 
+                                                    fadeOutStartX, fadeOutEndX, 
+                                                    0.0f);
                 }
             }
         }
@@ -118,6 +143,15 @@ void QTEUIManager::OnQTEPlay()
 void QTEUIManager::OnQTEExit() 
 {
     _mainFader.SetFadeMode(Fader::FADE_OUT);
+}
+
+void QTEUIManager::SetQTEProgress(float t) 
+{
+    SetUIAlpha(t);
+    if (_battleGuideUI.Progress)
+    {
+        _battleGuideUI.Progress->SetElapsedTime(t);
+    }
 }
 
 bool QTEUIManager::DragDropEvent(File::Guid& out)
@@ -198,6 +232,7 @@ void QTEUIManager::Start()
             _fieldUI.Active(false);
             _guideUI.Active(false);
             _inputViewerUI.Active(false);
+            SetUIAlpha(0.0f);
         }
     });
     FindUIComponents();
@@ -216,11 +251,12 @@ void QTEUIManager::Update()
     case Fader::FADE_NONE:
         break;
     case Fader::FADE_IN: {
-        _guideUI.Alpha(factor);
+        _guideUI.Alpha(std::min(factor, 0.8f));
         break;
     }
     case Fader::FADE_OUT: {
         SetUIAlpha(factor);
+        _guideUI.Alpha(std::min(factor, 0.8f));
         break;
     }
     default:
@@ -327,6 +363,21 @@ void QTEUIManager::SetDefaultState()
     _fieldUI.Active(false);
     _guideUI.Active(false);
     _inputViewerUI.Active(false);
+    _battleGuideUI.Active(true);
+}
+
+void QTEUIManager::FadeInBattleGuideUI() 
+{
+    _battleGuideUI.FadeIn();
+    if (_battleGuideUI.Progress)
+    {
+        _battleGuideUI.Progress->ResetProgress();
+    }
+}
+
+void QTEUIManager::FadeOutBattleGuideUI() 
+{
+    _battleGuideUI.FadeOut();
 }
 
 void QTEUIManager::FindUIComponents()
@@ -339,6 +390,7 @@ void QTEUIManager::FindUIComponents()
             _inputViewerUI.MatchUIFromObject(curr->gameObject);
             _fieldUI.MatchUIFromObject(curr->gameObject);
             _guideUI.MatchUIFromObject(curr->gameObject);
+            _battleGuideUI.MatchUIFromObject(curr->gameObject);
         }
     });
 }

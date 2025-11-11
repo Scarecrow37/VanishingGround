@@ -38,7 +38,8 @@ void ConstantBufferView::Initialize(UINT size)
     hr = device->CreateCommittedResource(&hp, D3D12_HEAP_FLAG_NONE, &rd, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&_resource));
     FAILED_CHECK_MESSAGE(hr, L"ConstantBufferView::Initialize device->CreateCommittedResource Failed");
 
-    hr = _resource->Map(0, nullptr, &_data);
+    constexpr D3D12_RANGE readRange{0, 0};
+    hr = _resource->Map(0, &readRange, &_data);
     FAILED_CHECK_MESSAGE(hr, L"ConstantBufferView::Initialize _resource->Map Failed");
 
     _size = size;
@@ -59,5 +60,5 @@ void ConstantBufferView::UpdateBufferWithOffset(void* data, size_t offset, size_
         return;
     }
 
-    std::memcpy(static_cast<std::uint8_t*>(_data) + offset, data, dataSize);
+    memcpy(static_cast<std::uint8_t*>(_data) + offset, data, dataSize);
 }

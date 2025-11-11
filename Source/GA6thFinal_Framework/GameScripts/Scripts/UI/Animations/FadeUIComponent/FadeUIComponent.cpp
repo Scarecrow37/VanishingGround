@@ -40,6 +40,45 @@ void FadeUIComponent::End()
     SetElapsedTime(duration);
 }
 
+bool FadeUIComponent::IsComplete() const
+{
+    if (_fadeDirection == FadeDirection::NONE)
+    {
+        return true;
+    }
+    if (_fadeDirection == FadeDirection::FORWARD)
+    {
+        return GetElapsedTime() >= ReflectFields->FadeDuration;
+    }
+    if (_fadeDirection == FadeDirection::BACKWARD)
+    {
+        return GetElapsedTime() <= 0.0f;
+    }
+    return false;
+}
+
+void FadeUIComponent::CompleteImmediately()
+{
+    if (_fadeDirection == FadeDirection::FORWARD)
+    {
+        End();
+        UpdateOpacity(1.0f);
+        _fadeDirection = FadeDirection::NONE;
+    }
+    else if (_fadeDirection == FadeDirection::BACKWARD)
+    {
+        Begin();
+        UpdateOpacity(0.0f);
+        _fadeDirection = FadeDirection::NONE;
+    }
+}
+
+void FadeUIComponent::ReFindTargets()
+{
+    ClearTargets();
+    FindTargets();
+}
+
 void FadeUIComponent::Update()
 {
     Component::Update();
@@ -64,14 +103,13 @@ void FadeUIComponent::Reset()
     _fadeDirection = FadeDirection::NONE;
 }
 
-void FadeUIComponent::Awake()
+void FadeUIComponent::Added()
 {
-    Component::Awake();
-
-    UpdateAnimationProperty();
-
-    ClearTargets();
-    FindTargets();
+    if (UmCore->IsPlay())
+    {
+        UpdateAnimationProperty();
+        ReFindTargets();
+    }
 }
 
 void FadeUIComponent::ImGuiDrawPropertysEvent()

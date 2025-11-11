@@ -9,10 +9,13 @@
 #include "ItemDropSystem/UINavi/ArtifactButtonNavi.h"
 #include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
 #include "Debugger/Debugger.h"
+#include "UI/Animations/FadeUIComponent/FadeUIComponent.h"
+#include "TutorialSystem/TutorialSystem.h"
 
 #include "Map/MapManager.h"
 #include "Map/Stage.h"
 #include "CombatUIManager/CombatUIManager.h"
+#include "Audio/BGMManager.h"
 
 UMREAL_COMPONENT(ItemDropSystem)
 
@@ -80,10 +83,8 @@ ItemDropSystem::ItemDropSystem()
         weights.resize(AccessoryGradeArraySize, 1.0 / (double)AccessoryGradeArraySize);
     }
 }
-ItemDropSystem::~ItemDropSystem()
-{
+ItemDropSystem::~ItemDropSystem() = default;
 
-}
 
 std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
 {  
@@ -186,7 +187,8 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
         // 무기 랜덤 뽑기 함수
         auto RollWeaponRandomItem = [&](int type) -> DropItemInfo 
         {
-            WeaponGrade grade      = RollWeaponRandomGrade(ReflectFields->WeaponGradeWeight[_itemDropRateBonus]);
+            int bonus = GetItemDropRateBonus(ItemDropBonusType::WEAPON);
+            WeaponGrade grade      = RollWeaponRandomGrade(ReflectFields->WeaponGradeWeight[bonus]);
             int         gradeIndex = static_cast<int>(grade);
             auto&       itemTable  = weapons[type][gradeIndex];
             if (false == itemTable.empty())
@@ -210,7 +212,8 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
         // 계시 랜덤 뽑기 함수
         auto RollRevelationRandomItem = [&]() -> DropItemInfo
         {
-            RevelationGrade grade      = RollRevelationRandomGrade(ReflectFields->RevelationGradeWeight[_itemDropRateBonus]);
+            int             bonus = GetItemDropRateBonus(ItemDropBonusType::REVELATION);
+            RevelationGrade grade      = RollRevelationRandomGrade(ReflectFields->RevelationGradeWeight[bonus]);
             int             gradeIndex = static_cast<int>(grade);
             auto&           itemTable  = revelations[gradeIndex];
             if (false == itemTable.empty())
@@ -233,7 +236,8 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
         // 장신구 랜덤 뽑기 함수
         auto RollAccessoryRandomItem = [&]() -> DropItemInfo
         {
-            AccessoryGrade grade = RollAccessoryRandomGrade(ReflectFields->AccessoryGradeWeight[_itemDropRateBonus]);
+            int            bonus = GetItemDropRateBonus(ItemDropBonusType::ACCESSORY);
+            AccessoryGrade grade      = RollAccessoryRandomGrade(ReflectFields->AccessoryGradeWeight[bonus]);
             int            gradeIndex = static_cast<int>(grade);
             auto&          itemTable  = accessories[gradeIndex];
             if (false == itemTable.empty())
@@ -272,7 +276,7 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
             artifact = RollRevelationRandomItem();
             break;
         case ArtifactDropType::ERASE_REVELATION:
-            artifact.ID       = DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::ERASE_REVELATION);
+            artifact.ID       = DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::ERASE_REVELATION, false);
             artifact.Category = ArtifactDropType::ERASE_REVELATION;
             artifact.Name     = (const char*)u8"계시 지우기";
             break;
@@ -281,6 +285,188 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
         }      
     }
     return artifacts;
+}
+
+void ItemDropSystem::RollArtifactsCurrent() 
+{
+    if (_dropItemsModel.empty())
+    {
+        SetDropItem(RollArtifacts());
+        return;
+    }
+
+    RevelationSystem* revelationSystem = SingletonComponent<RevelationSystem>::GetInstance();
+    std::array<std::vector<RevelationElement*>, RevelationGradeArraySize> revelations{};
+    if (revelationSystem)
+    {
+        // 등급별 계시 분류
+        const auto& table = revelationSystem->GetRevelationTableElements();
+        for (auto& revelation : table)
+        {
+            RevelationGrade grade = revelation->Grade;
+            if (RevelationGrade::EXTINCTION != grade)
+            {
+                size_t index = static_cast<size_t>(grade);
+                revelations[index].push_back(revelation);
+            }
+        }
+    }
+
+    // 무기 테이블에 대한 이중 배열. 첫번째는 무기 타입, 두번째는 무기 등급
+    std::array<std::array<std::vector<WeaponElement*>, WeaponGradeArraySize>, WeaponTypeArraySize> weapons{};
+    WeaponTableComponent* weaponTableComponent = SingletonComponent<WeaponTableComponent>::GetInstance();
+    if (weaponTableComponent)
+    {
+        // 등급별 무기 분류
+        const auto& table = weaponTableComponent->GetWeaponTableElements();
+        for (auto& weapon : table)
+        {
+            WeaponType  type       = weapon->Stats.Type;
+            size_t      typeIndex  = static_cast<size_t>(type);
+            WeaponGrade grade      = weapon->Stats.Grade;
+            size_t      gradeIndex = static_cast<size_t>(grade);
+            weapons[typeIndex][gradeIndex].push_back(weapon);
+        }
+    }
+
+    // 장신구 테이블에 대한 배열.
+    std::array<std::vector<AccessoryElement*>, AccessoryGradeArraySize> accessories{};
+    AccessorySystem* accessorySystem = SingletonComponent<AccessorySystem>::GetInstance();
+    if (accessorySystem)
+    {
+        const auto& table = accessorySystem->GetAccessoryTableElements();
+        for (auto& accessory : table)
+        {
+            // 중복 장신구는 제외
+            if (false == accessorySystem->HasPlayerAccessory(*accessory))
+            {
+                AccessoryGrade grade     = accessory->Grade;
+                size_t         typeIndex = static_cast<size_t>(grade);
+
+                accessories[typeIndex].push_back(accessory);
+            }
+        }
+    }
+
+    // 카테고리 유지하고 뽑기
+    _dropItemsModel.for_each([&](DropItemInfo& artifact) 
+    {
+        // 현재 종류
+        ArtifactDropType type = artifact.Category;
+
+        // 종류별 랜덤 뽑기
+        auto RollWeaponRandomGrade = [this](const std::vector<double>& weight) -> WeaponGrade {
+            auto& [gradeStr, grade] = WeaponGradeArray[Random::Index(weight)];
+            return grade;
+        };
+        auto RollRevelationRandomGrade = [this](const std::vector<double>& weight) -> RevelationGrade {
+            auto& [gradeStr, grade] = RevelationGradeArray[Random::Index(weight)];
+            return grade;
+        };
+        auto RollAccessoryRandomGrade = [this](const std::vector<double>& weight) -> AccessoryGrade {
+            auto& [gradeStr, grade] = AccessoryGradeArray[Random::Index(weight)];
+            return grade;
+        };
+
+        // 무기 랜덤 뽑기 함수
+        auto RollWeaponRandomItem = [&](int type) -> DropItemInfo {
+            int         bonus      = GetItemDropRateBonus(ItemDropBonusType::WEAPON);
+            WeaponGrade grade      = RollWeaponRandomGrade(ReflectFields->WeaponGradeWeight[bonus]);
+            int         gradeIndex = static_cast<int>(grade);
+            auto&       itemTable  = weapons[type][gradeIndex];
+            if (false == itemTable.empty())
+            {
+                size_t     itemIndex  = Random::Index(itemTable.size());
+                IDropItem* randomItem = itemTable[itemIndex];
+                itemTable.erase(itemTable.begin() + itemIndex);
+                return randomItem->GetItemInfo();
+            }
+            else
+            {
+                DropItemInfo info{};
+                info.ID       = 0;
+                info.Category = static_cast<ArtifactDropType>(type);
+                info.Name     = rfl::enum_to_string(grade);
+                info.Name += (const char*)u8" 등급 ";
+                info.Name += rfl::enum_to_string(static_cast<WeaponType>(type));
+                return info;
+            }
+        };
+        // 계시 랜덤 뽑기 함수
+        auto RollRevelationRandomItem = [&]() -> DropItemInfo {
+            int             bonus = GetItemDropRateBonus(ItemDropBonusType::REVELATION);
+            RevelationGrade grade      = RollRevelationRandomGrade(ReflectFields->RevelationGradeWeight[bonus]);
+            int             gradeIndex = static_cast<int>(grade);
+            auto&           itemTable  = revelations[gradeIndex];
+            if (false == itemTable.empty())
+            {
+                size_t     itemIndex  = Random::Index(itemTable.size());
+                IDropItem* randomItem = itemTable[itemIndex];
+                itemTable.erase(itemTable.begin() + itemIndex);
+                return randomItem->GetItemInfo();
+            }
+            else
+            {
+                DropItemInfo info{};
+                info.ID       = 0;
+                info.Category = ArtifactDropType::REVELATION;
+                info.Name     = rfl::enum_to_string(grade);
+                info.Name += (const char*)u8" 등급 계시";
+                return info;
+            }
+        };
+        // 장신구 랜덤 뽑기 함수
+        auto RollAccessoryRandomItem = [&]() -> DropItemInfo {
+            int            bonus      = GetItemDropRateBonus(ItemDropBonusType::ACCESSORY);
+            AccessoryGrade grade      = RollAccessoryRandomGrade(ReflectFields->AccessoryGradeWeight[bonus]);
+            int            gradeIndex = static_cast<int>(grade);
+            auto&          itemTable  = accessories[gradeIndex];
+            if (false == itemTable.empty())
+            {
+                size_t     itemIndex  = Random::Index(itemTable.size());
+                IDropItem* randomItem = itemTable[itemIndex];
+                itemTable.erase(itemTable.begin() + itemIndex);
+                return randomItem->GetItemInfo();
+            }
+            else
+            {
+                DropItemInfo info{};
+                info.ID       = 0;
+                info.Category = ArtifactDropType::ACCESSORY;
+                info.Name     = rfl::enum_to_string(grade);
+                info.Name += (const char*)u8" 등급 장신구";
+                return info;
+            }     
+        };
+
+        switch (type)
+        {
+        case ArtifactDropType::SWORD:
+            artifact = RollWeaponRandomItem(static_cast<int>(WeaponType::SWORD));
+            break;
+        case ArtifactDropType::DAGGER:
+            artifact = RollWeaponRandomItem(static_cast<int>(WeaponType::DAGGER));
+            break;
+        case ArtifactDropType::WARHAMMER:
+            artifact = RollWeaponRandomItem(static_cast<int>(WeaponType::WARHAMMER));
+            break;
+        case ArtifactDropType::ACCESSORY:
+            artifact = RollAccessoryRandomItem();
+            break;
+        case ArtifactDropType::REVELATION:
+            artifact = RollRevelationRandomItem();
+            break;
+        case ArtifactDropType::ERASE_REVELATION:
+            break;
+        default:
+            break;
+        }
+    });  
+
+    //보너스 적용
+    AddItemDropRateBonus(ItemDropBonusType::WEAPON);
+    AddItemDropRateBonus(ItemDropBonusType::ACCESSORY);
+    AddItemDropRateBonus(ItemDropBonusType::REVELATION);
 }
 
 void ItemDropSystem::SetDropItem(const std::array<DropItemInfo, ARTIFACT_DROP_COUNT>& itemInfos)
@@ -319,7 +505,13 @@ void ItemDropSystem::PlayItemDropUISequence()
     if (ItemDropUIRootManager* itemDropUIRootManager = SingletonComponent<ItemDropUIRootManager>::GetInstance())
     {
         itemDropUIRootManager->gameObject->ActiveSelf = true;
+        if (FadeUIComponent* fadeUI = itemDropUIRootManager->GetComponent<FadeUIComponent>())
+        {
+            fadeUI->Begin();
+            fadeUI->FadeIn();
+        }
         StageClearCount = StageClearCount + 1;
+        ++WinCount;
 
         if (ArtifactUIManager* manager = SingletonComponent<ArtifactUIManager>::GetInstance())
         {
@@ -333,6 +525,12 @@ void ItemDropSystem::PlayItemDropUISequence()
                 SetDropItem(artifacts);
             }
 
+            // 첫번째 클리어일때는 뽑기 실행
+            if (StageClearCount == 1)
+            {
+                RollArtifactsCurrent();
+            }
+
             // 버튼 기능 설정
             const auto& dropItemInfos = _dropItemsModel;
             size_t      i             = 0;
@@ -344,7 +542,27 @@ void ItemDropSystem::PlayItemDropUISequence()
 
             // 포커스 되야할 버튼
             ArtifactButtonNavi::LastFocusIndex = 0;
-            itemDropUIRootManager->AutoFocus();
+            itemDropUIRootManager->UpdateStory();
+            UmTime.Invoke(itemDropUIRootManager, 0.1f, [itemDropUIRootManager]() 
+            { 
+                itemDropUIRootManager->AutoFocus();
+            });
+           
+            if (BGMManager* bgmManager = SingletonComponent<BGMManager>::GetInstance())
+            {
+                UmTime.Invoke(bgmManager, 0.1f, [bgmManager]() {
+                    bgmManager->PlayBGM("-460000", true);
+                });
+            }
+
+            // UI 갱신
+            _dropItemsModel.Notify();
+
+            // 튜토리얼
+            if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
+            {
+                system->Show(805914); //보상과 추가 전투
+            }
         }
     }
 
@@ -673,4 +891,34 @@ void ItemDropSystem::DebugUpdate()
     }
 }
 
+
+void ItemDropSystem::AddItemDropRateBonus(ItemDropBonusType type)
+{
+    size_t index = static_cast<size_t>(type);
+    if (index < _itemDropRateBonus.size())
+    {
+        int bonus                 = _itemDropRateBonus[index] + 1;
+        int maxIndex              = ITEM_DROP_RATE_BONUS_MAX - 1;
+        _itemDropRateBonus[index] = std::clamp(bonus, 0, maxIndex);
+    }
+}
+
+void ItemDropSystem::ResetItemDropRateBonus(ItemDropBonusType type)
+{
+    size_t index = static_cast<size_t>(type);
+    if (index < _itemDropRateBonus.size())
+    { 
+        _itemDropRateBonus[index] = 0;
+    }
+}
+
+int ItemDropSystem::GetItemDropRateBonus(ItemDropBonusType type)
+{
+    size_t index = static_cast<size_t>(type);
+    if (index < _itemDropRateBonus.size())
+    {
+        return _itemDropRateBonus[index];
+    }
+    return 0;
+}
  

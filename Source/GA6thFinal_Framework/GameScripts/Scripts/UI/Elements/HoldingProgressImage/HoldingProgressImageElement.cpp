@@ -10,14 +10,9 @@ void HoldingProgressImageElement::BindProgressComplete(const ProgressCompleteCal
     _progressCompleteCallback = callback;
 }
 
-void HoldingProgressImageElement::BeginHold()
+void HoldingProgressImageElement::Held() 
 {
     _isHolding = true;
-}
-
-void HoldingProgressImageElement::EndHold()
-{
-    _isHolding = false;
 }
 
 void HoldingProgressImageElement::ResetProgress()
@@ -25,6 +20,11 @@ void HoldingProgressImageElement::ResetProgress()
     _elapsedTime = 0.0f;
     _isCompleted = false;
     ResetType();
+}
+
+void HoldingProgressImageElement::SetElapsedTime(const float t)
+{
+    _elapsedTime = t;
 }
 
 void HoldingProgressImageElement::Reset()
@@ -59,6 +59,7 @@ void HoldingProgressImageElement::Update()
         {
             _elapsedTime -= deltaTime;
         }
+        _isHolding = false;
 
         const float holdDuration = HoldDuration;
         assert(holdDuration > 0.0f);

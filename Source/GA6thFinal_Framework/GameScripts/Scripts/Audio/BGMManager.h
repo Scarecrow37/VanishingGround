@@ -11,10 +11,24 @@ public:
     ~BGMManager() override;
 
 public:
-    REFLECT_PROPERTY(Volume, FadeDuration, CurrentFadeFactor, PreviousFadeFactor)
+    REFLECT_PROPERTY(CurrentAudioKey, PreviousAudioKey, SleepAudioKey, Volume, FadeDuration, CurrentFadeFactor,
+                     PreviousFadeFactor)
+
+    GETTER_ONLY(std::string_view, CurrentAudioKey) { return _currBGMKey; }
+    PROPERTY(CurrentAudioKey)
+
+    GETTER_ONLY(std::string_view, PreviousAudioKey) { return _prevBGMKey; }
+    PROPERTY(PreviousAudioKey)
+
+    GETTER_ONLY(std::string_view, SleepAudioKey) { return _sleepBGMKey; }
+    PROPERTY(SleepAudioKey)
 
     GETTER(float, Volume) { return ReflectFields->Volume; }
-    SETTER(float, Volume) { ReflectFields->Volume = std::clamp(value, 0.0f, 1.0f); }
+    SETTER(float, Volume)
+    {
+        ReflectFields->Volume = std::clamp(value, 0.0f, 1.0f);
+        UpdateVolume();
+    }
     PROPERTY(Volume)
 
     GETTER(float, FadeDuration) { return ReflectFields->FadeDuration; }
@@ -31,13 +45,20 @@ public:
     void PlayBGM(const std::string& bgmKey, bool useFade = true);
     void StopAllBGM();
 
-protected:
+    /// <summary>
+    /// 현재 BGM을 Wait상태에 둔 후, 다음 Play(씬이 넘어가는 등)때 재생 요청 시, 같은 BGM이라면 이어서 재생합니다.
+    /// </summary>
+    void SetCurrentBGMSleep();
+
+private:
     void Awake() override;
     void Update() override;
     void OnDestroy() override;
     void ImGuiDrawPropertysEvent() override;
     void SerializedReflectEvent() override;
     void DeserializedReflectEvent() override;
+
+    void UpdateVolume();
 
 private:
     SingletonObject<BGMManager>     _singletonObject{this};
@@ -48,6 +69,9 @@ private:
     Audio::AudioHandle _prevBGMHandle;
     Fader _currBGMFader;
     Fader _prevBGMFader;
+
+    std::string        _sleepBGMKey;
+    Audio::AudioHandle _sleepBGMHandle;
 
     inline static constexpr float FADE_DURATION = 1.0f;
 

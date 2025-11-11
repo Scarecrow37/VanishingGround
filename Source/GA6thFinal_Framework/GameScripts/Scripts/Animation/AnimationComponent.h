@@ -26,6 +26,19 @@ class AnimationComponent : public Component
     using EventQueue = std::vector<std::function<void()>>;
 
 public:
+    REFLECT_PROPERTY()
+
+    SETTER(float, SpeedScale) { ReflectFields->AnimationSpeedScale = value; }
+    GETTER(float, SpeedScale) { return ReflectFields->AnimationSpeedScale; }
+    PROPERTY(SpeedScale)
+
+    GETTER_ONLY(const std::string&, MainAnimationName) { return _mainAnimationData._animationName; }
+    PROPERTY(MainAnimationName)
+        
+    GETTER_ONLY(float, MainAnimationDuration) { return _mainAnimationData._maxFrame; }
+    PROPERTY(MainAnimationDuration)
+
+public:
     void Added() override;
     void Update() override;
     void OnDestroy() override;
@@ -227,14 +240,14 @@ public:
     inline const std::map<std::string, std::string>& GetAnimationKeyMap() const { return ReflectFields->AnimationKeyMap; }
 
 private:
-    IAnimator*                _animator;
+    IAnimator*                _animator                     = nullptr;
     EventQueue                _eventQueue;
-    AnimationData*            _currentAnimationData = nullptr; // 현재 애니메이션 데이터
+    AnimationData*            _currentAnimationData         = nullptr; // 현재 애니메이션 데이터
     AnimationData             _mainAnimationData;
     std::deque<AnimationData> _overrideAnimationStack;
-    AnimationData*            _lastAnimationData           = nullptr;
-    bool                      _isBuildingOverrideAnimation = false;
-    UINT                      _prevBeginBuildAnimationID   = 0;
+    AnimationData*            _lastAnimationData            = nullptr;
+    bool                      _isBuildingOverrideAnimation  = false;
+    UINT                      _prevBeginBuildAnimationID    = 0;
     
     std::pair<bool, int>        _nextAnimationFlag; // 다음 애니메이션 데이터 (first: isValid, second: NextAnimationData)
     

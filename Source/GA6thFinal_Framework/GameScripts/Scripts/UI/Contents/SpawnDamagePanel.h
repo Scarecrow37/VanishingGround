@@ -87,7 +87,6 @@ protected:
     void OnDrawDebugSelectedOverride() override;
     void DeserializedReflectEvent() override;
 
-    void Awake() override;
     void Reset() override;
 
     void                    EraseChild() const;

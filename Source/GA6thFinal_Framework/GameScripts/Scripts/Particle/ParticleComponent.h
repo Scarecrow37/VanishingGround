@@ -108,6 +108,7 @@ public:
     void StopEffect(const std::string& key);
     void StopAll();
     void ClearEffectList();
+    void DeleteEffect(const std::string& key);
     void RegisterEffectFromGuid(const File::Path& filepath, const std::string& key);
     void RegisterEffectFromGuid(const File::Guid& fileguid, const std::string& key);
     void FollowBoneMatrix(const std::string& key);
@@ -135,14 +136,19 @@ protected:
     void SerializedReflectEvent() override;
     void DeserializedReflectEvent() override;
     void ImGuiDrawPropertysEvent() override;
+    void Start() override;
 
- private:
+
+  void Update() override;
+
+private:
     void LoadParticle(const std::string& keyString);
     
     class SkeletalMeshRenderer* _skelMesh;
     std::unordered_map<std::string,Vector3> _positionVector;
     std::unordered_map<std::string,Vector3> _rotationVector;
     std::unordered_map<std::string,Vector3> _scaleVector;
+    
 
     std::string _currentEffectKey = "-";
     std::string _newEffectKey     = "";

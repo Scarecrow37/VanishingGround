@@ -48,6 +48,7 @@ namespace QTE
         int PerfectCount    = 0; // 치명타 카운트
         int NormalCount     = 0; // 일격 카운트
         int MissCount       = 0; // 빗나감 카운트
+        int InvalidCount    = 0; // 유효하지 않은 타격 카운트(비어있는 공간에 대한 공격 횟수)
         int ResultFlags     = 0; // 결과 산출 비트 플래그
 
         std::vector<NoteResult> NoteResults; // 노트 결과 리스트
@@ -69,6 +70,7 @@ namespace QTE
             PerfectCount = 0;
             NormalCount  = 0;
             MissCount    = 0;
+            InvalidCount = 0;
             ResultFlags  = QTE_RESULT_NONE;
             NoteResults.clear();
         }
@@ -76,9 +78,10 @@ namespace QTE
         /// <summary>결과를 갱신합니다. PerfectCount, NormalCount, MissCount 값을 기반으로 ResultFlags을 갱신합니다.</summary>
         inline void UpdateResult()
         {
+            // 유효하지 않은 적(Invalid Count)을 친 적이 있을 시에 대한 예외 처리는 하지 않는게 기획의도
             int  total   = static_cast<int>(NoteResults.size());
-            bool allCrit = PerfectCount >= total;
-            bool overHit = (PerfectCount + NormalCount) >= total;
+            bool allCrit = (PerfectCount >= total);
+            bool overHit = (PerfectCount + NormalCount >= total);
 
             ResultFlags  = QTE_RESULT_NONE;
             ResultFlags |= allCrit ? QTE_RESULT_ALL_CRIT : QTE_RESULT_ALL_CRIT_FAIL;

@@ -22,7 +22,7 @@ struct PSInput
     float3 biTangent : BINORMAL;
     float2 uv : TEXCOORD;
     float4 color : COLOR0;
-    nointerpolation int emitterIndex : CUSTOM_FLAG;
+    nointerpolation uint2 emitterIndex : CUSTOM_FLAG;
 };
 
 
@@ -38,7 +38,7 @@ uint ps_main(PSInput input) : SV_Target
     
     clip(input.color.a - 0.001f);
 
-    int emitIndex = input.emitterIndex;
+    int emitIndex = input.emitterIndex.x;
     int albedoID = texID[emitIndex];
 
     float factor = textures[albedoID].Sample(samLinear_wrap, input.uv).r;
@@ -66,7 +66,7 @@ uint ps_main(PSInput input) : SV_Target
     uint2 pos = uint2(input.position.xy);
     gAccumTex[pos] += float4(color, contrib);
     gRevealTex[pos] += alpha;
-
+    alpha = saturate(alpha);
     
-    return ceil(alpha - 0.1f);
+    return (1 - input.emitterIndex.y);
 }

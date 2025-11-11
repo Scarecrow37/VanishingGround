@@ -34,6 +34,7 @@ void PlayerActionPhase::OnEnter()
         if (auto& actor = _turnMode->GetCurrTurnActor())
         {
             actor->PlayTurn();
+            actor->OnTurnStart();
             if (auto* combatStartPhase = _turnMode->States->CombatStartPhase)
             {
                 CharacterBase* character = static_cast<CharacterBase*>(actor.Get());
@@ -45,24 +46,23 @@ void PlayerActionPhase::OnEnter()
             }
             actor->UpdatePostTurnState();
         }
-    }
-    if (CheckTurnEndCondition* condition = _turnMode->Conditions->CheckTurnEndCondition)
-    {
-        condition->IsTurnEnd = false;
-        // 토큰 데미지를 기다린다
-        if (TokenSystem* system = SingletonComponent<TokenSystem>::GetInstance())
+        if (CheckTurnEndCondition* condition = _turnMode->Conditions->CheckTurnEndCondition)
         {
-            float tokenDelayTime = system->TokenDamageDelayTime * 2; // 두개의 토큰 대미지를 기다려야함 (출혈, 중독)
-            UmTime.Invoke(GetFSM(), tokenDelayTime, [this]() 
-            { 
-                WaitPhase = false; 
+            condition->IsTurnEnd = false;
+            // 토큰 데미지를 기다린다
+            if (TokenSystem* system = SingletonComponent<TokenSystem>::GetInstance())
+            {
+                float tokenDelayTime = system->TokenDamageDelayTime * 2; // 두개의 토큰 대미지를 기다려야함 (출혈, 중독)
+                UmTime.Invoke(GetFSM(), tokenDelayTime, [this]() {
+                    WaitPhase = false;
+                    UpdateCharacterDead();
+                });
+            }
+            else
+            {
+                WaitPhase = false;
                 UpdateCharacterDead();
-            });
-        }
-        else
-        {
-            WaitPhase = false;
-            UpdateCharacterDead();
+            }
         }
     }
 }
@@ -70,7 +70,13 @@ void PlayerActionPhase::OnEnter()
 void PlayerActionPhase::OnExit()
 {
     WaitPhase = true;
-    ApplyReduceHP();
+    if (_turnMode)
+    {
+        if (auto& actorModel = _turnMode->GetCurrTurnActor())
+        {
+            actorModel->OnTurnEnd();
+        }
+    }
 }
 
 void PlayerActionPhase::OnUpdate() 

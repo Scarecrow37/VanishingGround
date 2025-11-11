@@ -18,12 +18,27 @@ AccessorySystem::~AccessorySystem()
 
 }
 
+void AccessorySystem::ClearPlayerAccessoryItems() 
+{
+    _playerAccessoryItemSet.clear();
+    _playerAccessoryItems.clear();
+}
+
 bool AccessorySystem::EquipAccessory(const AccessoryElement& accessory)
 {
     auto [iter, result] = _playerAccessoryItemSet.insert(accessory.AccessoryID);
     if (result)
     {
         _playerAccessoryItems.push_back(accessory);
+        if (UmCore->IsPlay())
+        {
+            const auto& lastAccessory = _playerAccessoryItems[_playerAccessoryItems.size() - 1];
+            for (auto& action : lastAccessory._actions)
+            {
+                if (action)
+                    action->OnEquipAccessory();
+            }
+        }
     }
     return result;
 }
@@ -317,14 +332,15 @@ void AccessorySystem::ImGuiTableEditor()
                     {
                         for (size_t i = 0; i < accessory._actions.size(); ++i)
                         {
+                            auto& ShowEditorFlags = _editorOnly.ShowActionEditor[key];
                             auto& action = accessory._actions[i];
-                            if (_editorOnly.ShowActionEditor.size() <= i)
+                            if (ShowEditorFlags.size() <= i)
                             {
-                                _editorOnly.ShowActionEditor.resize(i + 1);
+                                ShowEditorFlags.resize(i + 1);
                             }
-                            bool showEditor = _editorOnly.ShowActionEditor[i];
+                            bool showEditor = ShowEditorFlags[i];
                             TurnAction::ImGuiDrawActionMaker(key + std::to_string(i), action, showEditor);
-                            _editorOnly.ShowActionEditor[i] = showEditor;
+                            ShowEditorFlags[i] = showEditor;
                         }
                     }
                     if (ImGui::Button("Push"))
@@ -474,15 +490,7 @@ void AccessorySystem::ImGuiDrawPlayerAccsessoryItems()
             ImGui::PushStyleColor(ImGuiCol_Text, accessory.GetGradeColor());
             {
                 const std::string& name = accessory.AccessoryName;
-                AccessoryElement*  change = AccessorySelectCombo(name.c_str());
-                if (change)
-                {
-                    _playerAccessoryItems.at(i, [&](AccessoryElement& element) 
-                    { 
-                        element = *change;
-                    });
-                }
-
+                ImGui::Text(name.data());
                 ImGui::SameLine();
                 if (ImGui::Button("Unequip"))
                 {

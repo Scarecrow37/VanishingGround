@@ -6,10 +6,9 @@
 
 struct PlayerStats : public CharacterStats
 {
-    inline static constexpr const char* MODEL_HP_KEY = "A5576328-0510-4E9C-A161-0868109710A9";
-    inline static constexpr const char* MODEL_REDUCE_HP_KEY = "CF4FAA43-1D19-48F3-8D76-3A35DD8F5D7F";
-    inline static constexpr const char* MODEL_CHAIN_KEY = "775124A6-1CD5-4222-912A-30BC74876430";
-    inline static constexpr const char* MODEL_STURN_KEY = "7EF594ED-1A69-48A5-8A7A-47D15F6A4E86";
+    inline static constexpr const char* MODEL_HP_KEY        = "A5576328-0510-4E9C-A161-0868109710A9";
+    inline static constexpr const char* MODEL_CHAIN_KEY     = "775124A6-1CD5-4222-912A-30BC74876430";
+    inline static constexpr const char* MODEL_STURN_KEY     = "7EF594ED-1A69-48A5-8A7A-47D15F6A4E86";
 
     USING_PROPERTY(PlayerStats)
     PlayerStats() = default;
@@ -31,9 +30,13 @@ public:
     {
         if (this != &rhs)
         {
-            reflect_fields_struct& myFields  = *this->ReflectFields;
-            reflect_fields_struct& rhsFields = *this->ReflectFields;
-            myFields                         = rhsFields;
+            *ReflectFields          = *rhs.ReflectFields;
+            _hpModel                = rhs._hpModel.Get();
+            _currentHP              = rhs._currentHP;
+            _reduceHpModel          = rhs._reduceHpModel.Get();
+            _currentChainCount      = rhs._currentChainCount.Get();
+            _currentChainRoundCount = rhs._currentChainRoundCount;
+            _sturnResistanceModel   = rhs._sturnResistanceModel.Get();
         }
         return *this;
     }
@@ -46,10 +49,6 @@ public:
         std::string hpkey = MODEL_HP_KEY;
         UmWatcher.Unregister<CharacterHPViewModel>(hpkey);
         UmWatcher.Register<CharacterHPViewModel>(hpkey, _hpModel);
-
-        std::string reduceHpKey = MODEL_REDUCE_HP_KEY;
-        UmWatcher.Unregister<CharacterHPViewModel>(reduceHpKey);
-        UmWatcher.Register<CharacterHPViewModel>(reduceHpKey, _reduceHpModel);
 
         std::string chainkey = MODEL_CHAIN_KEY;
         UmWatcher.Unregister<ChainCountViewModel>(chainkey);
@@ -64,9 +63,6 @@ public:
     {
         std::string hpKey = MODEL_HP_KEY;
         UmWatcher.Unregister<CharacterHPViewModel>(hpKey);
-
-        std::string reduceHpKey = MODEL_REDUCE_HP_KEY;
-        UmWatcher.Unregister<CharacterHPViewModel>(reduceHpKey);
 
         std::string chainkey = MODEL_CHAIN_KEY;
         UmWatcher.Unregister<ChainCountViewModel>(chainkey);

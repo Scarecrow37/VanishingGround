@@ -20,11 +20,18 @@ void ReduceGage::Update()
 {
     if (_imageElement)
     {
-        if (!_isReducing && _currentRate > _targetRate)
+        // 피가 회복되는 경우 처리
+        if (_targetRate > _currentRate)
+        {
+            _currentRate = _targetRate;
+            _imageElement->SetLinearFill(_currentRate);
+            return;
+        }
+        else if (!_isReducing && _currentRate > _targetRate)
         {
             _reduceTimer += UmTime.DeltaTime();
 
-            if (_reduceTimer >= 1.f)
+            if (_reduceTimer >= 0.8f)
             {
                 _isReducing   = true;
                 _reduceTimer  = 0.0f;
@@ -37,7 +44,7 @@ void ReduceGage::Update()
         {
             _reduceTimer += UmTime.DeltaTime();
 
-            if (_reduceTimer >= 1.f)
+            if (_reduceTimer >= 0.8f)
             {                
                 _currentRate = _targetRate;
                 ResetReduce();

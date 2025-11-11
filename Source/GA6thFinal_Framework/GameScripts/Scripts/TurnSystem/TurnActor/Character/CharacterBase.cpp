@@ -62,6 +62,13 @@ int CharacterBase::GetMaxChainRoundCount()
     if (nullptr != stats)
     {
         maxChainCount = stats->MaxChainRoundCount;
+        if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+        {
+            mode->ApplyActions([this, &maxChainCount](TurnAction& action) 
+            {
+                action.OnCharacterMaxChainRoundCountUse(*this, maxChainCount);
+            });
+        }    
     }
     return maxChainCount;
 }
@@ -84,22 +91,24 @@ CharacterBase::CharacterBase() :
 
 CharacterBase::~CharacterBase() = default;
 
+void CharacterBase::Added() 
+{
+    if (UmCore->IsPlay())
+    {
+        FindComponent();
+    }
+}
+
 void CharacterBase::Awake()
 {
     Base::Awake();
     gameObject->AddTag(TAG);
-    _skeletalMeshRenderer = nullptr;
-    _animationComponent   = nullptr;
-    _particleComponent    = nullptr;
-
-    FindComponent();
-    InitAnimationCallback();
+    InitializeAnimation();
 }
 
 void CharacterBase::Start() 
 {
     Base::Start();
-    _tokenInventory.Initialize();
 }
 
 bool CharacterBase::FindComponent()
@@ -112,43 +121,29 @@ bool CharacterBase::FindComponent()
         _skeletalMeshRenderer = model.GetComponent<SkeletalMeshRenderer>();
         _animationComponent   = model.GetComponent<AnimationComponent>();
         _particleComponent    = model.GetComponent<ParticleComponent>();
-
-        if (nullptr == _skeletalMeshRenderer)
-        {
-            std::string msg = std::format("{}{}", model.ToString(), (const char*)u8"의 컴포넌트에 SkeletalMeshRenderer가 없습니다.");
-            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
-        }
-        
-        if (nullptr == _animationComponent)
-        {
-            std::string msg = std::format("{}{}", model.ToString(), (const char*)u8"의 컴포넌트에 AnimationComponent가 없습니다.");
-            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
-        }
-
-        if (nullptr == _particleComponent)
-        {
-            std::string msg = std::format("{}{}", model.ToString(), (const char*)u8"의 컴포넌트에 ParticleComponent가 없습니다.");
-            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
-        }
-
         valid = _skeletalMeshRenderer && _animationComponent && _particleComponent;
     }
     return valid;
 }
 
-void CharacterBase::InitAnimationCallback() 
+void CharacterBase::InitializeAnimation()
 {
     if (_animationComponent)
     {
         _animationComponent->SetAnimationPostEventCallback(
             [this](const Timeline::EventContext* context) { OnNotifiedAnimationEvent(context); });
+
+        _animationComponent->SetNextAnimationFlags(ANIMATION_FLAG_USE_LOOP |
+                                                   ANIMATION_FLAG_RESET_FRAME|
+                                                   ANIMATION_FLAG_USE_BLEND);
+        _animationComponent->ChangeMainAnimation("Idle");
     }
 }
 
 void CharacterBase::ClearState() 
 {
     Base::ClearState();
-    _tokenInventory.Clear();
+    _tokenInventory.Initialize();
     if (CharacterStats* stats = GetCharacterStats())
     {
         _tokenInventory.AddTokenStackFromID(TokenObject::StunResistance::ID, stats->StunResistance);    
@@ -167,7 +162,17 @@ void CharacterBase::Revive()
     if (CharacterStats* stats = GetCharacterStats())
     {
         stats->CurrentHP = stats->MaxHP;
-        stats->CurrentChainCount = stats->MaxChainRoundCount;
+        stats->CurrentChainCount = 0;
+        int maxChainRoundCount = stats->MaxChainRoundCount;
+        if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+        {
+            mode->ApplyActions([this, &maxChainRoundCount](TurnAction& action) 
+            {
+                action.OnCharacterMaxChainRoundCountUse(*this, maxChainRoundCount);
+            });
+        }
+        //부활 한 뒤에는 연격 지속시간 보정
+        stats->CurrentChainRoundCount = maxChainRoundCount + 1;
     }
 }
 
@@ -273,12 +278,20 @@ int CharacterBase::DecrementChainRoundCount()
     CharacterStats* stats = GetCharacterStats();
     if (stats)
     {
-        stats->CurrentChainRoundCount = std::clamp((int)stats->CurrentChainRoundCount - 1, 0, (int)stats->MaxChainRoundCount);
+        stats->CurrentChainRoundCount -= 1;
         int chainRoundCount = stats->CurrentChainRoundCount;
         if (chainRoundCount == 0)
         {
             stats->CurrentChainCount = 0;
-            stats->CurrentChainRoundCount = stats->MaxChainRoundCount;
+            int maxChainRoundCount = stats->MaxChainRoundCount;
+            if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+            {
+                mode->ApplyActions([this, &maxChainRoundCount](TurnAction& action) 
+                {
+                    action.OnCharacterMaxChainRoundCountUse(*this, maxChainRoundCount);
+                });
+            }
+            stats->CurrentChainRoundCount = maxChainRoundCount;
         }     
         return stats->CurrentChainRoundCount;
     }
@@ -288,6 +301,7 @@ int CharacterBase::DecrementChainRoundCount()
 
 void CharacterBase::OnCombatStart() 
 {
+    Base::OnCombatStart();
     _tokenInventory.NotifyCombatStart();
 }
 
@@ -315,12 +329,22 @@ void CharacterBase::OnTurnStart()
 {
     Base::OnTurnStart();
     _tokenInventory.NotifyTurnStart();
+    UmAudio.Play("-421000");
+    if (_particleComponent)
+    {
+        _particleComponent->PlayEffect("turn");
+    }
 }
 
 void CharacterBase::OnTurnEnd() 
 {
     Base::OnTurnEnd();
     _tokenInventory.NotifyTurnEnd();
+    _tokenInventory.UpdateAvailableToken();
+    if (_particleComponent)
+    {
+        _particleComponent->StopEffect("turn");
+    }
 }
 
 void CharacterBase::OnHit() 
@@ -347,6 +371,18 @@ void CharacterBase::OnTokenRemoved(int tokenID)
     _tokenInventory.NotifyTokenRemoved(tokenID);
 }
 
+void CharacterBase::OnTokenEnter(int tokenID) 
+{
+    Base::OnTokenEnter(tokenID);
+    _tokenInventory.NotifyTokenEnter(tokenID);
+}
+
+void CharacterBase::OnTokenExit(int tokenID) 
+{
+    Base::OnTokenExit(tokenID);
+    _tokenInventory.NotifyTokenExit(tokenID);
+}
+
 void CharacterBase::OnQTEStart() 
 {
     Base::OnQTEStart();
@@ -367,11 +403,8 @@ void CharacterBase::ImGuiDrawPropertysEvent()
 {
     Base::ImGuiDrawPropertysEvent();
     ImGui::Separator();
-    if (ImGui::TreeNodeEx("Token##enemy component", ImGuiTreeNodeFlags_DefaultOpen))
-    {
-        ImGui::PushID(&_tokenInventory);
-        _tokenInventory.DrawImGuiDebugData();
-        ImGui::PopID();
-        ImGui::TreePop();
-    }
+    ImGuiHelper::AlignedText("Token Inventory", ImGuiHelper::LEFT, 0.8f);
+    ImGui::PushID(&_tokenInventory);
+    _tokenInventory.DrawImGuiDebugData();
+    ImGui::PopID();
 }

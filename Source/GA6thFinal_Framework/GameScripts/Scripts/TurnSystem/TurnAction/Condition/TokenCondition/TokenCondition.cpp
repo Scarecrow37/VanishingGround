@@ -25,23 +25,14 @@ bool TokenCondition::Evaluate()
         return false;
     }
 
-    Operator oper    = ReflectFields->Operator;
-    int      tokenID = ReflectFields->TokenType;
-    int      value   = ReflectFields->Value;
-
-    auto CheckOperation = [&](int tokenCount) 
-    {
-        switch (oper)
-        {
-            case Operator::GREATER_EQUAL: return tokenCount >= value;
-            case Operator::LESS_EQUAL:    return tokenCount <= value;
-            case Operator::EQUAL:         return tokenCount == value;
-            default:                      return false;
-        }
-    };
-
+    int tokenID = ReflectFields->TokenType;
     for (const auto& target : targetList)
     {
+        if (target->IsDead())
+        {
+            return false;
+        }
+
         int targetTokenCount = target->GetTokenInventory().GetTokenStackFromID(tokenID);
         if (false == CheckOperation(targetTokenCount))
         {
@@ -177,3 +168,36 @@ void TokenCondition::TryUpdateTokenSystemInfo()
         }
     }
 }
+
+bool TokenCondition::CheckEvaluate(CharacterBase* character)
+{
+    if (character)
+    {
+        if (character->IsDead())
+        {
+            return false;
+        }
+
+        int tokenID          = ReflectFields->TokenType;
+        int targetTokenCount = character->GetTokenInventory().GetTokenStackFromID(tokenID);
+        return CheckOperation(targetTokenCount);
+    }
+    return false;
+}
+
+bool TokenCondition::CheckOperation(int tokenCount) 
+{
+    Operator oper  = ReflectFields->Operator;
+    int      value = ReflectFields->Value;
+    switch (oper)
+    {
+    case Operator::GREATER_EQUAL:
+        return tokenCount >= value;
+    case Operator::LESS_EQUAL:
+        return tokenCount <= value;
+    case Operator::EQUAL:
+        return tokenCount == value;
+    default:
+        return false;
+    }
+};

@@ -10,6 +10,7 @@ static const float EPSILON_POM = 1e-5f;
 // mesh갯수나 texture 갯수는 unbounded이기 때문에 이런식으로 사용
 // descriptor heap size == 2000
 #define MAX_MESH 2000
+#define MAX_PREFILTER_MIP 9
 // Retrieve hit world position.
 float3 HitWorldPosition()
 {
@@ -72,6 +73,8 @@ struct RayPayload
 {
     float4 color;
     uint recursionDepth;
+    uint isReflectRay;
+    uint isTransmissionRay;
 };
 
 struct ShadowPayload
@@ -79,10 +82,37 @@ struct ShadowPayload
     bool hit;
 };
 
-int GetPOMRayStepsCount(float3 worldPos, float3 N, float3 cameraPos)
+int GetPOMRayStepsCount(float3 worldPos, float3 N, float3 cameraPos, float mipLevel, float distance)
 {
-    int minLayers = 8;
-    int maxLayers = 32;
+    int minLayers, maxLayers;
+    
+    if (distance < 5.f)
+    {
+        minLayers = 8;
+        maxLayers = 24;
+    }
+    else if (distance < 15.0f)
+    {
+        minLayers = 6;
+        maxLayers = 16;
+    }
+    else if (distance < 30.0f)
+    {
+        minLayers = 4;
+        maxLayers = 8;
+    }
+    else
+    {
+        minLayers = 2;
+        maxLayers = 4;
+    }
+    
+    if (mipLevel > 2.0f)
+    {
+        maxLayers = max(4, maxLayers / 2);
+        minLayers = max(2, minLayers / 2);
+    }
+
     float ndotv = saturate(dot(normalize(cameraPos - worldPos), normalize(N)));
     return (int) lerp(maxLayers, minLayers, ndotv);
 }
@@ -192,10 +222,10 @@ bool TraceShadow(float3 origin, float3 dir, float maxT)
     sray.Direction = dir;
     sray.TMin = 0.01;
     sray.TMax = maxT;
-
-    // SBTable slot 1 = shadow miss
+    
+    // SBTable: miss slot 1 = shadow miss, hit slot 1 = shadow hit group
     TraceRay(RtScene,
-             RAY_FLAG_CULL_BACK_FACING_TRIANGLES,
+             RAY_FLAG_NONE,
              0xFF, 1, 0, 1, sray, sp);
 
     return sp.hit;
@@ -217,10 +247,11 @@ void RayGen()
     ray.Direction = normalize(mul(viewI, float4(target.xyz, 0))).xyz;
     ray.TMin = 0.01;
     ray.TMax = 2000;
-
+   
     RayPayload payload;
     payload.recursionDepth = 0;
-
+    payload.isReflectRay = 0;
+    payload.isTransmissionRay = 0;
     TraceRay(RtScene,
              RAY_FLAG_NONE, 0xFF,
              0, 0, 0, // hitGroup/miss/callable
@@ -234,8 +265,14 @@ void Miss(inout RayPayload payload)
 {
     float3 dir = normalize(WorldRayDirection());
     float3 sky = evnTexture.SampleLevel(samLinear_wrap, dir, 0).rgb;
+
     sky = saturate(sky);
-    sky = GammaToLinearSpace(sky) * 10.f;
+    sky = GammaToLinearSpace(sky);
+    if (0 == payload.isReflectRay)
+    {
+        sky *= 10.0f;
+    }
+
     payload.color = float4(sky, 1.f);
 }
 
@@ -245,7 +282,42 @@ void ShadowMiss(inout ShadowPayload payload)
     payload.hit = false; // 그림자 미스는 hit가 false
 }
 
-static const uint MAX_RECURSION_DEPTH = 1;
+[shader("anyhit")]
+void ShadowAnyHit(inout ShadowPayload payload, in BuiltInTriangleIntersectionAttributes attribs)
+{
+    // 투명 처리: 알파값이 낮으면 hit 무시
+    uint instanceID = InstanceID();
+    InstanceData instData = meshInstanceData[instanceID];
+    uint diffuseID = instData.MaterialID[DIFFUSE];
+    uint vertexID = vertex_buffer_id[instanceID];
+    uint indexID = index_buffer_id[instanceID];
+    
+    uint baseIndex = PrimitiveIndex() * 3;
+    uint3 indices = uint3(
+        Indices[indexID][baseIndex],
+        Indices[indexID][baseIndex + 1],
+        Indices[indexID][baseIndex + 2]
+    );
+    
+    float2 uv[3] = {
+        Vertices[vertexID][indices[0]].uv[0],
+        Vertices[vertexID][indices[1]].uv[0],
+        Vertices[vertexID][indices[2]].uv[0]
+    };
+    
+    float2 hitUV = HitAttribute2(uv, attribs);
+    float4 diffuse = textures[diffuseID].SampleLevel(samAnistropic_wrap, hitUV, 0);
+    float textureAlpha = diffuse.a;
+    float finalAlpha = textureAlpha * instData.Alpha;
+    
+    // 알파가 0.5 이하면 hit 무시 (그림자를 드리우지 않음)
+    if (finalAlpha < 1.f)
+    {
+        IgnoreHit();
+    }
+}
+
+static const uint MAX_RECURSION_DEPTH = 3;
 
 [shader("closesthit")]
 void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttributes attribs)
@@ -262,7 +334,7 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
 
     float3 hitPosition = HitWorldPosition();
     float distanceToCamera = length(cameraData.Position.xyz - hitPosition);
-    float mipLevel = ComputeDynamicMipLevel(distanceToCamera, 12);
+    float mipLevel = 0;
 
     uint baseIndex = PrimitiveIndex() * 3;
     uint3 indices = uint3(Indices[indexID][baseIndex],
@@ -318,7 +390,7 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
 
         if (viewDirTS.z > 1e-4f)
         {
-            int stepCount = GetPOMRayStepsCount(hitPosition, worldN, cameraData.Position.xyz);
+            int stepCount = GetPOMRayStepsCount(hitPosition, worldN, cameraData.Position.xyz, mipLevel, distanceToCamera);
             float ndotv = saturate(dot(normalize(viewDirWS), worldN));
 
             float2 dirTS = normalize(viewDirTS.xy);
@@ -346,7 +418,10 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
     float3 view = normalize(WorldRayOrigin() - hitPosition);
 
     float3 emissive = textures[emissiveID].SampleLevel(samAnistropic_wrap, parallaxUV, mipLevel).rgb;
-    float3 albedo = textures[diffuseID].SampleLevel(samAnistropic_wrap, parallaxUV, mipLevel).rgb;
+    float4 diffuse = textures[diffuseID].SampleLevel(samAnistropic_wrap, parallaxUV, mipLevel);
+    float3 albedo = diffuse.rgb;
+    float textureAlpha = diffuse.a;
+    float finalAlpha = textureAlpha * instData.Alpha;
     albedo = GammaToLinearSpace(albedo);
 
     float3 orm = textures[ORMID].SampleLevel(samAnistropic_wrap, parallaxUV, mipLevel).rgb;
@@ -356,12 +431,17 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
     
     float3 directLighting = 0;
     float3 ambientLighting = 0;
+    
+    float maxPointLightDistance = 10.f;
+    
     // Directional
     for (uint i = 0; i < bit32_4_numLight.Directional; ++i)
     {
         DirectionalLight Ld = lightData.Directional[i];
         float3 L = normalize(-Ld.Direction);
-        
+        float NdotL = dot(normal, L);
+        if (NdotL <= 0.0f)
+            continue;
         /* 환경광 / IBL  */
         ambientLighting += CalculateIBL(normal, view, irradianceTexture, prefilteredMap, brdfLUT, albedo, rough, metal) * Ld.Ambient;
         
@@ -375,7 +455,25 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
         PointLight Lp = lightData.Point[j];
         float3 toL = Lp.Position - hitPosition;
         float dist = length(toL);
+        
+        if (dist > maxPointLightDistance)
+        {
+            continue;
+        }
+        
         float3 L = toL / dist;
+        
+        float NdotL = dot(normal, L);
+        if (NdotL <= 0.0f)
+            continue;
+        
+        float3 lightIntensity = Lp.Color * Lp.Intensity * Lp.Attenuation;
+        float luminance = dot(lightIntensity, float3(0.299, 0.587, 0.114));
+        if (luminance < 0.01f)
+        {
+            continue;
+        }
+        
         if (TraceShadow(hitPosition, L, dist - 0.01) == false)
             directLighting += CalculatePoint(Lp, normal, view, albedo, metal, rough, hitPosition);
     }
@@ -383,10 +481,28 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
     // Shadow Point
     for (uint k = 0; k < bit32_4_numLight.ShadowPoint; ++k)
     {
-        PointLight Lp = lightData.Point[k];
+        PointLight Lp = lightData.ShadowPoint[k];
         float3 toL = Lp.Position - hitPosition;
         float dist = length(toL);
+        
+        if (dist > maxPointLightDistance)
+        {
+            continue;
+        }
+        
         float3 L = toL / dist;
+        
+        float NdotL = dot(normal, L);
+        if (NdotL <= 0.0f)
+            continue;
+        
+        float3 lightIntensity = Lp.Color * Lp.Intensity * Lp.Attenuation;
+        float luminance = dot(lightIntensity, float3(0.299, 0.587, 0.114));
+        if (luminance < 0.01f)
+        {
+            continue;
+        }
+        
         if (TraceShadow(hitPosition, L, dist - 0.01) == false)
             directLighting += CalculatePoint(Lp, normal, view, albedo, metal, rough, hitPosition);
     }
@@ -397,14 +513,56 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
         SpotLight Ls = lightData.Spot[l];
         float3 toL = Ls.Position - hitPosition;
         float dist = length(toL);
+        
+        if (dist > maxPointLightDistance)
+        {
+            continue;
+        }
+        
         float3 L = toL / dist;
+        
+        float NdotL = dot(normal, L);
+        if (NdotL <= 0.f)
+        {
+            continue;
+        }
+            
+        float3 spotDir = normalize(Ls.Direction);
+        float theta = dot(L, -spotDir);
+
+        if (theta < Ls.OuterCone)
+            continue;
+
+        float attenuation = 1.0f / (dist * dist + 1.0f);
+        if (attenuation < 0.01f)
+            continue;
+        
+        float3 lightIntensity = Ls.Color * Ls.Intensity * attenuation;
+        float luminance = dot(lightIntensity, float3(0.299, 0.587, 0.114));
+        if (luminance < 0.01f)
+            continue;
         if (TraceShadow(hitPosition, L, dist - 0.01) == false)
             directLighting += CalculateSpot(Ls, normal, view, albedo, metal, rough, hitPosition);
     }
 
     /* 반사(거울) – FresnelSchlick 사용 */
     float3 reflectionLighting = 0.0;
-    if (payload.recursionDepth < MAX_RECURSION_DEPTH)
+    bool enableReflection = false;
+    
+    if (distanceToCamera < 30.f)
+    {
+        if (payload.recursionDepth < MAX_RECURSION_DEPTH)
+        {
+            float reflectivity = lerp(0.04, 1.0, metal);
+            float smoothness = 1.0 - rough;
+            
+            if (reflectivity * smoothness > 0.1f)
+            {
+                enableReflection = true;
+            }
+        }
+    }
+    if (enableReflection)
     {
         float3 reflectionDirection = normalize(reflect(-view, normal));
         
@@ -412,36 +570,67 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
         reflectionRay.Origin = hitPosition + reflectionDirection * Epsilon;
         reflectionRay.Direction = reflectionDirection;
         reflectionRay.TMin = 0.01;
-        reflectionRay.TMax = 2000;
-       
+        reflectionRay.TMax = min(2000.f, distanceToCamera * 2.f);
+        
         RayPayload reflectionPayload;
         reflectionPayload.recursionDepth = payload.recursionDepth + 1;
-        reflectionPayload.color = float4(0, 0, 0, 1); // 초기화
-        
+        reflectionPayload.color = float4(0, 0, 0, 1);
+        reflectionPayload.isReflectRay = 1;
+        reflectionPayload.isTransmissionRay = 0;
         TraceRay(RtScene,
-                 RAY_FLAG_NONE, // Flags
-                 0xFF, // Instance mask
-                 0, 1, 0, // SBT	record indices (Hit / Miss / Callable)
+                 RAY_FLAG_NONE,
+                 0xFF,
+                 0, 1, 0,
                  reflectionRay, reflectionPayload);
- 
-        /* helper 함수 ‘FresnelSchlick’ 적용 */
-        float3 baseReflectance =
-            lerp(float3(Fdielectric, Fdielectric, Fdielectric), // 0.04 기본값
-                 albedo, metal);
-
-        float3 fresnelFactor =
-            FresnelSchlick(saturate(dot(reflectionDirection, view)), baseReflectance);
+        
+        float3 baseReflectance = lerp(float3(Fdielectric, Fdielectric, Fdielectric), albedo, metal);
+        float3 fresnelFactor = FresnelSchlick(saturate(dot(reflectionDirection, view)), baseReflectance);
         reflectionLighting = reflectionPayload.color.rgb * fresnelFactor;
+        float reflectivity = lerp(0.04, 1.0, metal);
+        float reflectionWeight = reflectivity * (1.0 - rough * rough);
+        reflectionLighting *= reflectionWeight;
     }
-    float reflectivity = lerp(0.04, 1.0, metal); // 금속 여부에 따라
-    float reflectionWeight = reflectivity * (1.0 - rough * rough); // 조절식
-    reflectionLighting *= reflectionWeight;
+
     /* 최종 색 결과 ------------------------------------------------------- */
-    float3 finalcolor =
+    float3 surfaceColor =
           emissive +
           ambientLighting + // 환경광 
           directLighting + // 직접광  
           reflectionLighting; // 반사광 
     
-    payload.color = float4(finalcolor, 1.f);
+    if (finalAlpha < 0.999f && payload.recursionDepth < MAX_RECURSION_DEPTH)
+    {
+        // 1. 투과 레이 발사 (표면 뒤의 색상 가져오기)
+        float3 transmissionDirection = WorldRayDirection(); // 레이 방향 유지 (굴절 없이)
+
+        RayDesc transmissionRay;
+        transmissionRay.Origin = hitPosition + transmissionDirection * 0.001f; // 표면 살짝 뒤
+        transmissionRay.Direction = transmissionDirection;
+        transmissionRay.TMin = 0.001f;
+        transmissionRay.TMax = 2000.0f;
+
+        RayPayload transmissionPayload;
+        transmissionPayload.recursionDepth = payload.recursionDepth + 1;
+        transmissionPayload.color = float4(0, 0, 0, 1);
+        transmissionPayload.isReflectRay = 0;
+        transmissionPayload.isTransmissionRay = 1; // 투과 레이 표시
+
+        TraceRay(RtScene,
+                      RAY_FLAG_NONE,
+                      0xFF,
+                      0, 0, 0, // 동일한 HitGroup 사용
+                      transmissionRay,
+                      transmissionPayload);
+
+        // 2. Alpha Blending
+        float3 backgroundColor = transmissionPayload.color.rgb;
+        float3 blendedColor = lerp(backgroundColor, surfaceColor, finalAlpha);
+
+        payload.color = float4(blendedColor, finalAlpha);
+    }
+    else
+    {
+        // 완전 불투명 또는 최대 재귀 깊이 도달
+        payload.color = float4(surfaceColor, 1.0f);
+    }
 }

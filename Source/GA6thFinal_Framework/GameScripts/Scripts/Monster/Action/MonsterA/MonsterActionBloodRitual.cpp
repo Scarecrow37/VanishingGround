@@ -1,16 +1,20 @@
 ﻿#include "pchScripts.h"
 #include "MonsterActionBloodRitual.h"
 #include "TurnSystem/TurnActor/Character/CharacterBase.h"
+#include "Particle/ParticleComponent.h"
 
 REGISTER_MONSTER_ACTION(Monster::Action::BloodRitual)
 namespace Monster
 {
     namespace Action
     {
-        BloodRitual::BloodRitual() : Base("Attack1") {}
+        BloodRitual::BloodRitual() : Base("", 2.0f) {}
         BloodRitual::~BloodRitual() = default;
 
-        void BloodRitual::OnActionEnter() {}
+        void BloodRitual::OnActionEnter()
+        {
+            Behavior();
+        }
 
         void BloodRitual::OnActionUpdate() {}
 
@@ -18,14 +22,7 @@ namespace Monster
 
         void BloodRitual::OnActionReset() {}
 
-        void BloodRitual::OnNotifiedAnimationEvent(const Timeline::EventContext* context) 
-        {
-            const std::string& label = context->GetLabel();
-            if ("Behavior" == label)
-            {
-                Behavior();
-            }
-        }
+        void BloodRitual::OnNotifiedAnimationEvent(const Timeline::EventContext* context) {}
 
         /*
         자신에게 T_Param(1)을 부여한다.
@@ -37,6 +34,10 @@ namespace Monster
                 TokenParam      tokenParam     = GetTokenParam(1);
                 TokenInventory& tokenInventory = target->GetTokenInventory();
                 tokenInventory.AddTokenStackFromID(tokenParam.TokenID, tokenParam.Count);
+                if (ParticleComponent* particle = target->GetParticleComponent())
+                {
+                    particle->PlayEffect("buff");
+                }
             }
         }
     } // namespace Action

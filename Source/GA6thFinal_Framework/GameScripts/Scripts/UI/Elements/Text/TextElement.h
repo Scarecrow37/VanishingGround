@@ -1,9 +1,10 @@
 ﻿#pragma once
 
 #include "UI/Base/DrawUIComponent/DrawUIComponent.h"
+#include "UI/Base/IFontAppearance/IFontAppearance.h"
 #include "UI/Base/IOpacity/IOpacity.h"
 
-class TextElement : public DrawUIComponent, public IOpacity
+class TextElement : public DrawUIComponent, public IOpacity, public IFontAppearance
 {
     enum FontFlags : uint32_t
     {
@@ -21,7 +22,7 @@ public:
     ~TextElement() override;
 
 public:
-    REFLECT_PROPERTY(FilePath, Text, Color, FontScale, OutlineColor, OutlineWidth, Outline)
+    REFLECT_PROPERTY(FilePath, Text, Color, FontScale, OutlineColor, OutlineWidth, Outline, FontWeight)
 
     GETTER_ONLY(std::string, FilePath) { return _Guid.ToPath().string(); }
     PROPERTY(FilePath)
@@ -61,7 +62,7 @@ public:
     GETTER(float, FontWeight) { return ReflectFields->FontWeight; }
     SETTER(float, FontWeight)
     {
-        ReflectFields->FontWeight = std::clamp(value, 0.0f, 1.0f);
+        ReflectFields->FontWeight = std::clamp(value, 0.0f, 4.0f);
         UpdateWeight();
         UpdateContentSize();
         InvalidateMeasure();
@@ -97,12 +98,11 @@ public:
     }
     PROPERTY(OutlineWidth)
 
-
-
 public:
     void SetFont(const File::Guid& guid);
 
     void SetOpacity(float opacity) override;
+    void SetFontWeight(float fontWeight) override;
 
 protected:
     void  Reset() override;

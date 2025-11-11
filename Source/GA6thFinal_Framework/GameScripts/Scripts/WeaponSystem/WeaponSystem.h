@@ -20,6 +20,7 @@ public:
 public:
     GETTER_ONLY(int, CurrentWeaponSlot) { return _currentWeaponSlot; }
     // 현재 사용중인 무기의 슬롯 번호 입니다.
+    // type : int
     PROPERTY(CurrentWeaponSlot)
 
     GETTER_ONLY(int, LastWeaponSlot) { return _lastWeaponSlot; }
@@ -86,6 +87,13 @@ public:
     /// 모든 무기에 Random Speed를 계산합니다.
     /// </summary>
     void RollRandomSpeed();
+
+    /// <summary>
+    /// 현재 장착중인 무기들중 특정 타입 갯수를 반환합니다.
+    /// </summary>
+    /// <param name="type">: 확인할 타입</param>
+    /// <returns></returns>
+    int GetEquipWeaponTypeCount(WeaponType type);
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)

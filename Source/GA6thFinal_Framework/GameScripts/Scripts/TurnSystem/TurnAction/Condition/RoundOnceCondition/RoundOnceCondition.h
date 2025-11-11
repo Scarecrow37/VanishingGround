@@ -36,5 +36,7 @@ public:
 
 private:
     RoundOnceAction _roundOnceAction;
+
+    bool CheckEvaluate(CharacterBase* character) override;
 };
 

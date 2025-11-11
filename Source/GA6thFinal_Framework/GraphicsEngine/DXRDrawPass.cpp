@@ -66,7 +66,7 @@ void DXRDrawPass::End(ID3D12GraphicsCommandList* commandList)
 
 void DXRDrawPass::CreateStateObject()
 {
-    std::array<D3D12_STATE_SUBOBJECT, 12> subobjects{};
+    std::array<D3D12_STATE_SUBOBJECT, 15> subobjects{};
     uint32_t                              index = 0;
 
     DxilLibrary dxilLibrary = RTPipeline::CreateDxilLibrary();
@@ -75,45 +75,49 @@ void DXRDrawPass::CreateStateObject()
     HitProgram hitProgram(nullptr, RTPipeline::ClosestHitShader, RTPipeline::HitGroup);
     subobjects[index++] = hitProgram.subObject; // 1
 
+    HitProgram shadowHitProgram(RTPipeline::ShadowAnyHitShader, nullptr, RTPipeline::ShadowHitGroup);
+    subobjects[index++] = shadowHitProgram.subObject; // 2
+
     LocalRootSignature rgsRootSignature(RTPipeline::CreateRayGenRootDesc().desc);
-    subobjects[index] = rgsRootSignature.subObject; // 2
+    subobjects[index] = rgsRootSignature.subObject; // 3
 
     const uint32_t    rgsRootIndex = index++;
     ExportAssociation rgsRootAssociation(&RTPipeline::RayGenShader, 1, &(subobjects[rgsRootIndex]));
-    subobjects[index++] = rgsRootAssociation.subObject; // 3
+    subobjects[index++] = rgsRootAssociation.subObject; // 4
 
     LocalRootSignature hitRootSignature(RTPipeline::CreateHitRootDesc().desc);
-    subobjects[index] = hitRootSignature.subObject; // 4
+    subobjects[index] = hitRootSignature.subObject; // 5
 
     const uint32_t    hitRootIndex = index++;
-    ExportAssociation hitRootAssociation(&RTPipeline::ClosestHitShader, 1, &(subobjects[hitRootIndex]));
-    subobjects[index++] = hitRootAssociation.subObject; // 5
+    const WCHAR*      hitShaders[] = {RTPipeline::ClosestHitShader, RTPipeline::ShadowAnyHitShader};
+    ExportAssociation hitRootAssociation(hitShaders, _countof(hitShaders), &(subobjects[hitRootIndex]));
+    subobjects[index++] = hitRootAssociation.subObject; // 6
 
     LocalRootSignature missRootSignature(RTPipeline::CreateMissRootDesc().desc);
-    subobjects[index] = missRootSignature.subObject; // 6
+    subobjects[index] = missRootSignature.subObject; // 7
 
     const uint32_t missRootIndex     = index++;
     const WCHAR*   missRootShaders[] = {RTPipeline::MissShader, RTPipeline::ShadowMissShader};
 
     ExportAssociation missRootAssociation(missRootShaders, _countof(missRootShaders), &(subobjects[missRootIndex]));
-    subobjects[index++] = missRootAssociation.subObject; // 7
+    subobjects[index++] = missRootAssociation.subObject; // 8
 
     // payload size float4 + uint + float3
-    ShaderConfig shaderConfig(sizeof(float) * 2, sizeof(float) * (4 + 1));
-    subobjects[index] = shaderConfig.subObject; // 8
+    ShaderConfig shaderConfig(sizeof(float) * 2, sizeof(float) * (4 + 1 + 1 + 1));
+    subobjects[index] = shaderConfig.subObject; // 9
 
     const uint32_t    shaderConfigIndex = index++;
     const WCHAR*      shaderExports[] = {RTPipeline::MissShader, RTPipeline::ClosestHitShader, RTPipeline::RayGenShader,
-                                         RTPipeline::ShadowMissShader};
+                                         RTPipeline::ShadowMissShader, RTPipeline::ShadowAnyHitShader};
     ExportAssociation configAssociation(shaderExports, _countof(shaderExports), &(subobjects[shaderConfigIndex]));
-    subobjects[index++] = configAssociation.subObject; // 9
+    subobjects[index++] = configAssociation.subObject; // 10
 
     PipelineConfig config(7 + 1);
-    subobjects[index++] = config.subObject; // 10
+    subobjects[index++] = config.subObject; // 11
 
     GlobalRootSignature root(RTPipeline::CreateGlobalRootDesc().desc);
     _globalRootsignature = root.rootSignature;
-    subobjects[index++]  = root.subObject; // 11
+    subobjects[index++]  = root.subObject; // 12
 
     D3D12_STATE_OBJECT_DESC desc;
     desc.NumSubobjects = index;
@@ -124,89 +128,6 @@ void DXRDrawPass::CreateStateObject()
     HRESULT               hr      = device5->CreateStateObject(&desc, IID_PPV_ARGS(_pso.GetAddressOf()));
     FAILED_CHECK_MESSAGE(hr, L"DXRDrawPass::CreateStateObject() failed Create RT Pipeline stateObject ");
 }
-
-//void DXRDrawPass::CreateShaderTable()
-//{
-//    // 0) 공통 상수 정의
-//    constexpr UINT bytesId   = D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;         // 32
-//    constexpr UINT bytesArgs = sizeof(D3D12_GPU_DESCRIPTOR_HANDLE);           //  8
-//    constexpr UINT aligeRec  = D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT; // 32
-//
-//    const UINT raygenSize     = d3dUtil::AlignTo(bytesId + 2 * bytesArgs, 32);
-//    const UINT missSize       = d3dUtil::AlignTo(bytesId + bytesArgs, 32);
-//    const UINT hitSize        = d3dUtil::AlignTo(bytesId + 7 * bytesArgs, 32);
-//    const UINT shadowMissSize = d3dUtil::AlignTo(bytesId, 32);
-//    _shaderTableEntrySize     = d3dUtil::AlignTo(std::max({raygenSize, missSize, hitSize, shadowMissSize}),
-//                                                 D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
-//
-//    const UINT recordCount = 4;
-//    const UINT tableSize   = _shaderTableEntrySize * recordCount;
-//    // 1) 업로드 버퍼 생성
-//    if (!_init)
-//    {
-//        Global::device->CreateUploadBuffer(tableSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
-//                                           _shaderTable);
-//        _init = true;
-//    }
-//    // 2) Shader Identifier 가져오기
-//    ComPtr<ID3D12StateObjectProperties> props;
-//    _pso->QueryInterface(IID_PPV_ARGS(props.GetAddressOf()));
-//
-//    const void* ID_RGS         = props->GetShaderIdentifier(RTPipeline::RayGenShader);
-//    const void* ID_MISS        = props->GetShaderIdentifier(RTPipeline::MissShader);
-//    const void* ID_HIT         = props->GetShaderIdentifier(RTPipeline::HitGroup);
-//    const void* ID_SHADOW_MISS = props->GetShaderIdentifier(RTPipeline::ShadowMissShader);
-//    // const void* ID_SHADOW_HIT  = props->GetShaderIdentifier(RTPipeline::ShadowHitGroup);
-//    //  3) Shader Table 레코드 작성
-//    uint8_t* p = nullptr;
-//    _shaderTable->Map(0, nullptr, reinterpret_cast<void**>(&p));
-//    /* ── 4‑1) Ray Generation ────────────────────────────────────────── */
-//    {
-//        memcpy(p, ID_RGS, bytesId);
-//        // RootParam#1 : SRV t0 테이블 핸들
-//        *reinterpret_cast<UINT64*>(p + bytesId) = _ownerScene->_accelerationStructureManager->GetTopLevelSRV().GPU.ptr;
-//        // RootParam#2 : UAV u0 테이블 핸들
-//        *reinterpret_cast<UINT64*>(p + bytesId + bytesArgs) = _outputResourceUAV->GetUAVHandle().ptr;
-//    }
-//    /* ── 4‑2) Miss ────────────────────────────────────────── */
-//    p += _shaderTableEntrySize;
-//    {
-//        memcpy(p, ID_MISS, bytesId);
-//        // RootParam#0 : envTexture(t4) 테이블 핸들
-//        *reinterpret_cast<UINT64*>(p + bytesId) = _ownerScene->_skyBox->GetCubeMapSRV().ptr;
-//    }
-//    /* ── 4‑3) ShadowMiss ────────────────────────────────────────── */
-//    {
-//        p += _shaderTableEntrySize;
-//        memcpy(p, ID_SHADOW_MISS, bytesId); // Shadow Miss (파라미터 없음)
-//    }
-//    /* ── 4‑4) Hit Group ─────────────────────────────────────────────── */
-//    p += _shaderTableEntrySize;
-//    {
-//        memcpy(p, ID_HIT, bytesId);
-//        // SRV t0 rtScene
-//        *reinterpret_cast<UINT64*>(p + bytesId) = _ownerScene->_accelerationStructureManager->GetTopLevelSRV().GPU.ptr;
-//        // SRV t5 irradiance
-//        *reinterpret_cast<UINT64*>(p + bytesId + (1 * bytesArgs)) = _ownerScene->_skyBox->GetIrradianceMapSRV().ptr;
-//        // SRV t6 prefiltered
-//        *reinterpret_cast<UINT64*>(p + bytesId + (2 * bytesArgs)) = _ownerScene->_skyBox->GetPrefilteredMapSRV().ptr;
-//        // SRV t7 brdfLUT
-//        *reinterpret_cast<UINT64*>(p + bytesId + (3 * bytesArgs)) = _ownerScene->_skyBox->GetBrdfLUTSRV().ptr;
-//        // SRV t8 VerticesS
-//        *reinterpret_cast<UINT64*>(p + bytesId + (4 * bytesArgs)) = Global::viewManager->GetVertexBufferSrvPtr();
-//        // SRV t2008 Indices
-//        *reinterpret_cast<UINT64*>(p + bytesId + (5 * bytesArgs)) = Global::viewManager->GetIndexBufferSrvPtr();
-//        // SRV t4008~ textures
-//        *reinterpret_cast<UINT64*>(p + bytesId + (6 * bytesArgs)) =
-//            Global::viewManager->GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart().ptr;
-//    }
-//    ///* ── 4‑5) Hit Group ─────────────────────────────────────────────── */
-//    //{
-//    //    p += _shaderTableEntrySize;
-//    //    memcpy(p, ID_SHADOW_HIT, bytesId); // Shadow Hit (파라미터 없음)
-//    //}
-//    _shaderTable->Unmap(0, nullptr);
-//}
 
 void DXRDrawPass::CreateShaderTable()
 {
@@ -254,14 +175,15 @@ void DXRDrawPass::CreateShaderTable()
     constexpr UINT bytesId   = D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
     constexpr UINT bytesArgs = sizeof(D3D12_GPU_DESCRIPTOR_HANDLE);
 
-    const UINT raygenSize     = d3dUtil::AlignTo(bytesId + 2 * bytesArgs, 32);
-    const UINT missSize       = d3dUtil::AlignTo(bytesId + bytesArgs, 32);
-    const UINT hitSize        = d3dUtil::AlignTo(bytesId + 7 * bytesArgs, 32);
-    const UINT shadowMissSize = d3dUtil::AlignTo(bytesId, 32);
-    _shaderTableEntrySize     = d3dUtil::AlignTo(std::max({raygenSize, missSize, hitSize, shadowMissSize}),
+    const UINT raygenSize        = d3dUtil::AlignTo(bytesId + 2 * bytesArgs, 32);
+    const UINT missSize          = d3dUtil::AlignTo(bytesId + bytesArgs, 32);
+    const UINT hitSize           = d3dUtil::AlignTo(bytesId + 7 * bytesArgs, 32);
+    const UINT shadowMissSize    = d3dUtil::AlignTo(bytesId, 32);
+    const UINT shadowHitSize     = d3dUtil::AlignTo(bytesId + 7 * bytesArgs, 32);
+    _shaderTableEntrySize        = d3dUtil::AlignTo(std::max({raygenSize, missSize, hitSize, shadowMissSize, shadowHitSize}),
                                                  D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
-    const UINT recordCount    = 4;
-    const UINT tableSize      = _shaderTableEntrySize * recordCount;
+    const UINT recordCount       = 5;
+    const UINT tableSize         = _shaderTableEntrySize * recordCount;
 
     // 업로드 버퍼 생성 (최초 1회만)
     if (!_init)
@@ -273,15 +195,17 @@ void DXRDrawPass::CreateShaderTable()
         ComPtr<ID3D12StateObjectProperties> props;
         _pso->QueryInterface(IID_PPV_ARGS(props.GetAddressOf()));
 
-        const void* ID_RGS         = props->GetShaderIdentifier(RTPipeline::RayGenShader);
-        const void* ID_MISS        = props->GetShaderIdentifier(RTPipeline::MissShader);
-        const void* ID_HIT         = props->GetShaderIdentifier(RTPipeline::HitGroup);
-        const void* ID_SHADOW_MISS = props->GetShaderIdentifier(RTPipeline::ShadowMissShader);
+        const void* ID_RGS             = props->GetShaderIdentifier(RTPipeline::RayGenShader);
+        const void* ID_MISS            = props->GetShaderIdentifier(RTPipeline::MissShader);
+        const void* ID_HIT             = props->GetShaderIdentifier(RTPipeline::HitGroup);
+        const void* ID_SHADOW_MISS     = props->GetShaderIdentifier(RTPipeline::ShadowMissShader);
+        const void* ID_SHADOW_HIT      = props->GetShaderIdentifier(RTPipeline::ShadowHitGroup);
 
         memcpy(_cache.RayGenID.data(), ID_RGS, bytesId);
         memcpy(_cache.MissID.data(), ID_MISS, bytesId);
         memcpy(_cache.HitGroupID.data(), ID_HIT, bytesId);
         memcpy(_cache.ShadowMissID.data(), ID_SHADOW_MISS, bytesId);
+        memcpy(_cache.ShadowHitGroupID.data(), ID_SHADOW_HIT, bytesId);
 
         _cache.VertexBufferSRV = Global::viewManager->GetVertexBufferSrvPtr();
         _cache.IndexBufferSRV  = Global::viewManager->GetIndexBufferSrvPtr();
@@ -293,32 +217,45 @@ void DXRDrawPass::CreateShaderTable()
 
     // shader table 작성 (캐시된 데이터 사용)
     uint8_t* p = nullptr;
-    _shaderTable->Map(0, nullptr, reinterpret_cast<void**>(&p));
+    constexpr D3D12_RANGE readRange{0, 0};
+    HRESULT  hr = _shaderTable->Map(0, &readRange, reinterpret_cast<void**>(&p));
+    FAILED_CHECK_MESSAGE(hr, L"DXRDrawPass::CreateShaderTable() failed to map shader table");
 
     // Ray Generation Record
-    memcpy(p, _cache.RayGenID.data(), bytesId);                           // 캐시에서 복사
+    memcpy(p, _cache.RayGenID.data(), bytesId);                          
     *reinterpret_cast<UINT64*>(p + bytesId)             = _cache.TlasSRV; // 현재 값 사용
     *reinterpret_cast<UINT64*>(p + bytesId + bytesArgs) = _outputResourceUAV->GetUAVHandle().ptr;
 
     // Miss Record
     p += _shaderTableEntrySize;
-    memcpy(p, _cache.MissID.data(), bytesId);                   // 캐시에서 복사
+    memcpy(p, _cache.MissID.data(), bytesId);                  
     *reinterpret_cast<UINT64*>(p + bytesId) = _cache.EnvMapSRV; // 현재 값 사용
 
     // Shadow Miss Record
     p += _shaderTableEntrySize;
-    memcpy(p, _cache.ShadowMissID.data(), bytesId); // 캐시에서 복사
+    memcpy(p, _cache.ShadowMissID.data(), bytesId);
 
     // Hit Group Record
     p += _shaderTableEntrySize;
-    memcpy(p, _cache.HitGroupID.data(), bytesId); // 캐시에서 복사
+    memcpy(p, _cache.HitGroupID.data(), bytesId);
     *reinterpret_cast<UINT64*>(p + bytesId)                   = _cache.TlasSRV;
     *reinterpret_cast<UINT64*>(p + bytesId + (1 * bytesArgs)) = _cache.IrradianceMapSRV;
     *reinterpret_cast<UINT64*>(p + bytesId + (2 * bytesArgs)) = _cache.PreFilteredMapSRV;
     *reinterpret_cast<UINT64*>(p + bytesId + (3 * bytesArgs)) = _cache.BRDFLUTSRV;
-    *reinterpret_cast<UINT64*>(p + bytesId + (4 * bytesArgs)) = _cache.VertexBufferSRV;  // 캐시
-    *reinterpret_cast<UINT64*>(p + bytesId + (5 * bytesArgs)) = _cache.IndexBufferSRV;   // 캐시
-    *reinterpret_cast<UINT64*>(p + bytesId + (6 * bytesArgs)) = _cache.TextureHeapStart; // 캐시
+    *reinterpret_cast<UINT64*>(p + bytesId + (4 * bytesArgs)) = _cache.VertexBufferSRV;  
+    *reinterpret_cast<UINT64*>(p + bytesId + (5 * bytesArgs)) = _cache.IndexBufferSRV;   
+    *reinterpret_cast<UINT64*>(p + bytesId + (6 * bytesArgs)) = _cache.TextureHeapStart; 
+
+    // Shadow Hit Group Record
+    p += _shaderTableEntrySize;
+    memcpy(p, _cache.ShadowHitGroupID.data(), bytesId); 
+    *reinterpret_cast<UINT64*>(p + bytesId)                   = _cache.TlasSRV;
+    *reinterpret_cast<UINT64*>(p + bytesId + (1 * bytesArgs)) = _cache.IrradianceMapSRV;
+    *reinterpret_cast<UINT64*>(p + bytesId + (2 * bytesArgs)) = _cache.PreFilteredMapSRV;
+    *reinterpret_cast<UINT64*>(p + bytesId + (3 * bytesArgs)) = _cache.BRDFLUTSRV;
+    *reinterpret_cast<UINT64*>(p + bytesId + (4 * bytesArgs)) = _cache.VertexBufferSRV;  
+    *reinterpret_cast<UINT64*>(p + bytesId + (5 * bytesArgs)) = _cache.IndexBufferSRV;   
+    *reinterpret_cast<UINT64*>(p + bytesId + (6 * bytesArgs)) = _cache.TextureHeapStart; 
 
     _shaderTable->Unmap(0, nullptr);
 
@@ -413,10 +350,10 @@ void DXRDrawPass::WriteCommand(ID3D12GraphicsCommandList* cmdList)
     rayTraceDesc.MissShaderTable.SizeInBytes   = _shaderTableEntrySize * 2;
     rayTraceDesc.MissShaderTable.StrideInBytes = _shaderTableEntrySize * 1;
 
-    // hit 1개
+    // hit 2개 (HitGroup, ShadowHitGroup)
     const size_t hitOffset                   = 3 * _shaderTableEntrySize;
     rayTraceDesc.HitGroupTable.StartAddress  = _shaderTable->GetGPUVirtualAddress() + hitOffset;
-    rayTraceDesc.HitGroupTable.SizeInBytes   = _shaderTableEntrySize;
+    rayTraceDesc.HitGroupTable.SizeInBytes   = _shaderTableEntrySize * 2;
     rayTraceDesc.HitGroupTable.StrideInBytes = _shaderTableEntrySize * 1;
 
     auto  cameraData    = _ownerScene->_RaycameraBuffer->GetGPUVirtualAddress();

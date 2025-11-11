@@ -35,11 +35,6 @@ void WeaponDamageAction::ImGuiDrawActionEditor()
     ImguiDrawConditionEditor();
 }
 
-void WeaponDamageAction::SerializedReflectEvent() 
-{
-
-}
-
 void WeaponDamageAction::DeserializedReflectEvent() 
 {
     UpdateActionInfo();

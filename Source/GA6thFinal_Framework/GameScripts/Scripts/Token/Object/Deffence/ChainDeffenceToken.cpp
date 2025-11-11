@@ -37,8 +37,8 @@ namespace TokenObject
         {
             const int param = GetTokenParam(0);
             damage = ContentMath::CeilPercentage(damage, 100 - param);
+            UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(targetData.Source));
         }
-        UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(targetData.Source));
     }
 
     void ChainDeffence::OnPostEnemyHitCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData,
@@ -51,8 +51,8 @@ namespace TokenObject
         {
             const int param = GetTokenParam(0);
             damage = ContentMath::CeilPercentage(damage, 100 - param);
+            UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(targetData.Source));
         }
-        UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(targetData.Source));
     }
 
 } // namespace TokenObject

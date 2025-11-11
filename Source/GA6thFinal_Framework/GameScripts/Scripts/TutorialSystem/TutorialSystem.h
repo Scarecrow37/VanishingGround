@@ -28,7 +28,7 @@ class TutorialSystem : public Component, public InputReceiver
     static constexpr std::u8string_view COLUMN_KEY_ID          = u8"ID";
     static constexpr std::u8string_view COLUMN_KEY_TITLE       = u8"Title";
     static constexpr std::u8string_view COLUMN_KEY_DESCRIPTION = u8"Text Description";
-    static constexpr std::u8string_view COLUMN_KEY_IMAGE       = u8"Image";
+    static constexpr std::u8string_view COLUMN_KEY_IMAGE       = u8"Tutorial Image ID";
 
 public:
     /// <summary>
@@ -55,10 +55,15 @@ public:
     bool Show(int id);
     void Show(std::initializer_list<int> ids);
     void Hide();
+    void ResetTutorials();
 
 protected:
     void Awake() override;
     void Start() override;
+    void Update() override;
+    void OnDestroy() override;
+    void OnLoadScene(Scene& loadScene, LoadSceneMode mode) override;
+
     void ImGuiDrawPropertysEvent() override;
 
 private:
@@ -66,7 +71,6 @@ private:
     void SetupData();
     void SetupCallback();
     void HoldA(const Input::Controller& controller);
-    void ReleaseA(const Input::Controller& controller);
     void ShowNextTutorialOrHide();
 
     void Lock();
@@ -88,4 +92,6 @@ private:
     std::weak_ptr<DescriptionPanel>            _description;
     std::weak_ptr<ImageElement>                _image;
     std::weak_ptr<HoldingProgressImageElement> _confirm;
+
+    bool _requestFind = false;
 };

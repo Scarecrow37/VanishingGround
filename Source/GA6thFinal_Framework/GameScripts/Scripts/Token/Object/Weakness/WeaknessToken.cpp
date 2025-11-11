@@ -13,21 +13,23 @@ namespace TokenObject
     REGISTER_TOKEN(Weakness2)
     REGISTER_TOKEN(Weakness3)
 
-    void Weakness::OnTurnEnd(CharacterBase* owner) 
-    {
-        if (owner)
-        {
-            auto& tokenInventory = owner->GetTokenInventory();
-            int   tokenID        = GetTokenID();
-            tokenInventory.RemoveTokenStackFromID(tokenID);
-        }
-    }
     void Weakness::OnPostPlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData,
                                                      int& damage)
     {
         const int   tokenID     = GetTokenID();
         const int   param       = GetTokenParam(0);
+        auto& tokenInventory = attackerData.Source.GetTokenInventory();
+        // 자신보다 높은 등급 토큰이 존재하면 return
+        if (tokenID < Weakness3::ID)
+        {
+            for (int i = tokenID + 1; i <= Weakness3::ID; ++i)
+            {
+                if (tokenInventory.HasTokenFromID(i))
+                    return;
+            }
+        }
         damage = ContentMath::CeilPercentage(damage, 100 - param);
+        tokenInventory.RemoveTokenStackFromID(tokenID);
 
         UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(attackerData.Source));
     }
@@ -36,7 +38,18 @@ namespace TokenObject
     {
         const int   tokenID     = GetTokenID();
         const int   param       = GetTokenParam(0);
+        auto& tokenInventory = attackerData.Source.GetTokenInventory();
+        // 자신보다 높은 등급 토큰이 존재하면 return
+        if (tokenID < Weakness3::ID)
+        {
+            for (int i = tokenID + 1; i <= Weakness3::ID; ++i)
+            {
+                if (tokenInventory.HasTokenFromID(i))
+                    return;
+            }
+        }
         damage = ContentMath::CeilPercentage(damage, 100 - param);
+        tokenInventory.RemoveTokenStackFromID(tokenID);
 
         UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(attackerData.Source));
     }

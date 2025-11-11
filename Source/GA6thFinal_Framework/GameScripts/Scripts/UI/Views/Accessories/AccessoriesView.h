@@ -3,6 +3,8 @@
 
 class GridPanel;
 class ImageElement;
+class DescriptionPanel;
+class FadeUIComponent;
 class AccessoriesView : public Component
 {
     USING_PROPERTY(AccessoriesView)
@@ -13,6 +15,7 @@ public:
     {
         ImageElement* Icon  = nullptr;
         ImageElement* Frame = nullptr;
+        ImageElement* Focus = nullptr;
     };
 
     AccessoriesView();
@@ -45,5 +48,20 @@ private:
     std::vector<UI> _uiElements;
 
     AccessoriesViewModel::Handle _handle;
+
+private:
+    void AddCallback();
+    void ClearCallback();
+
+    std::vector<std::pair<UmDelegate<>*, UmDelegate<>::Handle>> _callbacks;
+
+    void FocusIn(size_t index);
+    void FocusOut(size_t index);
+    void ShowTooltip(size_t index);
+    void HideTooltip(size_t index);
+
+private:
+    std::weak_ptr<FadeUIComponent>  _focusInfoUIFade;
+    std::weak_ptr<DescriptionPanel> _focusInfoDescription;
 };
 

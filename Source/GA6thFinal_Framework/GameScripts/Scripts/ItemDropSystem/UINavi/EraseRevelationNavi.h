@@ -19,7 +19,7 @@ protected:
     REFLECT_FIELDS_BEGIN(UISFXNavigationComponent)
     REFLECT_FIELDS_END(EraseRevelationNavi)
 
-    void Awake() override;
+    void Added() override;
     void FocusIn(FocusCallType type) override;
     void Submit() override;
     void FocusOut(FocusCallType type) override;

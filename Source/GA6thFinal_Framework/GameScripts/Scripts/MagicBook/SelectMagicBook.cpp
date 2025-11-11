@@ -87,6 +87,20 @@ void SelectMagicBook::FocusIn(FocusCallType callType)
         {
             ChangeHPHUD(gameObject, 1.f);
         }
+        else if ("Sturn Token" == objectName)
+        {
+            if (ImageElement* element = gameObject->GetComponent<ImageElement>())
+            {
+                element->Alpha = 1.0f;
+            }
+        }
+        else if ("Text Element" == objectName)
+        {
+            if (TextElement* element = gameObject->GetComponent<TextElement>())
+            {
+                element->Alpha = 1.0f;
+            }
+        }
     });
 }
 
@@ -123,13 +137,26 @@ void SelectMagicBook::FocusOut(FocusCallType callType)
         {
             ChangeHPHUD(gameObject, 0.5f);
         }
+        else if ("Sturn Token" == objectName)
+        {
+            if (ImageElement* element = gameObject->GetComponent<ImageElement>())
+            {
+                element->Alpha = 0.5f;
+            }
+        }
+        else if ("Text Element" == objectName)
+        {
+            if (TextElement* element = gameObject->GetComponent<TextElement>())
+            {
+                element->Alpha = 0.5f;
+            }
+        }
     });
 }
 
 void SelectMagicBook::Submit()
 {
     Base::Submit();
-
     if (auto object = GameObject::Find("Select Popup").lock())
     {
         object->SetActive(true);

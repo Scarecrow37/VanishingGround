@@ -210,6 +210,14 @@ void ParticleEffect::SetBoneFollowFlag(bool* flag)
 {
     _followBoneFlag = flag;
 }
+
+bool ParticleEffect::GetBoneFollowFlag() 
+{
+    if (_followBoneFlag)
+        return *_followBoneFlag;
+    return false;
+}
+
 void ParticleEffect::SetBoneMatrix(const Matrix* matrix)
 {
     _boneWorldMatrix = matrix;

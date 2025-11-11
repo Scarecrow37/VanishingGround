@@ -5,7 +5,7 @@ namespace Audio
 {
     Generation& IncreaseGeneration::operator()(Generation& generation) const
     {
-        ++generation;
+        InterlockedIncrement64(&generation);
         return generation;
     }
 

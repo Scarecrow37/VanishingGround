@@ -9,6 +9,8 @@
 #include "ItemDropSystem/UI/ItemDropUIRootManager.h"
 #include "ItemDropSystem/UI/ArtifactUIManager.h"
 #include "ItemDropSystem/UINavi/ArtifactButtonNavi.h"
+#include "ItemDropSystem/UI/ItemInfoUIManager.h"
+#include "ItemDropSystem/ItemDropSystem.h"
 
 UMREAL_COMPONENT(WeaponChangeUIManager)
 
@@ -49,14 +51,6 @@ void WeaponChangeUIManager::ShowWeaponChangeUI(const WeaponElement& changeWeapon
     {
         _changeWeaponIcon->SetImage(guid);
     }
-    if (_changeWeaponStats.Name)
-    {
-        _changeWeaponStats.Name->Text = name;
-    }
-    if (_changeWeaponStats.Icon)
-    {
-        _changeWeaponStats.Icon->SetImage(guid);
-    }
     if (_changeWeaponStats.Damage.Text)
     {
         _changeWeaponStats.Damage.Text->Text = std::to_string(stats.HitDamage);
@@ -73,14 +67,9 @@ void WeaponChangeUIManager::ShowWeaponChangeUI(const WeaponElement& changeWeapon
     {
         _changeWeaponStats.Speed.Text->Text = std::to_string(stats.Speed);
     }
-    if (_changeWeaponStats.Description)
+    if (_changeWeaponStats.Manager)
     {
-        _changeWeaponStats.Description->Description = DropItemInfo::GetArtifactDescription(info);
-    }
-    if (_changeWeaponStats.Keyword)
-    {
-        //TODO 키워드 설명 파싱 필요
-        _changeWeaponStats.Keyword->Description = "";
+        _changeWeaponStats.Manager->SetItemInfoUI(info);
     }
 
     if (WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance())
@@ -155,39 +144,10 @@ void WeaponChangeUIManager::SetPlayerWeaponStatsUI(const WeaponElement& focusWea
     const std::string& playerName  = playerStats.WeaponName;
     DropItemInfo       playerInfo  = focusWeapon.GetItemInfo();
     WeaponStats&       changeStats = _changeWeaponElement.Stats;
-    if (_playerWeaponStats.Name)
+
+    if (_playerWeaponStats.Manager)
     {
-        _playerWeaponStats.Name->Text = playerName;
-    }
-    if (_playerWeaponStats.Icon)
-    {
-        File::Guid guid = UmFileSystem.GetGuidFromAssetID(DropItemInfo::GetArtifactIconID(playerInfo));
-        _playerWeaponStats.Icon->SetImage(guid);
-    }
-    if (_playerWeaponStats.Damage)
-    {
-        _playerWeaponStats.Damage->Text = std::to_string(playerStats.HitDamage);
-    }
-    if (_playerWeaponStats.Critical)
-    {
-        _playerWeaponStats.Critical->Text = std::to_string(playerStats.CriticalDamage);
-    }
-    if (_playerWeaponStats.AttackCount)
-    {
-        _playerWeaponStats.AttackCount->Text = std::to_string(playerStats.AttackCount);
-    }
-    if (_playerWeaponStats.Speed)
-    {
-        _playerWeaponStats.Speed->Text = std::to_string(playerStats.Speed);
-    }
-    if (_playerWeaponStats.Description)
-    {
-        _playerWeaponStats.Description->Description = DropItemInfo::GetArtifactDescription(playerInfo);
-    }
-    if (_playerWeaponStats.Keyword)
-    {
-        //TODO: 키워드 파싱 필요
-        _playerWeaponStats.Keyword->Description = "";
+        _playerWeaponStats.Manager->SetItemInfoUI(playerInfo);
     }
 
     auto UpdateArrowUI = [](int player, int change, auto& upArrow, auto& downArrow) 
@@ -301,13 +261,21 @@ void WeaponChangeUIManager::Update()
                 {
                     system->EquipWeapon(_changeWeaponSlot, _changeWeaponElement);
                     _warningUI.WarningUIObject->SetActive(false);
-                    PopInputLayer();
                     _changeWeaponSlot = -1;
                     if (ArtifactUIManager* artifactManager = SingletonComponent<ArtifactUIManager>::GetInstance())
                     {                     
                         artifactManager->ObtainFocusNavi(ArtifactButtonNavi::GetLastFocusIndex());               
-                        HideUI();
                     }
+                    // 무기 등장 확률 보정에 대한 값 초기화
+                    if (ItemDropSystem* itemDrop = SingletonComponent<ItemDropSystem>::GetInstance())
+                    {
+                        if (WeaponGrade::COMMON != _changeWeaponElement.Stats.Grade)
+                        {
+                            itemDrop->ResetItemDropRateBonus(ItemDropBonusType::WEAPON);
+                        }
+                    }        
+                    PopInputLayer();
+                    HideUI();
                 }
             }
             break;
@@ -378,58 +346,16 @@ void WeaponChangeUIManager::FindUIElements()
 
     if (Transform* playerWeaponStats = transform->FindWithTag("Player Weapon Stats"))
     {
-        Transform::ForeachDFS(*playerWeaponStats, [this](Transform* curr) 
-        {
-            GameObject& object = curr->gameObject;
-            if (object.CompareTag("Name"))
-            {
-                _playerWeaponStats.Name = object.GetComponent<TextElement>();
-            }
-            else if (object.CompareTag("Icon"))
-            {
-                _playerWeaponStats.Icon = object.GetComponent<ImageElement>();
-            }
-            else if(object.CompareTag("Damage"))
-            {
-                _playerWeaponStats.Damage = object.GetComponent<TextElement>();
-            }
-            else if(object.CompareTag("Critical"))
-            {
-                _playerWeaponStats.Critical = object.GetComponent<TextElement>();
-            }
-            else if(object.CompareTag("Count"))
-            {
-                _playerWeaponStats.AttackCount = object.GetComponent<TextElement>();
-            }
-            else if(object.CompareTag("Speed"))
-            {
-                _playerWeaponStats.Speed = object.GetComponent<TextElement>();
-            }
-            else if (object.CompareTag("Description"))
-            {
-                _playerWeaponStats.Description = object.GetComponent<DescriptionPanel>();
-            }
-            else if (object.CompareTag("Keyword Description"))
-            {
-                _playerWeaponStats.Keyword = object.GetComponent<DescriptionPanel>();
-            }
-        });
+        _playerWeaponStats.Manager = playerWeaponStats->gameObject->GetComponent<ItemInfoUIManager>();
     }
 
     if (Transform* changeWeaponStats = transform->FindWithTag("Change Weapon Stats"))
     {
+        _changeWeaponStats.Manager = changeWeaponStats->gameObject->GetComponent<ItemInfoUIManager>();
         Transform::ForeachDFS(*changeWeaponStats, [this](Transform* curr) 
         {
             GameObject& object = curr->gameObject;
-            if (object.CompareTag("Name"))
-            {
-                _changeWeaponStats.Name = object.GetComponent<TextElement>();
-            }
-            else if (object.CompareTag("Icon"))
-            {
-                _changeWeaponStats.Icon = object.GetComponent<ImageElement>();
-            }
-            else if (object.CompareTag("Damage"))
+            if (object.CompareTag("Damage"))
             {            
                 if (object.CompareTag("Up Arrow"))
                 {
@@ -488,14 +414,6 @@ void WeaponChangeUIManager::FindUIElements()
                 {
                     _changeWeaponStats.Speed.Text = object.GetComponent<TextElement>();
                 }
-            }
-            else if (object.CompareTag("Description"))
-            {
-                _changeWeaponStats.Description = object.GetComponent<DescriptionPanel>();
-            }
-            else if (object.CompareTag("Keyword Description"))
-            {
-                _changeWeaponStats.Keyword = object.GetComponent<DescriptionPanel>();
             }
         });
     }

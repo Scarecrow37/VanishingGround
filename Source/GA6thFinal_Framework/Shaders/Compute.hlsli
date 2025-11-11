@@ -21,7 +21,7 @@ struct ParticleOutput
     float4 FrameInfo; // ribbon-> x = ribbon width
     int EmitterIndex;
     float3 Paddings;
-    
+    float4 Paddings2;
 };
 
 
@@ -134,3 +134,37 @@ float4x4 CreateRotationMatrix(float3 eulerXYZ)
 {
     return To4x4(CreateFromEulerXYZ(eulerXYZ));
 }
+
+float3 ExtractScale(float4x4 oriented)
+{
+    float3 axisX = oriented[0].xyz;
+    float3 axisY = oriented[1].xyz;
+    float3 axisZ = oriented[2].xyz;
+
+    float3 scale = float3(length(axisX), length(axisY), length(axisZ));
+
+    float3 safeScale = max(scale, float3(1e-6f, 1e-6f, 1e-6f));
+    float3x3 rotation = float3x3(
+          axisX / safeScale.x,
+          axisY / safeScale.y,
+          axisZ / safeScale.z
+      );
+    if (determinant(rotation) < 0.0f)
+    {
+        scale.x *= -1.0f; // 필요하다면 다른 축을 선택해도 됨
+    }
+    return scale;
+}
+
+float4x4 ExtractScaleMatrix(float4x4 oriented, float wComponent = 1.0f)
+{
+    float3 scale = ExtractScale(oriented);
+    return CreateScaleMatrix(float4(scale, wComponent));
+}
+
+static const float4x4 IdentityMatrix = 
+float4x4(
+1, 0, 0, 0, 
+0, 1, 0, 0, 
+0, 0, 1, 0, 
+0, 0, 0, 1);

@@ -80,8 +80,7 @@ void SDFTextRenderer::SetColor(const Vector4& color)
 
 void SDFTextRenderer::SetFontWeight(const float fontWeight)
 {
-    float convert = std::clamp(fontWeight, 0.f, 1.f);
-    _fontWeight = convert - 0.5f;
+    _fontWeight = fontWeight;
 }
 
 void SDFTextRenderer::SetFontOutline(const GE::FontOutline& outline)
@@ -205,10 +204,7 @@ void SDFTextRenderer::Update(ID3D12GraphicsCommandList* commandList)
             return;
         }
 
-        void* data = nullptr;
-        _vertexUploadBuffer->Map(0, nullptr, reinterpret_cast<void**>(&data));
-        memcpy(data, _vertices.data(), sizeof(Vertex) * _charCount * 4);
-        _vertexUploadBuffer->Unmap(0, nullptr);
+        Global::device->UpdateBuffer(_vertexUploadBuffer, _vertices.data(), sizeof(Vertex) * _charCount * 4);
 
         auto br = CD3DX12_RESOURCE_BARRIER::Transition(_vertexBuffer.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_COPY_DEST);
 

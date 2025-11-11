@@ -8,6 +8,7 @@
 #include "TurnSystem/TurnAction/TurnAction.h"
 #include "RoundInfoUI/RoundInfoUIManager.h"
 #include "Camera/UmCineMotion.h"
+#include "CombatUIManager/CombatUIManager.h"
 
 //Condition
 #include "GameCore/FSM/AlwaysTransitionCondition.h"
@@ -55,12 +56,7 @@ TurnMode::TurnMode()
 }
 TurnMode::~TurnMode()
 {
-    if (_singletonComponent.IsSingleTon())
-    {
-        _turnList.Reset();
-        UmWatcher.Unregister<TurnQueueViewModel>("Turn Queue");
-        UmWatcher.Unregister<WeaponViewModel>("Weapon");
-    }
+
 }
 
 Player* TurnMode::GetPlayer()
@@ -134,21 +130,43 @@ void TurnMode::MakeTurnList()
             }
         }
     }
-
-    _turnList = std::move(turnList);
-}
-
-void TurnMode::SortTurnList()
-{
-    if (false == _turnList.empty())
+    
+    std::erase_if(turnList, [](std::pair<int, TurnActor*>& pair) 
     {
-        _turnList.shuffle(Random::GetEngine());
-        _turnList.sort([this](const std::pair<int, TurnActor*>& turnSlotA, const std::pair<int, TurnActor*>& turnSlotB) {
+        auto& [slot, actor] = pair;
+        if (actor)
+        {
+            return actor->IsDead();
+        }
+        return true;
+    });
+
+    if (false == turnList.empty())
+    {
+        std::ranges::shuffle(turnList, Random::GetEngine());
+        std::ranges::sort(turnList, 
+            [this](const std::pair<int, TurnActor*>& turnSlotA, const std::pair<int, TurnActor*>& turnSlotB) {
             const int speedA = GetRealRoundSpeed(turnSlotA);
             const int speedB = GetRealRoundSpeed(turnSlotB);
             return speedA > speedB;
-        });
+            });
     }
+
+    _playerWeaponCounter = 0;
+    _turnList = std::move(turnList);
+}
+
+void TurnMode::EraseTurnListToDeadCharacter() 
+{
+    _turnList.erase_if([](std::pair<int, TurnActor*>& pair) 
+    {
+        auto& [slot, actor] = pair;
+        if (actor)
+        {
+            return actor->IsDead();
+        }
+        return true;
+    });
 }
 
 void TurnMode::StartFrontTurnActor()
@@ -189,6 +207,7 @@ void TurnMode::StartFrontTurnActor()
                 {
                     UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Weapon System이 존재하지 않습니다.");
                 }
+                ++_playerWeaponCounter;
             }
             _currTurnActor = actorSlot.second;
         });
@@ -198,7 +217,15 @@ void TurnMode::StartFrontTurnActor()
 
 void TurnMode::FinishCurrentTurn()
 {
-    _turnList.pop_front();
+    if (false == _turnList.empty())
+    {
+        const auto& turnList = _turnList;
+        const auto& [slot, actor] = turnList.front();
+        if (actor == _currTurnActor.Get())
+        {
+            _turnList.pop_front();
+        }  
+    }
     _currTurnActor = nullptr;
     _currentTurnRevelationActiveFlag = false;
 }
@@ -248,6 +275,9 @@ void TurnMode::BuildTurnModeFSM()
         _finiteStateMachine->SetEntryState<CombatStartPhase>();
 
         //Transition    
+        _finiteStateMachine->AddTransition<GameOverCondition, GameOverState>();
+        _finiteStateMachine->AddTransition<GameClearCondition, GameClearState>();
+
         _finiteStateMachine->AddTransition<CombatStartPhase, RoundStartCondition, RoundStartPhase>();
         _finiteStateMachine->AddTransition<RoundStartPhase, CheckRoundStartExit, CheckPlayerState>();
 
@@ -261,9 +291,6 @@ void TurnMode::BuildTurnModeFSM()
 
         _finiteStateMachine->AddTransition<TurnListEmptyState, CheckTurnEmpty, RoundEndPhase>();
         _finiteStateMachine->AddTransition<RoundEndPhase, CheckRoundEndExit, RoundStartPhase>();
-
-        _finiteStateMachine->AddTransition<GameOverCondition, GameOverState>();
-        _finiteStateMachine->AddTransition<GameClearCondition, GameClearState>();
     }
 }
 
@@ -320,6 +347,39 @@ void TurnMode::Awake()
     AddRoundOnceActions();
     FindCameras();
     
+}
+
+void TurnMode::Start() 
+{
+    if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        combatUIManager->Refresh();
+
+        // 켜져 있어야 하는거
+        combatUIManager->AccessoriesGroup.ActiveUI(true);
+        combatUIManager->ConsumableGroup.ActiveUI(true);
+
+        // 꺼져 있어야 하는거
+        combatUIManager->CharacterHUDGroup.ActiveUI(false);
+        combatUIManager->WeaponGroup.ActiveUI(false);
+        combatUIManager->RevelationsGroup.ActiveUI(false);
+        combatUIManager->TurnQueueGroup.ActiveUI(false);
+    }
+}
+
+void TurnMode::OnDestroy() 
+{
+    if (_singletonComponent.IsSingleTon())
+    {
+        _turnList.Reset();
+        UmWatcher.Unregister<TurnQueueViewModel>("Turn Queue");
+        UmWatcher.Unregister<WeaponViewModel>("Weapon");
+
+        ApplyActions([this](TurnAction& action)
+        {
+            action.SetDestroy();
+        });
+    }
 }
 
 void TurnMode::ImGuiDrawPropertysEvent() 
@@ -417,22 +477,31 @@ void TurnMode::ImGuiDrawPropertysEvent()
 
 void TurnMode::FindCameras() 
 {
-    if (auto group = GameObject::FindWithTag("Camera Group").lock())
+    if (CameraComponent* main = CameraComponent::MainCamera())
     {
+        GameObject* group = (nullptr != main->transform->Root) ? &main->transform->Root->gameObject : &main->gameObject;
         std::vector<GameObject*> cameras = group->transform->FindBFSwithTag("Camera");    
         for (size_t i = 0; i < cameras.size(); ++i)
         {
             GameObject* object = cameras[i];
             if (object)
             {
-                if (i == 0)
+                const std::string& objName = object->Name;
+
+                auto compare = [](char a, char b) 
+                {
+                    return std::tolower(static_cast<unsigned char>(a)) == std::tolower(static_cast<unsigned char>(b));
+                };
+
+                if (auto findIntro = std::ranges::search(objName, std::string_view("intro"), compare); findIntro.begin() != objName.end())
                 {
                     if (UmCineMotion* motion = object->GetComponent<UmCineMotion>())
                     {
                         _introCamera = motion->GetWeakPtrAs<UmCineMotion>();
+                        motion->SetMainCamera();
                     }                 
                 }
-                else if (i == 1)
+                else if (auto findMain = std::ranges::search(objName, std::string_view("main"), compare); findMain.begin() != objName.end())
                 {
                     if (UmCineMotion* motion = object->GetComponent<UmCineMotion>())
                     {
