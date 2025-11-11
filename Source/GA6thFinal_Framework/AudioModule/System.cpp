@@ -400,7 +400,7 @@ namespace Audio
 
             // XAUDIO2_BUFFER 설정
             XAUDIO2_BUFFER buffer{};
-            buffer.Flags      = NULL;
+            buffer.Flags      = XAUDIO2_END_OF_STREAM;
             buffer.AudioBytes = sound._bytes;
             buffer.pAudioData = sound._buffer;
             buffer.PlayBegin  = 0;
@@ -750,7 +750,7 @@ namespace Audio
         constexpr IncreaseGeneration increaseGeneration;
 
         auto& [generation, callback, voice] = _voicePools.at(handle._hash).at(handle._index);
-        //throwIfFailed(voice->FlushSourceBuffers(), "Failed to flush source buffers.");
+        throwIfFailed(voice->FlushSourceBuffers(), "Failed to flush source buffers.");
         callback.SetHandle(AudioHandle());
         increaseGeneration(generation);
     }
