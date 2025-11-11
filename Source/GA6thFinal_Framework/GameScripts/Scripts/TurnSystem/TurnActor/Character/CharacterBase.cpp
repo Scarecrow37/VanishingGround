@@ -230,7 +230,7 @@ void CharacterBase::TakeDamage(int damage, bool playAnim)
         if (playAnim && _animationComponent)
         {
             _animationComponent->BeginBuildOverrideAnimation();
-            _animationComponent->SetNextAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
+            _animationComponent->SetNextAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE | ANIMATION_FLAG_USE_BLEND);
             // HitAnimation이 이미 있다면 Pop
             const auto& animData = _animationComponent->GetTopAnimationData();
             const char* currentAnimName = animData.GetAnimationName().c_str();
