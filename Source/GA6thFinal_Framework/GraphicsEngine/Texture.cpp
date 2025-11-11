@@ -12,7 +12,8 @@ Texture::Texture()
 
 Texture::~Texture()
 {
-    Global::viewManager->ReturnShaderResourceDescriptorHeap(_ID);
+    if (Global::viewManager)
+        Global::viewManager->ReturnShaderResourceDescriptorHeap(_ID);
 }
 
 bool Texture::IsValid() const
