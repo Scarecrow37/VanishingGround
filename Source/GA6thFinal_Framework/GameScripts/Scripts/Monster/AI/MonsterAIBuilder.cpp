@@ -75,7 +75,7 @@ namespace Monster
         controller.PushActionNode("#1", "#2", 210214);                                              // Action 210214
         controller.PushActionNode("#2", "#3", {{25.0f, 210210}, {25.0f, 210211}, {50.0f, 210214}}); // Action 210210, 210211
         controller.PushActionNode("#3", "#4", 210213);                                              // Action 22013
-        controller.PushActionNode("#2", "#3", {{70.0f, 210212}, {30.0f, 210211}});                  // Action 210212, 210211
+        controller.PushActionNode("#4", "#3", {{70.0f, 210212}, {30.0f, 210211}});                  // Action 210212, 210211
         // Entry 노드 설정
         controller.SetCurrentNode("#1");
     }
