@@ -748,6 +748,7 @@
     <ClInclude Include="Scripts\UI\Contents\SpawnTokenPanel.h" />
     <ClInclude Include="Scripts\Vinette\VinetteManager.h" />
     <ClInclude Include="Scripts\Test\DevTools\Debugging.h" />
+    <ClInclude Include="Scripts\UI\Base\IOpacity\IOpacityFactor.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

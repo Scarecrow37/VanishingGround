@@ -3,8 +3,9 @@
 #include "UI/Base/DrawUIComponent/DrawUIComponent.h"
 #include "UI/Base/IFontAppearance/IFontAppearance.h"
 #include "UI/Base/IOpacity/IOpacity.h"
+#include "UI/Base/IOpacity/IOpacityFactor.h"
 
-class TextElement : public DrawUIComponent, public IOpacity, public IFontAppearance
+class TextElement : public DrawUIComponent, public IOpacity, public IFontAppearance, public IOpacityFactor
 {
     enum FontFlags : uint32_t
     {
@@ -102,6 +103,7 @@ public:
     void SetFont(const File::Guid& guid);
 
     void SetOpacity(float opacity) override;
+    void SetOpacityFactor(float factor) override;
     void SetFontWeight(float fontWeight) override;
 
 protected:
@@ -143,4 +145,5 @@ protected:
 private:
     ISDFTextRenderer* _renderer;
     File::Guid        _Guid;
+    float             _opacityFactor = 1.0f;
 };

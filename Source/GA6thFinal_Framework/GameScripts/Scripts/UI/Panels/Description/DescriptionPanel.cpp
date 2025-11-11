@@ -75,7 +75,7 @@ struct ParseData
     }
 };
 
-DescriptionPanel::DescriptionPanel() : _fontWeight(0.5f)
+DescriptionPanel::DescriptionPanel() : _fontWeight(0.5f), _opacityFactor(1.0f)
 {
     FontPath.SetInputAutoEvent([this]() {
         if (ImGui::BeginDragDropTarget())
@@ -115,6 +115,12 @@ DescriptionPanel::DescriptionPanel() : _fontWeight(0.5f)
 void DescriptionPanel::SetOpacity(const float opacity)
 {
     ReflectFields->Alpha = std::clamp(opacity, 0.0f, 1.0f);
+    UpdateAlpha();
+}
+
+void DescriptionPanel::SetOpacityFactor(const float factor)
+{
+    _opacityFactor = factor;
     UpdateAlpha();
 }
 
@@ -278,7 +284,7 @@ void DescriptionPanel::MakeChild()
 
 void DescriptionPanel::UpdateAlpha()
 {
-    const float alpha = ReflectFields->Alpha;
+    const float alpha = ReflectFields->Alpha * _opacityFactor;
     Transform::ForeachBFS(transform, [alpha](Transform* t) 
     {
         GameObject& object = t->gameObject;
