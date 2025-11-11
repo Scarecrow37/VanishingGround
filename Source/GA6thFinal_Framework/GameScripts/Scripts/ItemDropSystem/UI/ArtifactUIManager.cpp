@@ -280,7 +280,7 @@ void ArtifactUIManager::ImageUIUnlock()
                     if (dropSystem->IsObtainArtifact(i) || (lockOddArtifact && isOddIndex))
                     {
                         navi->Enable     = false;
-                        iconImage->Alpha = 0.5f;
+                        iconImage->Alpha = OBTAIN_ICON_ALPHA;
                     }
                     else
                     {
@@ -301,7 +301,7 @@ void ArtifactUIManager::ImageUIUnlock()
                 if (dropSystem->IsObtainArtifact(i) || (lockOddArtifact && isOddIndex))
                 {
                     frameImage->SetImage(GetObtainFrameGuid());
-                    iconImage->Alpha = 0.5f;
+                    iconImage->Alpha = OBTAIN_ICON_ALPHA;
                 }
             }
         }
@@ -338,7 +338,7 @@ void ArtifactUIManager::ObtainFocusNavi(size_t index)
             ImageElement* frameImage = _frameImageElements[index];
             ImageElement* iconImage  = _iconElements[index];
             frameImage->SetImage(GetObtainFrameGuid());
-            iconImage->Alpha = 0.5f;
+            iconImage->Alpha = OBTAIN_ICON_ALPHA;
         }
 
         if (ArtifactButtonNavi::GetLastFocusIndex() == index)
