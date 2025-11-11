@@ -108,6 +108,7 @@ bool MapManager::TrySelectStage(Stage* stage)
         if (stage->MainLevel == _lastClearedStageData.MainLevel + 1)
         {
             SetSelectStage(stage);
+            SetFocusStage(stage);
             return true;
         }
     }
@@ -379,6 +380,7 @@ void MapManager::UpdateStageUI()
                 if (canSubmit && canNextFocus)
                 {
                     stage->Focus();
+                    SetFocusStage(stage);
                 }
             }
         }

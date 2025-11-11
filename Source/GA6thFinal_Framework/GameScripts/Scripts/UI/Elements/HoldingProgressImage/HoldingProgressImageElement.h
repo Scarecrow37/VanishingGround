@@ -56,6 +56,8 @@ public:
 
     void SetElapsedTime(const float t);
 
+    void End();
+
 protected:
     void Reset() override;
     void Start() override;

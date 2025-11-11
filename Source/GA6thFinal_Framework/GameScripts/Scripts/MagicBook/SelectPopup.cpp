@@ -193,7 +193,7 @@ void SelectPopup::SetSelectMagicBook(const File::Guid& imgaeGuid, const std::str
                             {
                                 system->PushBackRevelation(*revelation);
                             }
-                            if (RevelationElement* revelation = system->FindElementWithID(u8"300001"))
+                            if (RevelationElement* revelation = system->FindElementWithID(u8"202065"))
                             {
                                 system->PushBackRevelation(*revelation);
                             }

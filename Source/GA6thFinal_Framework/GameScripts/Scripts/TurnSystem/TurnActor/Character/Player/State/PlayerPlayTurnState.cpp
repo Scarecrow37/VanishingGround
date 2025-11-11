@@ -246,7 +246,6 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
             }
             for (size_t i = 0; i < enemies.size(); ++i)
             {
-                ImGui::SameLine();
                 const char* spawnPointStr = Monster::SpawnPointToString(enemies[i]->SpawnPoint);
                 std::string buttonLabel   = std::format("{}{}", spawnPointStr, (const char*)u8" 적 자살");
                 if (ImGui::Button(buttonLabel.c_str()))
@@ -256,7 +255,26 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
                         enemies[i]->Dead();
                     }
                 }
-                ImGui::SameLine();
+                if (i < enemies.size() - 1)
+                {
+                    ImGui::SameLine();
+                }
+            }
+            for (size_t i = 0; i < enemies.size(); ++i)
+            {
+                const char* spawnPointStr = Monster::SpawnPointToString(enemies[i]->SpawnPoint);
+                std::string buttonLabel   = std::format("{}{}", spawnPointStr, (const char*)u8" 적 자해");
+                if (ImGui::Button(buttonLabel.c_str()))
+                {
+                    if (enemies[i])
+                    {
+                        enemies[i]->TakeDamage(10);
+                    }
+                }
+                if (i < enemies.size() - 1)
+                {
+                    ImGui::SameLine();
+                }
             }
         }
         ImGui::Separator();
@@ -491,15 +509,7 @@ void PlayerPlayTurnState::OnQTEFinish()
                             if (Timeline::EventContext* context = track->GetContextFromLabel("Hit"))
                             {
                                 float noteTime  = note->Time;
-                                if (qteSystem->ScaledSpeedFactor != 0.0f)
-                                {
-                                    noteTime /= qteSystem->ScaledSpeedFactor;
-                                }
-                                float hitTime = context->Time;
-                                if (weaponModel.Animation->SpeedScale != 0.0f)
-                                {
-                                    hitTime /= weaponModel.Animation->SpeedScale;
-                                }
+                                float hitTime   = context->Time;
                                 const float noteDelay = note->WeaponAnimationDelay;
 
                                 float delta = noteTime - hitTime + noteDelay + animOffset;

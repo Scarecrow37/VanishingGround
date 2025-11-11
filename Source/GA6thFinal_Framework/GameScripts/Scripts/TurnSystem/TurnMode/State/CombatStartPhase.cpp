@@ -171,7 +171,16 @@ void CombatStartPhase::OnEnter()
             }
             else
             {
-                introCamera->ResetRail(false);
+                // 배틀 카메라로 바로 전환
+                if (UmCineMotion* battleCamera = _turnMode->GetBattleCamera())
+                {
+                    introCamera->ResetRail(false);
+
+                    battleCamera->SetMainCamera();
+                    battleCamera->ResetRail(true);
+                    battleCamera->StartRail(true);
+                    battleCamera->PauseRail();
+                }
             }
         }
     }
@@ -234,7 +243,13 @@ void CombatStartPhase::OnUpdate()
                     {
                         if (Stage* stage = manager->GetCurrentSelectedStage())
                         {
-                            float delay = controller->PlayIntro(stage->MainLevel, stage->BattleCount);
+                            int level = stage->MainLevel;
+                            int battleCount = stage->BattleCount;
+                            if (level == 6) 
+                            {
+                                battleCount = 3; //보스전은 바로 촛불 3개
+                            }
+                            float delay = controller->PlayIntro(level, battleCount);
                             UmTime.Invoke(GetFSM(), delay, [this]()
                             { 
                                 _phaseEnd = true; 

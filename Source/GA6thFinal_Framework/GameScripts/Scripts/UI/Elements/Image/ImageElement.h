@@ -1,9 +1,10 @@
 ﻿#pragma once
 #include "UI/Base/DrawUIComponent/DrawUIComponent.h"
 #include "UI/Base/IOpacity/IOpacity.h"
+#include "UI/Base/IOpacity/IOpacityFactor.h"
 
 class ISpriteRenderer;
-class ImageElement : public DrawUIComponent, public IOpacity
+class ImageElement : public DrawUIComponent, public IOpacity, public IOpacityFactor
 {
     USING_PROPERTY(ImageElement)
 
@@ -115,6 +116,7 @@ public:
     void ResetToSpriteSize();
 
     void SetOpacity(float opacity) override;
+    void SetOpacityFactor(float factor) override;
 
     void BindResourceLoadedCallback(ResourceLoadedCallback callback);
 
@@ -136,7 +138,7 @@ private:
     void LoadTexture(const File::Guid& guid) const;
     void UpdateWorldMatrix();
     void UpdateRendererSize(SIZE size) const;
-    void UpdateRendererAlpha(float alpha) const;
+    void UpdateRendererAlpha() const;
     void RequestResource();
 
 protected:
@@ -156,6 +158,7 @@ private:
     Matrix                           _worldMatrix;
     SIZE                             _spriteOriginSize;
     File::Guid                       _Guid;
+    float                            _opacityFactor = 1.0f;
 
     ResourceLoadedCallback _resourceLoadedCallback;
 };

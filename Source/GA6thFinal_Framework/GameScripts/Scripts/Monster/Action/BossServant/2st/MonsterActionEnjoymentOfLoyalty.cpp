@@ -35,14 +35,14 @@ namespace Monster
                     {
                         availableTokenID.push_back(tokenParam.TokenID);
                     }
-                    if (false == availableTokenID.empty())
+                }
+                if (false == availableTokenID.empty())
+                {
+                    size_t randomIndex = Random::Index(availableTokenID.size());
+                    tokenInventory.RemoveTokenFromID(availableTokenID[randomIndex]);
+                    if (ParticleComponent* particle = target->GetParticleComponent())
                     {
-                        size_t randomIndex = Random::Index(availableTokenID.size());
-                        tokenInventory.RemoveTokenStackFromID(availableTokenID[randomIndex]);
-                        if (ParticleComponent* particle = target->GetParticleComponent())
-                        {
-                            particle->PlayEffect("buff");
-                        }
+                        particle->PlayEffect("buff");
                     }
                 }
             }

@@ -4,6 +4,7 @@
 #include "ExcelDataSystem/ExcelDataSystem.h"
 #include "UI/Elements/Image/ImageElement.h"
 #include "ItemDropSystem/ItemDropSystem.h"
+#include "UI/Elements/Text/TextElement.h"
 
 UMREAL_COMPONENT(RestartStageNavi)
 
@@ -123,6 +124,10 @@ void RestartStageNavi::Awake()
 {
     Base::Awake();
     _imageElement = GetComponent<ImageElement>();
+    if (auto text = GameObject::FindWithTag((const char*)u8"추가 전투 버튼").lock())
+    {
+        _textElement = text->GetComponent<TextElement>();
+    }
     gameObject->AddTag(TAG);
 }
 
@@ -150,6 +155,10 @@ void RestartStageNavi::Start()
         {
             _imageElement->SetImage(GetSelectBox(SelectBoxType::DISABLE));
             Enable = false;
+        }
+        if (_textElement)
+        {
+            _textElement->SetOpacityFactor(0.4f);
         }
     }
 }

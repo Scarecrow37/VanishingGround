@@ -5,6 +5,7 @@
 #include "Animation/AnimationComponent.h"
 #include "Token/Object/ProphecyDoom/ProphecyDoomToken.h"
 #include "Token/TokenSystem.h"
+#include "ContentMath/ContentMath.h"
 
 REGISTER_MONSTER_ACTION(Monster::Action::HymnOfAnnihilation)
 namespace Monster
@@ -34,7 +35,6 @@ namespace Monster
         */
         void HymnOfAnnihilation::Attack()
         {
-            const int tokenID = TokenObject::ProphecyDoom::ID;
             if (Enemy* owner = GetOwnerEnemy())
             {
                 // 사망 애니메이션 재생 X
@@ -44,22 +44,27 @@ namespace Monster
                     deadState->SetDontChangeAnimation(true);
                 }
 
-                ActionParam damage = GetActionParam(1);
-                TokenInventory& tokenInventory = owner->GetTokenInventory();
+                ActionParam     damageParam     = GetActionParam(1);
+                TokenInventory& tokenInventory  = owner->GetTokenInventory();
+
+                const int   tokenID     = TokenObject::ProphecyDoom::ID;
+                const int   tokenCount  = tokenInventory.GetTokenStackFromID(tokenID);
+                int         damage      = damageParam.Param;
+
                 // 종말 예언 토큰을 소지할 시 데미지 증가
-                if (tokenInventory.HasTokenFromID(tokenID))
+                if (tokenCount > 0)
                 {
                     if (TokenSystem* tokenSystem = SingletonComponent<TokenSystem>::GetInstance())
                     {
                         if (IToken* token = tokenSystem->GetTokenFromID(tokenID))
                         {
-                            int param = token->GetTokenParam(0);
-                            float factor = static_cast<float>(param) / 100.0f;
-                            damage.Param = static_cast<int>(static_cast<float>(damage.Param) * (1.0f + factor));
+                            // 종말 예언 토큰의 갯수만큼 데미지 퍼센테이지 
+                            int addDamagePercentage = token->GetTokenParam(0) * tokenCount;
+                            damage += ContentMath::CeilPercentage(damage, addDamagePercentage);
                         }
                     }
                 }
-                ProcessBattle(damage.Param);
+                ProcessBattle(damage);
                 owner->TakeDamage(owner->HP, false);
             }
             SetActionEnd();

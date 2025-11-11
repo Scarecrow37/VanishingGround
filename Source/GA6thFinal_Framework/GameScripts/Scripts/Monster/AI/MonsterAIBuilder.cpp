@@ -10,6 +10,8 @@
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
 
 #include "Token/Object/Bleed/BleedToken.h"
+#include "Token/Object/Poison/PoisonToken.h"
+#include "Token/Object/Stun/StunToken.h"
 
 namespace Monster
 {
@@ -75,7 +77,7 @@ namespace Monster
         controller.PushActionNode("#1", "#2", 210214);                                              // Action 210214
         controller.PushActionNode("#2", "#3", {{25.0f, 210210}, {25.0f, 210211}, {50.0f, 210214}}); // Action 210210, 210211
         controller.PushActionNode("#3", "#4", 210213);                                              // Action 22013
-        controller.PushActionNode("#2", "#3", {{70.0f, 210212}, {30.0f, 210211}});                  // Action 210212, 210211
+        controller.PushActionNode("#4", "#3", {{70.0f, 210212}, {30.0f, 210211}});                  // Action 210212, 210211
         // Entry 노드 설정
         controller.SetCurrentNode("#1");
     }
@@ -154,12 +156,13 @@ namespace Monster
         controller.SetCurrentNode("#1");
     }
 
-    void BuildAIModel210380(std::weak_ptr<Enemy> owner, AIModel& controller)
+    void BuildAIModel210380(std::weak_ptr<Enemy> weakOwner, AIModel& controller)
     {
         controller.Clear();
 
         controller.PushActionNode("#1", "#2", 210280);
-        controller.PushConditionNode("#2", "#3", "#4", [owner]() -> bool { 
+        controller.PushConditionNode("#2", "#3", "#4", [weakOwner]() -> bool { 
+            Enemy* owner = weakOwner.lock().get();
             Enemy* boss = nullptr;
             if (MonsterSystem* system = SingletonComponent<MonsterSystem>::GetInstance())
             {
@@ -179,19 +182,15 @@ namespace Monster
             // 바른이 [출혈] [중독] [기절] 중 한 개 이상 보유 시
             if (boss && false == boss->IsDead())
             {
-                TokenInventory&      tokenInventory = boss->GetTokenInventory();
-                Monster::Controller& controller     = boss->GetController();
+                // 보스의 상태이상 여부 확인
+                TokenInventory& tokenInventory = boss->GetTokenInventory();
+                bool isBleed  = tokenInventory.HasTokenFromID(TokenObject::Bleed::ID);
+                bool isPoison = tokenInventory.HasTokenFromID(TokenObject::Poison::ID);
+                bool isStun   = tokenInventory.HasTokenFromID(TokenObject::Stun::ID);
 
-                if (Action::Base* currentAction = controller.GetCurrentAction())
+                if (isBleed || isPoison || isStun)
                 {
-                    auto& tokenParams = currentAction->GetAllTokenParams();
-                    for (const auto& tokenParam : tokenParams)
-                    {
-                        if (tokenInventory.HasTokenFromID(tokenParam.TokenID))
-                        {
-                            return true;
-                        }
-                    }
+                    return true;
                 }
             }
             return false;

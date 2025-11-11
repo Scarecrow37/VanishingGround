@@ -1,5 +1,8 @@
 ﻿#pragma once
 
+class ImageElement;
+class TextElement;
+
 class RestartStageNavi : public UISFXNavigationComponent
 {
     USING_PROPERTY(RestartStageNavi)
@@ -58,5 +61,6 @@ protected:
 
 private:
     class ImageElement* _imageElement;
+    class TextElement*  _textElement;
     int _clearCount = 0;
 };
