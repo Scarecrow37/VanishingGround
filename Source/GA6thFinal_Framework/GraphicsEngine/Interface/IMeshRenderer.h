@@ -22,6 +22,7 @@ public:
     virtual void SetMaterial(const UINT meshIndex, const Material& material)             = 0;
     virtual void SetMasterMaterial(const UINT meshIndex, const Material& material)       = 0;
     virtual void SetCustomMaterial(CustomLightType type, const std::any& customMaterial) = 0;
+    virtual void SetCullingEnabled(const bool isCullingEnable)                           = 0;
 
 public:
     virtual void OnCustomDepth(UINT customDepth)               = 0;

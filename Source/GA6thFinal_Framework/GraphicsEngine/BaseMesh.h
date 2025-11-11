@@ -13,6 +13,10 @@ public:
     void                       SetName(std::string_view name) { _name = name; }
     void                       GetVertexInfo(char*& vertices, unsigned int& stride, unsigned int& size);
     VIBuffer*                  GetVIBuffer() { return _viBuffer.get(); }
+    bool                       IsCullingEnabled() const { return _isCullingEnabled; }
+
+public:
+    void SetCullingEnabled(bool enabled) { _isCullingEnabled = enabled; }
 
 public:
     void Initialize(const VIBuffer::Descriptor& descriptor, bool createVertexInfo = false);
@@ -28,4 +32,5 @@ private:
     char*                     _indices;
     unsigned int              _vertexStride;
     unsigned int              _vertexSize;
+    bool                      _isCullingEnabled{true};
 };

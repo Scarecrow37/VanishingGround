@@ -28,4 +28,6 @@ public:
 protected:
     void DeserializedReflectEvent() override;
     void Reset() override;
+    void OnDrawDebugSelected() override;
+    void OnDrawDebug() override;
 };

@@ -42,6 +42,11 @@ void StaticMeshRenderer::LoadModel()
             Renderer->OnCustomDepth(PostProcess::BLOOM);
             transform->SetChangeFlag();
             MeshComponent::InitMaterial();
+
+            if (ReflectFields->Basefields.get().Guid == "3913ac2f-0209-4935-8835-ce051552232e")
+            {
+                Renderer->SetCullingEnabled(false);
+            }
         }
     }
 }
@@ -54,6 +59,48 @@ void StaticMeshRenderer::Reset()
     {
         UmSceneManager.ResourceManager.RequestModelResource(this, _Guid, [this]() { LoadModel(); });
     }
+}
+
+void StaticMeshRenderer::OnDrawDebugSelected()
+{
+    /*if (Renderer)
+    {
+        auto model = Renderer->GetModel();
+
+        if (model)
+        {
+            const auto& meshes = model->GetMeshes();
+            for (const auto& mesh : meshes)
+            {
+                const auto&         obb   = mesh->GetBoundingBox();
+                const Matrix&       world = transform->GetWorldMatrix();
+                BoundingOrientedBox worldOBB;
+                obb.Transform(worldOBB, world);
+                UmGraphics.DebugDraw3D("Game", worldOBB, DirectX::Colors::GreenYellow);
+            }
+        }
+    }*/
+}
+
+void StaticMeshRenderer::OnDrawDebug()
+{
+    /*if (Renderer)
+    {
+        auto model = Renderer->GetModel();
+
+        if (model)
+        {
+            const auto& meshes = model->GetMeshes();
+            for (const auto& mesh : meshes)
+            {
+                const auto&         obb   = mesh->GetBoundingBox();
+                const Matrix&       world = transform->GetWorldMatrix();
+                BoundingOrientedBox worldOBB;
+                obb.Transform(worldOBB, world);
+                UmGraphics.DebugDraw3D("Game", worldOBB, DirectX::Colors::GreenYellow);
+            }
+        }
+    }*/
 }
 
 void StaticMeshRenderer::DeserializedReflectEvent() 

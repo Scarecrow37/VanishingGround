@@ -86,6 +86,20 @@ void MeshRenderer::SetCustomMaterial(CustomLightType type, const std::any& custo
     _customMaterialData = customMaterial;
 }
 
+void MeshRenderer::SetCullingEnabled(bool isEnabled)
+{
+    if (_model)
+    {
+        for (auto& mesh : _model->_meshes)
+        {
+            if (mesh)
+            {
+                mesh->SetCullingEnabled(isEnabled);
+            }
+        }
+    }
+}
+
 void MeshRenderer::AddReference()
 {
     GraphicsBase::AddReference();
