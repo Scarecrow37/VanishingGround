@@ -750,7 +750,7 @@ namespace Audio
         constexpr IncreaseGeneration increaseGeneration;
 
         auto& [generation, callback, voice] = _voicePools.at(handle._hash).at(handle._index);
-        throwIfFailed(voice->FlushSourceBuffers(), "Failed to flush source buffers.");
+        //throwIfFailed(voice->FlushSourceBuffers(), "Failed to flush source buffers.");
         callback.SetHandle(AudioHandle());
         increaseGeneration(generation);
     }
