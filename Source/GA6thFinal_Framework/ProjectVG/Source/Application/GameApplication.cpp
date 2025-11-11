@@ -45,7 +45,8 @@ GameApplication::GameApplication()
     }
     else
     {
-        _windowName = L"Vanishing Ground <DirectX12>";
+        _windowName       = L"Vanishing Ground <DirectX12>";
+        _winClassIconPath = L"../GameEngine/Icon/umreal.ico";
         SetStyleToBorderlessWindowed();
     }
 
