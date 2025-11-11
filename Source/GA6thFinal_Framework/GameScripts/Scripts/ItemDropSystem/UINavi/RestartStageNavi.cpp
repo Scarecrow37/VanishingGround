@@ -158,9 +158,7 @@ void RestartStageNavi::Start()
         }
         if (_textElement)
         {
-            Color color = _textElement->Color;
-            color.w     = 0.4f;
-            _textElement->Color = color;
+            _textElement->SetOpacityFactor(0.4f);
         }
     }
 }
