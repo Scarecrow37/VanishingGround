@@ -32,7 +32,7 @@ public:
         case AccessoryGrade::COMMON:
             return ImColor{255, 255, 255, 255};
         case AccessoryGrade::RARE:
-            return ImColor{45, 205, 255, 255};
+            return ImColor{58, 183, 255, 255};
         case AccessoryGrade::BIZARRE:
             return ImColor{255, 0, 255, 255};
         case AccessoryGrade::LEGENDARY:

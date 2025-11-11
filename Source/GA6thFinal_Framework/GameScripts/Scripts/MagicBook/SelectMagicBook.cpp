@@ -51,7 +51,11 @@ SelectMagicBook::~SelectMagicBook() = default;
 
 void SelectMagicBook::Awake()
 {
-    FocusOut(FocusCallType::INITIAL);
+    // 피투성이 기사 아닐때만 실행
+    if (ReflectFields->TitleID != "803005")
+    {
+        FocusOut(FocusCallType::INITIAL);
+    }
 }
 
 void SelectMagicBook::FocusIn(FocusCallType callType)

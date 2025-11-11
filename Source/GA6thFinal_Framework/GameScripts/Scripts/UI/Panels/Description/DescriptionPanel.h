@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "UI/Base/IFontAppearance/IFontAppearance.h"
 #include "UI/Base/IOpacity/IOpacity.h"
+#include "UI/Base/IOpacity/IOpacityFactor.h"
 #include "UI/Panels/Horizontal/HorizontalPanel.h"
 
 enum class ElementType : unsigned char
@@ -27,7 +28,7 @@ struct ElementData
     std::variant<TextAttributes, ImageAttributes> Data;
 };
 
-class DescriptionPanel : public HorizontalPanel, public IOpacity, public IFontAppearance
+class DescriptionPanel : public HorizontalPanel, public IOpacity, public IFontAppearance, public IOpacityFactor
 {
     USING_PROPERTY(DescriptionPanel)
 
@@ -68,6 +69,7 @@ public:
 
 public:
     void SetOpacity(float opacity) override;
+    void SetOpacityFactor(float factor) override;
     void SetFontWeight(float fontWeight) override;
 
 protected:
@@ -95,6 +97,7 @@ private:
     File::Guid _Guid;
 
     float _fontWeight;
+    float _opacityFactor = 1.0f;
 
     bool _invalidateLater;
 };

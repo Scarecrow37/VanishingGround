@@ -504,9 +504,11 @@ void ItemDropSystem::PlayItemDropUISequence()
 
     if (ItemDropUIRootManager* itemDropUIRootManager = SingletonComponent<ItemDropUIRootManager>::GetInstance())
     {
+        float fadeTime = 0.f;
         itemDropUIRootManager->gameObject->ActiveSelf = true;
         if (FadeUIComponent* fadeUI = itemDropUIRootManager->GetComponent<FadeUIComponent>())
         {
+            fadeTime = fadeUI->FadeDuration;
             fadeUI->Begin();
             fadeUI->FadeIn();
         }
@@ -543,26 +545,27 @@ void ItemDropSystem::PlayItemDropUISequence()
             // 포커스 되야할 버튼
             ArtifactButtonNavi::LastFocusIndex = 0;
             itemDropUIRootManager->UpdateStory();
-            UmTime.Invoke(itemDropUIRootManager, 0.1f, [itemDropUIRootManager]() 
+            UmTime.Invoke(itemDropUIRootManager, fadeTime, [itemDropUIRootManager]() 
             { 
                 itemDropUIRootManager->AutoFocus();
             });
            
             if (BGMManager* bgmManager = SingletonComponent<BGMManager>::GetInstance())
             {
-                UmTime.Invoke(bgmManager, 0.1f, [bgmManager]() {
+                UmTime.Invoke(bgmManager, fadeTime, [bgmManager]() 
+                {
                     bgmManager->PlayBGM("-460000", true);
                 });
             }
-
-            // UI 갱신
-            _dropItemsModel.Notify();
 
             // 튜토리얼
             if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
             {
                 system->Show(805914); //보상과 추가 전투
             }
+
+            // UI 갱신
+            _dropItemsModel.Notify();
         }
     }
 
