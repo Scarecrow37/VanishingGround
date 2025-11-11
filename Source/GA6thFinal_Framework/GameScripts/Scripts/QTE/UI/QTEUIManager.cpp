@@ -46,7 +46,7 @@ void QTEUIManager::OnQTEEnter()
 
     if (_battleGuideUI.Progress)
     {
-        _battleGuideUI.Progress->SetElapsedTime(1.0f);
+        _battleGuideUI.Progress->End();
         _battleGuideUI.FadeOut();
     }
 }
