@@ -7,7 +7,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 LRESULT CALLBACK Application::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wParam, lParam))
-        return true;
+        return 0;
 
     if (App)
     {
@@ -15,7 +15,7 @@ LRESULT CALLBACK Application::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
         {
             if (handle._handle(hwnd, msg, wParam, lParam))
             {
-                return true;
+                return 0;
             }
         }
     }
@@ -24,7 +24,7 @@ LRESULT CALLBACK Application::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
     {
     case WM_DESTROY:
         PostQuitMessage(0);
-        return true;
+        return 0;
     }
 
     return DefWindowProc(hwnd, msg, wParam, lParam);
@@ -57,19 +57,46 @@ Application::Application()
 
 bool Application::AppMessageHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    if (msg == WM_SIZE)
+    switch (msg)
     {
-        if (nullptr != UmCore.get())
+    case WM_SYSKEYDOWN:
+        if (wParam == VK_RETURN)
+            return true;
+        break;
+    case WM_SYSCHAR:
+        if (wParam == VK_RETURN)
+            return true;
+        break;
+    }
+
+    if (nullptr != UmCore.get())
+    {
+        Application& app = UmApplication;
+        switch (msg)
         {
-            Application& app = UmApplication;
-            app._clientSize.cx = LOWORD(lParam); 
+        case WM_SIZE:
+            app._clientSize.cx = LOWORD(lParam);
             app._clientSize.cy = HIWORD(lParam);
             if (app._clientSize.cx > 0.f && app._clientSize.cy > 0.f)
             {
                 UmCore->Graphics.OnResize(app._clientSize.cx, app._clientSize.cy);
-            }      
+            }
             return true;
-        }        
+        case WM_SETFOCUS:
+            if (true == app._hideMouseCursor)
+            {
+                Application::ShowMouseCursor(false);
+            }         
+            break;
+        case WM_KILLFOCUS:
+            [[fallthrough]];
+        case WM_DESTROY:
+            if (true == app._hideMouseCursor)
+            {
+                Application::ShowMouseCursor(true);
+            }
+            break;
+        }
     }
     return false;
 }
@@ -207,6 +234,18 @@ void Application::SetStyleToBorderlessWindowed()
 void Application::SetOptimalScreenSize()
 {
     _clientSize = { 0, 0 };
+}
+
+void Application::ShowMouseCursor(bool show) 
+{
+    if (show)
+    {
+        while (ShowCursor(TRUE) < 0);
+    }
+    else
+    {
+        while (ShowCursor(FALSE) >= 0);
+    }
 }
 
 void Application::CreateWindowClient()
