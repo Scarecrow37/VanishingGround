@@ -509,15 +509,7 @@ void PlayerPlayTurnState::OnQTEFinish()
                             if (Timeline::EventContext* context = track->GetContextFromLabel("Hit"))
                             {
                                 float noteTime  = note->Time;
-                                if (qteSystem->ScaledSpeedFactor != 0.0f)
-                                {
-                                    noteTime /= qteSystem->ScaledSpeedFactor;
-                                }
-                                float hitTime = context->Time;
-                                if (weaponModel.Animation->SpeedScale != 0.0f)
-                                {
-                                    hitTime /= weaponModel.Animation->SpeedScale;
-                                }
+                                float hitTime   = context->Time;
                                 const float noteDelay = note->WeaponAnimationDelay;
 
                                 float delta = noteTime - hitTime + noteDelay + animOffset;
