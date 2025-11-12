@@ -338,40 +338,31 @@ void GraphicsCore::Finalize() const
 {
     _device->Finalize();
 
-    delete _threadPool;
-    delete _pipelineStateManager;
-    delete _moduleManager;
-    delete _renderPassDatas;
-    delete _debugDrawCore;
-    delete _commandController;
-    delete _dxResourceManager;
-    delete _particleManager;
-    delete _multiRenderTargetManager;
-    delete _resourceManager;
-    delete _viewManager;
-    delete _lightCore;
-    delete _animationCore;
-    delete _renderer;
-    delete _device;
-    delete _sceneTransitionCore;
+    auto SafeDelete = [](void* ptr)
+    {
+        if (ptr)
+        {
+            delete ptr;
+            ptr = nullptr;
+        }
+    };
 
-    Global::device                   = nullptr;
-    Global::renderer                 = nullptr;
-    Global::commandController        = nullptr;
-    Global::dxResourceManager        = nullptr;
-    Global::multiRenderTargetManager = nullptr;
-    Global::resourceManager          = nullptr;
-    Global::viewManager              = nullptr;
-    Global::animationCore            = nullptr;
-    Global::lightCore                = nullptr;
-    Global::particleManager          = nullptr;
-    Global::debugDrawCore            = nullptr;
-    Global::renderPassDatas          = nullptr;
-    Global::moduleManager            = nullptr;
-    Global::pipelineStateManager     = nullptr;
-    Global::threadPool               = nullptr;
-    Global::sceneTransitionCore      = nullptr;
-    Global::dummyTextureHandle       = nullptr;
+    SafeDelete(_threadPool);
+    SafeDelete(_pipelineStateManager);
+    SafeDelete(_moduleManager);
+    SafeDelete(_renderPassDatas);
+    SafeDelete(_debugDrawCore);
+    SafeDelete(_commandController);
+    SafeDelete(_dxResourceManager);
+    SafeDelete(_particleManager);
+    SafeDelete(_multiRenderTargetManager);
+    SafeDelete(_resourceManager);
+    SafeDelete(_viewManager);
+    SafeDelete(_lightCore);
+    SafeDelete(_animationCore);
+    SafeDelete(_renderer);
+    SafeDelete(_device);
+    SafeDelete(_sceneTransitionCore);
 }
 
 void GraphicsCore::ClearGraphicsResource() const
