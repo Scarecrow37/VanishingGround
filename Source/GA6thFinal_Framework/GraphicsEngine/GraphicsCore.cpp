@@ -338,7 +338,7 @@ void GraphicsCore::Finalize() const
 {
     _device->Finalize();
 
-    auto SafeDelete = [](void* ptr)
+    auto SafeDelete = [](auto& ptr)
     {
         if (ptr)
         {
@@ -347,22 +347,22 @@ void GraphicsCore::Finalize() const
         }
     };
 
-    SafeDelete(_threadPool);
-    SafeDelete(_pipelineStateManager);
-    SafeDelete(_moduleManager);
-    SafeDelete(_renderPassDatas);
-    SafeDelete(_debugDrawCore);
-    SafeDelete(_commandController);
-    SafeDelete(_dxResourceManager);
-    SafeDelete(_particleManager);
-    SafeDelete(_multiRenderTargetManager);
-    SafeDelete(_resourceManager);
-    SafeDelete(_viewManager);
-    SafeDelete(_lightCore);
-    SafeDelete(_animationCore);
-    SafeDelete(_renderer);
-    SafeDelete(_device);
-    SafeDelete(_sceneTransitionCore);
+    SafeDelete(Global::threadPool);
+    SafeDelete(Global::pipelineStateManager);
+    SafeDelete(Global::moduleManager);
+    SafeDelete(Global::renderPassDatas);
+    SafeDelete(Global::debugDrawCore);
+    SafeDelete(Global::commandController);
+    SafeDelete(Global::dxResourceManager);
+    SafeDelete(Global::particleManager);
+    SafeDelete(Global::multiRenderTargetManager);
+    SafeDelete(Global::resourceManager);
+    SafeDelete(Global::viewManager);
+    SafeDelete(Global::lightCore);
+    SafeDelete(Global::animationCore);
+    SafeDelete(Global::renderer);
+    SafeDelete(Global::device);
+    SafeDelete(Global::sceneTransitionCore);
 }
 
 void GraphicsCore::ClearGraphicsResource() const
