@@ -52,10 +52,10 @@ void DXRDrawPass::Draw(ID3D12GraphicsCommandList* commandList)
     FAILED_CHECK_MESSAGE(hr, L"DXRDrawPass::Draw() failed to get ID3D12GraphicsCommandList4 interface");
 
     _ownerScene->_accelerationStructureManager->EndFrame(commandList4.Get());
-    commandlist->Close();
+    /*commandlist->Close();
     Global::commandController->ExecuteCommand(CommandQueueType::GRAPHICS_QUEUE, commandlist);
 
-    Global::device->ResetGraphicsCommnad();
+    Global::device->ResetGraphicsCommnad();*/
     CreateShaderTable();
 }
 
