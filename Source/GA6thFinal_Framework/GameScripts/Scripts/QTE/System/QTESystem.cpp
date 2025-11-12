@@ -614,31 +614,40 @@ void QTESystem::PressedQTEButton(const Input::Controller::Button buttonType)
 
 void QTESystem::PressedButtonX(const Input::Controller& controller)
 {
-    ProcessQTEButtonPressedEvent();
-    // Handle button X pressed
-    if (CanPressQTEButton())
+    if (IsPlaying)
     {
-        _nextKeyEvent.emplace_back(&controller, _keyBinder.GetKeyX());
-    }
+        ProcessQTEButtonPressedEvent();
+        // Handle button X pressed
+        if (CanPressQTEButton())
+        {
+            _nextKeyEvent.emplace_back(&controller, _keyBinder.GetKeyX());
+        }
+    }  
 }
 
 void QTESystem::PressedButtonY(const Input::Controller& controller)
 {
-    ProcessQTEButtonPressedEvent();
-    // Handle button Y pressed
-    if (CanPressQTEButton())
+    if (IsPlaying)
     {
-        _nextKeyEvent.emplace_back(&controller, _keyBinder.GetKeyY());
+        ProcessQTEButtonPressedEvent();
+        // Handle button Y pressed
+        if (CanPressQTEButton())
+        {
+            _nextKeyEvent.emplace_back(&controller, _keyBinder.GetKeyY());
+        }
     }
 }
 
 void QTESystem::PressedButtonB(const Input::Controller& controller)
 {
-    ProcessQTEButtonPressedEvent();
-    // Handle button B pressed
-    if (CanPressQTEButton())
+    if (IsPlaying)
     {
-        _nextKeyEvent.emplace_back(&controller, _keyBinder.GetKeyB());
+        ProcessQTEButtonPressedEvent();
+        // Handle button B pressed
+        if (CanPressQTEButton())
+        {
+            _nextKeyEvent.emplace_back(&controller, _keyBinder.GetKeyB());
+        }
     }
 }
 
