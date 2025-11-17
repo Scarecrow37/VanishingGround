@@ -43,6 +43,7 @@ namespace Timeline
                                     FLAGS_ALLOW_POPUP_UPPER_CANVAS_MENU,      
         };
 
+        // 정렬
         enum Align
         {
             ALIGN_LEFT   = 0,
@@ -57,7 +58,7 @@ namespace Timeline
             ImVec2 End;
         };
 
-        // 콜백 함수 (로우 포인터를 인자로 넘겨도 safe함)
+        // 콜백 함수
         struct Callback
         {
             std::function<void(Timeline::EventTrack&)> LowerFramePopup;
@@ -77,14 +78,14 @@ namespace Timeline
         /// </summary>
         void Show();
 
+        /// <summary>시퀀서의 디버그 정보를 출력합니다</summary>
         void ShowDebugData();
 
         /// <summary>Sequencer에서 사용할 TimelineSystem을 설정합니다.</summary>
         /// <param name="system">해당 System에 대한 weak_ptr입니다.</param>
         void SetEventTrack(std::weak_ptr<EventTrack> system);
 
-        inline Callback& GetCallback() { return _callback; }
-
+    public:
         /// <summary>시퀀서 에디터가 차지할 크기를 설정합니다. 각 원소가 0일 시 자동으로 크기를 조정합니다.</summary>
         /// <param name="size">설정할 시퀀서의 크기.</param>
         inline void SetSequencerSize(const ImVec2& size) { _sequencerSize = size; }
@@ -106,6 +107,12 @@ namespace Timeline
 
         /// <summary>Sequencer의 뷰 포지션을 반환합니다.</summary>
         inline ImVec2 GetViewPosition() const { return _viewPos; }
+        
+        /// <summary>Sequencer의 뷰 포지션을 반환합니다.</summary>
+        inline float GetViewScale() const { return _viewScale; }
+
+        /// <summary>Sequencer의 콜백을 가져옵니다.</summary>
+        inline Callback& GetCallback() { return _callback; }
 
         inline void   AddViewPositionDelay(const ImVec2& pos) { _targetViewPos += pos; }
         inline void   AddViewPosition(const ImVec2& pos) { _viewPos += pos; _targetViewPos += pos; }
@@ -113,7 +120,6 @@ namespace Timeline
         inline void   SetViewPosition(const ImVec2& pos) { _viewPos = pos; _targetViewPos = pos; }
         inline void   SetViewPositionFromID(UINT id, Align align = ALIGN_LEFT) { SetViewPositionDelay(GetContextPosition(id) + GetAlginOffsetFromRect(_canvasRectLower, align)); }
 
-        inline float  GetViewScale() const { return _viewScale; }
         inline void   SetViewScaleDelay(float scale) { _targetViewScale = scale; }
         inline void   SetViewScale(float scale) { _viewScale = scale; _targetViewScale = scale; }
         inline void   AddViewScaleDelay(float scale) { _targetViewScale += scale; }
@@ -121,7 +127,7 @@ namespace Timeline
 
         inline void   SetSelectedContextID(UINT id = 0) { _seletedContextID = id; }
         inline UINT   GetSelectedContextID() const { return _seletedContextID; }
-                      
+        
         inline void   SetFlags(UINT flags) { _flags = flags; }
         inline void   AddFlags(UINT flags) { _flags |= flags; }
         inline void   RemoveFlags(UINT flags) { _flags &= ~flags; }

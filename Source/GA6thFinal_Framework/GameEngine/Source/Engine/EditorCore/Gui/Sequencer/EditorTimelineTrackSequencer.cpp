@@ -18,18 +18,17 @@ namespace Timeline
 
     void SequencerEditor::Show()
     {
+        // 트랙이 유효하지 않다면 return
         if (true == _track.expired())
         {
+            _track.reset();
             return;
         }
+
         ImGui::PushID(this);
-
-        // DrawToolBar();
-
         Begin();
         DrawCanvas();
         End();
-
         ImGui::PopID();
     }
 
@@ -134,7 +133,11 @@ namespace Timeline
 
         while (false == _eventQueue.empty())
         {
-            _eventQueue.front()();
+            auto event = _eventQueue.front();
+            if (event)
+            {
+                event();
+            }
             _eventQueue.pop();
         }
     }
