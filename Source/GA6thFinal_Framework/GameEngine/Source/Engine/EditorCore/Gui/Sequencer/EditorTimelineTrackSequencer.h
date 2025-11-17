@@ -143,7 +143,7 @@ namespace Timeline
         inline bool   HasFlags(UINT flags) const { return (_flags & flags) != 0; }
 
     private:
-        bool    Begin();
+        void    Begin();
         void    End();
         void    DrawCanvas();
 
@@ -220,7 +220,7 @@ namespace Timeline
         ImVec2 _canvasIndicatePos;      // 캔버스 내에서의 _indicatePos
         float  _indicateFrame;          // 현재 표시되는 프레임 (클램핑 등으로 인해 마우스 커서가 위치한 프레임과 다를 수 있음)
 
-        float _unitToScaledSize;        // 단위 크기를 스케일링한 값 (줌 적용된 단위 크기)
+        float  _unitToScaledSize;       // 단위 크기를 스케일링한 값 (줌 적용된 단위 크기)
 
         ImVec2 _lastContextPosition;    // 마지막으로 Context가 위치한 곳
         ImVec2 _lastContextSize;        // 마지막으로 Context가 위치한 곳의 크기

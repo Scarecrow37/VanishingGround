@@ -8,9 +8,19 @@ namespace Timeline
     REFLECT_FUNCTION(SequencerEditor)
 
     SequencerEditor::SequencerEditor()
-        : _track(), _flags(0), _isSnapped(false), _mouseFrame(0.0f), _indicateFrame(0.0f), _canvasUpperHeight(10.0f),
-          _viewPos(ImVec2(0, 0)), _viewPosPrev(_viewPos), _targetViewPos(ImVec2(0, 0)), _viewToScaledPos(ImVec2(0, 0)),
-          _viewScale(1.0f), _viewScalePrev(_viewScale), _targetViewScale(1.0f), _zoomMin(0.05f), _zoomMax(10.0f)
+        : _track()
+        , _flags(FLAGS_NONE)
+        , _seletedContextID(0)
+        , _isSnapped(false)
+        , _canvasUpperHeight(10.0f)
+        , _viewScale(1.0f)
+        , _viewScalePrev(_viewScale)
+        , _targetViewScale(1.0f)
+        , _mouseFrame(0.0f)
+        , _indicateFrame(0.0f)
+        , _unitToScaledSize(1.0f)
+        , _zoomMin(0.05f)
+        , _zoomMax(10.0f)
     {
     }
 
@@ -105,8 +115,8 @@ namespace Timeline
             ImGui::TreePop();
         }
     }
-
-    bool SequencerEditor::Begin()
+    
+    void SequencerEditor::Begin()
     {
         ImGuiIO&    io       = ImGui::GetIO();
         ImDrawList* drawList = ImGui::GetWindowDrawList();
@@ -128,10 +138,6 @@ namespace Timeline
         Helper::DrawCanvasUpperRect(this, drawList);
         // 캔버스 하단 영역 그리기.
         Helper::DrawCanvasLowerRect(this, drawList);
-
-        // Begin 성공 여부 반환
-        bool isValid = GetMaxFrame() >= GetMinFrame();
-        return isValid;
     }
 
     void SequencerEditor::End()
