@@ -144,6 +144,7 @@ void PreferencesSystem::SetSFXVolume(float value, float maxVolume)
 void PreferencesSystem::SaveData()
 {
     std::filesystem::path configPath = GetFilePath();
+    std::filesystem::create_directories(configPath.parent_path());
 
     std::ofstream outFile(configPath);
     if (!outFile.is_open())
@@ -218,9 +219,12 @@ void PreferencesSystem::LoadData()
 
 std::filesystem::path PreferencesSystem::GetFilePath()
 {
-    wchar_t exePath[MAX_PATH];
-    GetModuleFileNameW(NULL, exePath, MAX_PATH);
-    std::filesystem::path filePath = std::filesystem::path(exePath).parent_path();
-    
-    return filePath / L"Preferences.inl";
+    PWSTR documentsPath = nullptr;
+    SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &documentsPath);
+    std::filesystem::path filePath = documentsPath;
+    CoTaskMemFree(documentsPath);
+
+    filePath /= L"Vanishing Ground";
+    filePath /= L"Preferences.inl";
+    return filePath;
 }
