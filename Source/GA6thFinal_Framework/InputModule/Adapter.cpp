@@ -199,7 +199,7 @@ namespace Input
         {
             ControllerTypes::StateFlag operator()(const WORD flag) const
             {
-                ControllerTypes::StateFlag result = ControllerTypes::STATE_UNCHANGED;
+                ControllerTypes::StateFlag result;
                 switch (flag)
                 {
                 case XINPUT_KEYSTROKE_KEYDOWN:
@@ -209,10 +209,9 @@ namespace Input
                     result = ControllerTypes::STATE_UP;
                     break;
                 case XINPUT_KEYSTROKE_REPEAT:
-                    result = ControllerTypes::STATE_REPEAT;
-                    break;
+                    [[fallthrough]];
                 default:
-                    result = ControllerTypes::STATE_UNCHANGED;
+                    result = ControllerTypes::STATE_REPEAT;
                     break;
                 }
                 return result;

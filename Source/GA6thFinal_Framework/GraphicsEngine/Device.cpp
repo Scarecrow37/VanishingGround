@@ -169,19 +169,22 @@ void Device::Execute()
     commandController->ExecuteCommand(CommandQueueType::GRAPHICS_QUEUE, _commandList.Get());
 }
 
-void Device::UpdateBuffer(ComPtr<ID3D12Resource>& buffer, void* data, UINT size)
+void Device::UpdateBuffer(ComPtr<ID3D12Resource>& buffer, const void* data, UINT64 size)
 {
     HRESULT hr = S_OK;
 
     if (nullptr == data)
         return;
 
-    UINT8* temp = nullptr;
-    hr          = buffer->Map(0, nullptr, (void**)&temp);
+    void*                 temp = nullptr;
+    constexpr D3D12_RANGE readRange{0, 0};
+    hr = buffer->Map(0, &readRange, &temp);
     FAILED_CHECK_MESSAGE(hr, L"Device::UpdateBuffer buffer->Map Failed");
 
     memcpy(temp, data, size);
-    buffer->Unmap(0, nullptr);
+
+    D3D12_RANGE writeRange{0, size};
+    buffer->Unmap(0, &writeRange);
 }
 
 void Device::ClearBackBuffer(UINT flag, XMVECTOR color, float depth, UINT stencil)
@@ -539,7 +542,7 @@ void Device::CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature)
     hr = swapChain->QueryInterface(IID_PPV_ARGS(&_swapChain));
     FAILED_CHECK_MESSAGE(hr, L"Device::CreateDeviceAndSwapChain swapChain->QueryInterface Failed");
     _renderTargetIndex = _swapChain->GetCurrentBackBufferIndex();
-
+    _dxgiFactory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER);
     _graphicsMemory = std::make_unique<GraphicsMemory>(_device.Get());
     //_graphicsMemory->Allocate()
 }

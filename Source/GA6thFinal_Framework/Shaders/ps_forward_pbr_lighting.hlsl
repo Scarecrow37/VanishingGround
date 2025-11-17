@@ -14,14 +14,6 @@ struct PSInput
     nointerpolation float alpha : TEXCOORD4;
 };
 
-struct PSOutput
-{
-    float4 color : SV_Target0;
-    float4 normal : SV_Target1;
-    float depth : SV_Target2;
-    uint customDepth : SV_Target3;
-};
-
 #define DIFFUSE   0
 #define NORMAL    1
 #define ORM       2
@@ -36,7 +28,7 @@ TextureCube prefilteredMap;
 Texture2D brdfLUT;
 Texture2D textures[];
 
-PSOutput ps_main(PSInput input)
+ForwardPSOutput ps_main(PSInput input)
 {        
     uint diffuseID = input.materialID[DIFFUSE];
     uint normalID = input.materialID[NORMAL];
@@ -119,10 +111,9 @@ PSOutput ps_main(PSInput input)
     }
     float3 color = directLighting + (ambientLighting * ao) + emissive;
     
-    PSOutput output = (PSOutput) 0;
+    ForwardPSOutput output = (ForwardPSOutput) 0;
     output.color = float4(color, albedo.a * alpha);
     output.normal = float4(normal, 1);
-    output.depth = input.position.z;
     output.customDepth = input.customDepth;
 
     return output;

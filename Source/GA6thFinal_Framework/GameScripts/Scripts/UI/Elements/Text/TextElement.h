@@ -1,9 +1,11 @@
 ﻿#pragma once
 
 #include "UI/Base/DrawUIComponent/DrawUIComponent.h"
+#include "UI/Base/IFontAppearance/IFontAppearance.h"
 #include "UI/Base/IOpacity/IOpacity.h"
+#include "UI/Base/IOpacity/IOpacityFactor.h"
 
-class TextElement : public DrawUIComponent, public IOpacity
+class TextElement : public DrawUIComponent, public IOpacity, public IFontAppearance, public IOpacityFactor
 {
     enum FontFlags : uint32_t
     {
@@ -21,7 +23,7 @@ public:
     ~TextElement() override;
 
 public:
-    REFLECT_PROPERTY(FilePath, Text, Color, FontScale, OutlineColor, OutlineWidth, OutLine)
+    REFLECT_PROPERTY(FilePath, Text, Color, FontScale, OutlineColor, OutlineWidth, Outline, FontWeight)
 
     GETTER_ONLY(std::string, FilePath) { return _Guid.ToPath().string(); }
     PROPERTY(FilePath)
@@ -61,7 +63,7 @@ public:
     GETTER(float, FontWeight) { return ReflectFields->FontWeight; }
     SETTER(float, FontWeight)
     {
-        ReflectFields->FontWeight = std::clamp(value, 0.0f, 1.0f);
+        ReflectFields->FontWeight = std::clamp(value, 0.0f, 4.0f);
         UpdateWeight();
         UpdateContentSize();
         InvalidateMeasure();
@@ -71,15 +73,15 @@ public:
     GETTER_ONLY(SIZE, ContentSize) { return ReflectFields->ContentSize; }
     PROPERTY(ContentSize)
 
-    GETTER(bool, OutLine) { return (ReflectFields->FontFlags & FONT_FLAG_OUTLINE) != 0; }
-    SETTER(bool, OutLine)
+    GETTER(bool, Outline) { return (ReflectFields->FontFlags & FONT_FLAG_OUTLINE) != 0; }
+    SETTER(bool, Outline)
     {
         UINT fontFlags = ReflectFields->FontFlags;
         value ? (fontFlags |= FONT_FLAG_OUTLINE) : (fontFlags &= ~FONT_FLAG_OUTLINE);
         ReflectFields->FontFlags = fontFlags;
         UpdateOutline();
     }
-    PROPERTY(OutLine)
+    PROPERTY(Outline)
 
     GETTER(DirectX::SimpleMath::Color, OutlineColor) { return DirectX::SimpleMath::Color(&ReflectFields->FontOutlineColor[0]); }
     SETTER(DirectX::SimpleMath::Color, OutlineColor)
@@ -97,12 +99,12 @@ public:
     }
     PROPERTY(OutlineWidth)
 
-
-
 public:
     void SetFont(const File::Guid& guid);
 
     void SetOpacity(float opacity) override;
+    void SetOpacityFactor(float factor) override;
+    void SetFontWeight(float fontWeight) override;
 
 protected:
     void  Reset() override;
@@ -143,4 +145,5 @@ protected:
 private:
     ISDFTextRenderer* _renderer;
     File::Guid        _Guid;
+    float             _opacityFactor = 1.0f;
 };

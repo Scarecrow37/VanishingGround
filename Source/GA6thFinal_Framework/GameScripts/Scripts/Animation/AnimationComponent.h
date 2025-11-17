@@ -26,6 +26,19 @@ class AnimationComponent : public Component
     using EventQueue = std::vector<std::function<void()>>;
 
 public:
+    REFLECT_PROPERTY()
+
+    SETTER(float, SpeedScale) { ReflectFields->AnimationSpeedScale = value; }
+    GETTER(float, SpeedScale) { return ReflectFields->AnimationSpeedScale; }
+    PROPERTY(SpeedScale)
+
+    GETTER_ONLY(const std::string&, MainAnimationName) { return _mainAnimationData._animationName; }
+    PROPERTY(MainAnimationName)
+        
+    GETTER_ONLY(float, MainAnimationDuration) { return _mainAnimationData._maxFrame; }
+    PROPERTY(MainAnimationDuration)
+
+public:
     void Added() override;
     void Update() override;
     void OnDestroy() override;
@@ -55,7 +68,7 @@ private:
 
 public:
     void SetAnimator(SkeletalMeshRenderer* renderer);
-    void SetAnimator(GraphicsPointer<IAnimator> animator);
+    void SetAnimator(IAnimator* animator);
 
     /// <summary>
     /// 다음에 적용할 애니메이션 플래그를 설정합니다.
@@ -227,14 +240,14 @@ public:
     inline const std::map<std::string, std::string>& GetAnimationKeyMap() const { return ReflectFields->AnimationKeyMap; }
 
 private:
-    GraphicsPointer<IAnimator>  _animator;
-    EventQueue                  _eventQueue;
-    AnimationData*              _currentAnimationData = nullptr; // 현재 애니메이션 데이터
-    AnimationData               _mainAnimationData;
-    std::deque<AnimationData>   _overrideAnimationStack; 
-    AnimationData*              _lastAnimationData = nullptr;
-    bool                        _isBuildingOverrideAnimation = false;
-    UINT                        _prevBeginBuildAnimationID    = 0;
+    IAnimator*                _animator                     = nullptr;
+    EventQueue                _eventQueue;
+    AnimationData*            _currentAnimationData         = nullptr; // 현재 애니메이션 데이터
+    AnimationData             _mainAnimationData;
+    std::deque<AnimationData> _overrideAnimationStack;
+    AnimationData*            _lastAnimationData            = nullptr;
+    bool                      _isBuildingOverrideAnimation  = false;
+    UINT                      _prevBeginBuildAnimationID    = 0;
     
     std::pair<bool, int>        _nextAnimationFlag; // 다음 애니메이션 데이터 (first: isValid, second: NextAnimationData)
     

@@ -46,6 +46,7 @@ public:
     void ResetEnvironmentSkyBox();
     void ResetIBLSkyBox();
     void ClearRenderQueue();
+    void UpdateRenderQueue();
 
 public:
     template <typename T>

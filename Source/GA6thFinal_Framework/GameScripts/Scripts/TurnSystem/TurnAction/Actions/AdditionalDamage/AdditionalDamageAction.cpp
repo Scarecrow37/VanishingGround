@@ -90,3 +90,16 @@ void AdditionalDamageAction::OnPlayerBattleCalculateDamageModifier(Player& attac
         weaponStats.CriticalDamageMultiplier *= additionalCriticalDamageMultiplier;
     }
 }
+
+void AdditionalDamageAction::OnConvertWeaponViewModel(WeaponStats& stats) 
+{
+    //조건 0개면 항상 UI에 적용
+    if (0 == ConditionCount)
+    {
+        int additionalDamage         = AdditionalDamage;
+        int additionalCriticalDamage = AdditionalCriticalDamage;
+
+        stats.HitDamage += additionalDamage;
+        stats.CriticalDamage += additionalCriticalDamage;
+    }
+}

@@ -48,8 +48,7 @@ void ps_main(PSInput input)
     color.a *= material[index].alpha;
     
     clip(color.a - Epsilon);
-    
-    
+        
     switch (uiMaterialData[index].type)
     {
         case LINEAR_FILL:

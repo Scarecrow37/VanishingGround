@@ -34,7 +34,7 @@ GameApplication::GameApplication()
 
     if constexpr (Application::IsEditor())
     {
-        _windowName = L"Umreal Engine <DirectX12>";
+        _windowName = L"VG Engine <DirectX12>";
         _winClassIconPath = L"../GameEngine/Icon/umreal.ico";
         _windowStyleEX = WS_OVERLAPPEDWINDOW;
         _editorModule  = AddModule<EditorModule>();
@@ -45,7 +45,8 @@ GameApplication::GameApplication()
     }
     else
     {
-        _windowName = L"Project VG <DirectX12>";
+        _windowName       = L"Vanishing Ground <DirectX12>";
+        _winClassIconPath = L"VG.ico";
         SetStyleToBorderlessWindowed();
     }
 

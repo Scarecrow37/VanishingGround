@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "MonsterActionSmashStrike.h"
 #include "TurnSystem/TurnActor/Character/CharacterBase.h"
+#include "Particle/ParticleComponent.h"
 
 REGISTER_MONSTER_ACTION(Monster::Action::SmashStrike)
 namespace Monster
@@ -39,6 +40,10 @@ namespace Monster
                 TokenParam      tokenParam     = GetTokenParam(1);
                 TokenInventory& tokenInventory = target->GetTokenInventory();
                 tokenInventory.AddTokenStackFromID(tokenParam.TokenID, tokenParam.Count);
+                if (ParticleComponent* particle = target->GetParticleComponent())
+                {
+                    particle->PlayEffect("debuff");
+                }
             }
             ActionParam damage = GetActionParam(1);
             ProcessBattle(damage.Param);

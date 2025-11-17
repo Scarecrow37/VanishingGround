@@ -31,6 +31,7 @@ public:
     void SetMaterial(const UINT meshIndex, const Material& material) override;
     void SetMasterMaterial(const UINT meshIndex, const Material& material) override;
     void SetCustomMaterial(CustomLightType type, const std::any& customMaterial) override;
+    void SetCullingEnabled(bool isEnabled) override;
 
     void SetModel(std::shared_ptr<Model> model);
 

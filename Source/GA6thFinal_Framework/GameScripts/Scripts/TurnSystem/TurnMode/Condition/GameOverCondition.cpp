@@ -24,13 +24,16 @@ void GameOverCondition::OnAwake()
 
 bool GameOverCondition::Evaluate()
 {
-    CombatStartPhase* combatStartPhase = _turnMode->States->CombatStartPhase;
-    if (combatStartPhase)
+    if (_turnMode)
     {
-        Player* player = combatStartPhase->GetPlayer();
-        if (player)
+        CombatStartPhase* combatStartPhase = _turnMode->States->CombatStartPhase;
+        if (combatStartPhase)
         {
-            return TurnActor::STATE::Dead == player->State;
+            Player* player = combatStartPhase->GetPlayer();
+            if (player)
+            {
+                return player->IsDead();
+            }
         }
     }
     return false;

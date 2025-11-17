@@ -17,9 +17,20 @@ namespace TokenObject
     {
         const int   tokenID = GetTokenID();
         const int   param   = GetTokenParam(0);
+        auto&       tokenInventory = attackerData.Source.GetTokenInventory();
+
+        // 자신보다 높은 등급 토큰이 존재하면 return
+        if (tokenID < Rage2::ID)
+        {
+            for (int i = tokenID + 1; i <= Rage2::ID; ++i)
+            {
+                if (tokenInventory.HasTokenFromID(i))
+                    return;
+            }
+        }
+
         damage += ContentMath::CeilPercentage(damage, param);
 
-        auto& tokenInventory = attackerData.Source.GetTokenInventory();
         tokenInventory.RemoveTokenStackFromID(tokenID);
 
         UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(attackerData.Source));
@@ -28,9 +39,19 @@ namespace TokenObject
     {
         const int tokenID = GetTokenID();
         const int param   = GetTokenParam(0);
-        damage += ContentMath::CeilPercentage(damage, param);
-
         auto& tokenInventory = attackerData.Source.GetTokenInventory();
+
+        // 자신보다 높은 등급 토큰이 존재하면 return
+        if (tokenID < Rage2::ID)
+        {
+            for (int i = tokenID + 1; i <= Rage2::ID; ++i)
+            {
+                if (tokenInventory.HasTokenFromID(i))
+                    return;
+            }
+        }
+
+        damage += ContentMath::CeilPercentage(damage, param);
         tokenInventory.RemoveTokenStackFromID(tokenID);
 
         UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(attackerData.Source));

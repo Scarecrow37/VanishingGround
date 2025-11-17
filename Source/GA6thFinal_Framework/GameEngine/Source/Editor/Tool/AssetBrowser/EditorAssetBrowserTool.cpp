@@ -42,6 +42,11 @@ void EditorAssetBrowserTool::OnStartGui()
     UmFileSystem.RegisterFileEventSubscriber(this);
 }
 
+void EditorAssetBrowserTool::OnEndGui() 
+{
+    _inspectorDrawer.reset();
+}
+
 void EditorAssetBrowserTool::OnPreFrameBegin()
 {
 }

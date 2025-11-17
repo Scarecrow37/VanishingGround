@@ -4,7 +4,7 @@
 
 UMREAL_COMPONENT(TextElement)
 
-TextElement::TextElement()
+TextElement::TextElement() : _renderer(nullptr), _opacityFactor(1.0f)
 {
     FilePath.SetInputAutoEvent([this]() {
         if (ImGui::BeginDragDropTarget())
@@ -41,9 +41,21 @@ void TextElement::SetOpacity(const float opacity)
 {
     const float clampedOpacity = std::clamp(opacity, 0.0f, 1.0f);
     ReflectFields->Color[3]    = clampedOpacity;
-    UpdateColor();
     ReflectFields->FontOutlineColor[3] = clampedOpacity;
+    UpdateColor();
     UpdateOutline();
+}
+
+void TextElement::SetOpacityFactor(const float factor)
+{
+    _opacityFactor = factor;
+    UpdateColor();
+    UpdateOutline();
+}
+
+void TextElement::SetFontWeight(const float fontWeight)
+{
+    FontWeight = fontWeight;
 }
 
 void TextElement::Reset()
@@ -152,6 +164,7 @@ void TextElement::UpdateProperties()
     UpdatePosition();
     UpdateScale();
     UpdateOutline();
+    UpdateWeight();
     UpdateContentSize();
 }
 
@@ -167,7 +180,9 @@ void TextElement::UpdateColor() const
 {
     if (nullptr != _renderer)
     {
-        _renderer->SetColor(Vector4(&ReflectFields->Color[0]));
+        Vector4 color(&ReflectFields->Color[0]);
+        color.w *= _opacityFactor;
+        _renderer->SetColor(color);
     }
 }
 
@@ -220,7 +235,8 @@ void TextElement::UpdateOutline()
         const UINT fontFlags = ReflectFields->FontFlags;
         const bool enabled   = fontFlags & FONT_FLAG_OUTLINE;
 
-        const SimpleMath::Color outlineColor = SimpleMath::Color(&ReflectFields->FontOutlineColor[0]);
+        SimpleMath::Color outlineColor = SimpleMath::Color(&ReflectFields->FontOutlineColor[0]);
+        outlineColor.w *= _opacityFactor;
         const float             outlineWidth = ReflectFields->FontOutlineWidth;
 
         const GE::FontOutline outline{.Color = outlineColor, .Width = outlineWidth, .Enabled = enabled};

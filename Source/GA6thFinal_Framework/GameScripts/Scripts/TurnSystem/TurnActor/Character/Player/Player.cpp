@@ -9,6 +9,13 @@
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <Particle/ParticleComponent.h>
 #include <PlayerSystem/PlayerSystem.h>
+#include "AccessorySystem/AccessorySystem.h"
+#include "UI/Panels/Overlay/OverlayPanel.h"
+#include "TokenHUD/TokenHUD.h"
+#include "Camera/UmCineMotion.h"
+#include "Vinette/VinetteManager.h"
+#include "KeyCallbackUINavi/KeyCallbackUINavi.h"
+#include "TooltipSystem/TooltipSystem.h"
 
 //Condition
 #include "Condition/PlayerStartCondition.h"
@@ -17,10 +24,13 @@
 #include "Condition/PlayerWinCondition.h"   
 
 //State
+#include "CombatUIManager/CombatUIManager.h"
 #include "State/PlayerWaitTurnState.h"
 #include "State/PlayerPlayTurnState.h"
 #include "State/PlayerDeadState.h"
 #include "State/PlayerWinState.h"
+#include "UI/Contents/SpawnDamagePanel.h"
+#include "UI/Contents/SpawnTokenPanel.h"
 
 UMREAL_COMPONENT(Player)
 
@@ -43,9 +53,71 @@ void Player::Awake()
     }
 }
 
-void Player::Update() 
+void Player::Start() 
 {
+    AddCallback();
+}
 
+void Player::AddCallback() 
+{
+    _callbacks.push_back(KeyCallbackUINavi::AddCallbackFocusIn("Player Navi", [this]() { FocusIn(); }));
+    _callbacks.push_back(KeyCallbackUINavi::AddCallbackFocusOut("Player Navi", [this]() { FocusOut(); }));
+    _callbacks.push_back(KeyCallbackUINavi::AddCallbackShowTooltips("Player Navi", [this]() { ShowTooltip(); UmAudio.Play("-901006"); }));
+    _callbacks.push_back(KeyCallbackUINavi::AddCallbackHideTooltips("Player Navi", [this]() { HideTooltip(); }));
+}
+
+void Player::OnDestroy() 
+{
+    ClearCallback();
+}
+
+void Player::FocusIn()
+{
+    if (CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        combatUI->CharacterHUDGroup.PlayerFocusIn(0.2f);
+    }
+}
+
+void Player::FocusOut()
+{
+    if (TooltipSystem* system = SingletonComponent<TooltipSystem>::GetInstance())
+    {
+        system->Hide();
+    }
+    if (CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        combatUI->CharacterHUDGroup.PlayerFocusOut(0.2f);
+    }
+}
+
+void Player::ShowTooltip()
+{
+    if (false == IsDead())
+    {
+        if (TooltipSystem* system = SingletonComponent<TooltipSystem>::GetInstance())
+        {
+            auto&            tokenInventory = GetTokenInventory();
+            std::vector<int> ids            = tokenInventory.GetTokensTooltips();
+            system->Show(Tooltip::Group::PLAYER, ids);
+        }
+    }
+}
+
+void Player::HideTooltip()
+{
+    if (TooltipSystem* system = SingletonComponent<TooltipSystem>::GetInstance())
+    {
+        system->Hide();
+    }
+}
+
+void Player::ClearCallback() 
+{
+    for (auto& [delegate, handle] : _callbacks)
+    {
+        delegate->RemoveListener(handle);
+    }
 }
 
 void Player::SerializedReflectEvent() 
@@ -106,18 +178,56 @@ void Player::Dead()
     }
 }
 
-void Player::TakeDamage(int damage, bool playAnim) 
+void Player::TakeDamage(int damage, const bool playAnim) 
 {
     TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
     if (turnMode)
     {
-        turnMode->ApplyActions([&](TurnAction& action) { action.OnPlayerTakeDamageStart(*this, damage); });
+        turnMode->ApplyActions([&](TurnAction& action) { action.OnPlayerTakeDamageStart(*this, damage); });  
     }
     int takeDamage = damage;
+
     Base::TakeDamage(takeDamage, playAnim);
+    ShowDamage(damage, {});
     if (turnMode)
     {
         turnMode->ApplyActions([&](TurnAction& action) { action.OnPlayerTakeDamageEnd(*this, damage); });
+    }
+
+    if (ParticleComponent* particle = GetParticleComponent())
+    {
+        particle->PlayEffect("gethit");
+    }
+
+    if (VinetteManager* vinette = SingletonComponent<VinetteManager>::GetInstance())
+    {
+        vinette->ShowHitVinette();
+    }
+}
+
+void Player::ShowDamage(const int damage, const std::span<const std::string> sources)
+{
+    if (const CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        [[maybe_unused]] auto _ = combatUI->CharacterHUDGroup.PlayerSpawnDamagePanel->MakeDamage(damage, sources);
+    }
+}
+
+void Player::Heal(const int amount)
+{
+    Base::Heal(amount);
+    ShowHeal(amount, {});
+    if (VinetteManager* vinette = SingletonComponent<VinetteManager>::GetInstance())
+    {
+        vinette->ShowHealVinette();
+    }
+}
+
+void Player::ShowHeal(const int healAmount, const std::span<const std::string> sources)
+{
+    if (const CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        [[maybe_unused]] auto _ = combatUI->CharacterHUDGroup.PlayerSpawnHealPanel->MakeDamage(healAmount, sources);
     }
 }
 
@@ -240,14 +350,36 @@ void Player::OnKill(CharacterBase* destination)
     Base::OnKill(destination);
 }
 
-void Player::OnTokenAdded(int tokenID)
+void Player::OnTokenAdded(const int tokenID)
 {
     Base::OnTokenAdded(tokenID);
+
+    if (const CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        if (SpawnTokenPanel* panel = combatUI->CharacterHUDGroup.PlayerSpawnTokenPanel)
+        {
+            panel->EnqueueToken(tokenID);
+        }
+    }
 }
 
-void Player::OnTokenRemoved(int tokenID)
+void Player::OnTokenRemoved(const int tokenID)
 {
     Base::OnTokenRemoved(tokenID);
+}
+
+void Player::OnTokenEnter(int tokenID)
+{
+    Base::OnTokenEnter(tokenID);
+
+    RegisterTokenHUD(tokenID);
+}
+
+void Player::OnTokenExit(int tokenID)
+{
+    Base::OnTokenExit(tokenID);
+
+    UnregisterTokenHUD(tokenID);
 }
 
 void Player::OnQTEStart() 
@@ -275,5 +407,60 @@ void Player::OnNotifiedAnimationEvent(const Timeline::EventContext* context)
     if ("attackEnd" == context->GetLabel())
     {
         particlecomponent->StopEffect("handglow");
+    }
+}
+
+void Player::RegisterTokenHUD(int tokenID)
+{
+    auto&       tokenInventory = GetTokenInventory();
+    const auto& inventory      = tokenInventory.GetValidTokenList();
+
+    if (!inventory.empty())
+    {
+        auto& model = tokenInventory.GetTokenModelFromID(tokenID);
+
+        // Assets/Prefab/UI/Token Icon.prefab
+        if (auto prefab = UmGameObjectFactory.DeserializeToGuid("0abe19e7-1dc1-48cd-bcc1-6dcd86748d93"))
+        {
+            if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
+            {
+                auto HUD = combatUIManager->CharacterHUDGroup.PlayerHUDPanel;
+                if (HUD)
+                {
+                    Transform::ForeachBFS(HUD->transform, [&](Transform* tr) {
+                        GameObject& object = tr->gameObject;
+                        if (object.CompareTag("Token HUD"))
+                        {
+                            if (auto tokenHUD = prefab->GetComponent<TokenHUD>())
+                            {
+                                if (TokenSystem* tokenSystem = SingletonComponent<TokenSystem>::GetInstance())
+                                {
+                                    if (const TokenData* tokenData = tokenSystem->GetTokenDataFromID(tokenID))
+                                    {
+                                        static uint64_t TOKEN_HUD_COUNT = 0;
+                                        std::string key = std::format("Player_Token_{}_{}", tokenID, TOKEN_HUD_COUNT++);
+                                        tokenHUD->SetupTokenHUD(UmFileSystem.GetGuidFromAssetID(tokenData->ImageID), model, key);
+                                        _tokenHUDTable.emplace(tokenID, tokenHUD);
+                                        prefab->transform->SetParent(object.transform);
+                                        model.Notify();
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }              
+            }
+        }
+    }
+}
+
+void Player::UnregisterTokenHUD(int tokenID)
+{
+    auto it = _tokenHUDTable.find(tokenID);
+    if (it != _tokenHUDTable.end())
+    {
+        it->second->RemoveTokenHUD();
+        GameObject::Destroy(it->second->gameObject);
+        _tokenHUDTable.erase(it);
     }
 }

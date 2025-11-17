@@ -51,6 +51,40 @@ namespace QTE
         return 0.0f;
     }
 
+    float NoteUI::SetNotePositionX(const float positionX)
+    {
+        const POINT oldPoint  = Overlay->Point;
+        const float halfWidth = GetNoteWidth() * 0.5f;
+        const float finalPosX = positionX - halfWidth;
+        Overlay->Point        = POINT{static_cast<LONG>(finalPosX), oldPoint.y};
+        return finalPosX;
+    }
+
+    void NoteUI::ProcessAlpha(const float positionX, const float fadeInStartX, const float fadeInEndX,
+                              const float fadeOutStartX, const float fadeOutEndX) 
+    {
+        float alpha = 0.0f;
+        // FadeIn
+        if (fadeInEndX > 0.0f && positionX >= fadeInStartX && positionX <= fadeInEndX)
+        {
+            const float dist   = fadeInEndX - fadeInStartX;
+            const float delta  = fadeInEndX - positionX;
+            alpha              = std::clamp(delta / dist, 0.0f, 1.0f);
+        }
+        else if (positionX > fadeInEndX && positionX < fadeOutStartX)
+        {
+            alpha = 1.0f;
+        }
+        // FadeOut
+        else if (fadeOutStartX > fadeInEndX && positionX >= fadeOutStartX)
+        {
+            const float dist   = fadeOutEndX - fadeOutStartX;
+            const float delta  = fadeOutEndX - positionX;
+            alpha              = std::clamp(delta / dist, 0.0f, 1.0f);
+        }
+        Alpha(alpha);
+    }
+
     void NoteUI::Reset()
     {
         Time   = 0.0f;
@@ -100,8 +134,11 @@ namespace QTE
             EndAnimation->Alpha = alpha;
         }
     }
-    void NoteUI::Update(const float currTime, const float travelTime, const float currSpeed, const float startX,
-                        const float endX, const float perfectX, const float offsetX)
+    void NoteUI::Update(const float currTime, const float travelTime, const float currSpeed, 
+                        const float startX, const float endX, const float perfectX,
+                        float fadeInStartX /*= FLT_MIN*/ , float fadeInEndX /*= FLT_MAX*/,
+                        float fadeOutStartX /*= FLT_MIN*/ , float fadeOutEndX /*= FLT_MAX*/,
+                        const float offsetX /*= 0.0f*/)
     {
         if (State == STATE_AVAILABLE)
         {
@@ -128,17 +165,28 @@ namespace QTE
         case STATE_VISIBLE: {
             if (Overlay)
             {
-                const SIZE  size      = Overlay->Size;
-                const POINT oldPoint  = Overlay->Point;
-                const float halfWidth = GetNoteWidth() * 0.5f;
-                const float finalXPos = posXValue - halfWidth + offsetX;
-                const LONG  posXLong  = static_cast<LONG>(finalXPos);
-                Overlay->Point        = POINT{posXLong, oldPoint.y};
-
-                const float dist   = endX - perfectX;
-                const float delta  = endX - finalXPos;
-                const float factor = std::clamp(delta / dist, 0.0f, 1.0f);
-                Alpha(std::clamp(factor, 0.0f, 1.0f));
+                const float finalPosX = SetNotePositionX(posXValue + offsetX);
+                // fade start 지점이 기본 값(FLT_MIN)이거나 이상한 값이면 0.0f로 대체
+                if (fadeInStartX < startX || fadeInStartX > endX)
+                {
+                    fadeInStartX = startX;
+                }
+                // fade end 지점이 기본 값(FLT_MAX)이거나 이상한 값이면 0.0f로 대체
+                if (fadeInEndX > endX || fadeInEndX < startX)
+                {
+                    fadeInEndX = fadeInStartX;
+                }
+                // fade start 지점이 기본 값(FLT_MIN)이거나 이상한 값이면 perfectX 값으로 대체
+                if (fadeOutStartX < startX || fadeOutStartX > endX)
+                {
+                    fadeOutStartX = perfectX;
+                }
+                // fade end 지점이 기본 값(FLT_MAX)이거나 이상한 값이면 endX 값으로 대체
+                if (fadeOutEndX > endX || fadeOutEndX < startX)
+                {
+                    fadeOutEndX = endX;
+                }
+                ProcessAlpha(finalPosX, fadeInStartX, fadeInEndX, fadeOutStartX, fadeOutEndX);
             }
             // 결과가 생긴 노트는 Dead처리
             if (Result != QTE::QTE_RESULT_NONE)
@@ -170,8 +218,6 @@ namespace QTE
         if (resultType.IsPressedButton())
         {
             Result = resultType.Result;
-            //State  = STATE_DEAD;
-            //OnNoteExit();
         }
     }
     

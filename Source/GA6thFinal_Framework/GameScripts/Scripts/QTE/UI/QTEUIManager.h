@@ -9,6 +9,8 @@
 #include "QTE/UI/Field/QTEFieldUI.h"
 #include "QTE/UI/Guide/QTEGuideUI.h"
 
+#include "QTE/UI/Guide/BattleGuideUI.h"
+
 class SpriteAnimationElement;
 
 namespace QTE
@@ -57,10 +59,17 @@ private:
     void OnQTEExit();
 
 public:
+    void SetQTEProgress(float t);
+
     /// <summary>QTE UI의 알파 값을 설정합니다.</summary>
     void SetUIAlpha(float factor);
 
     void DrawDebugJudgeLine();
+
+    void SetDefaultState();
+
+    void FadeInBattleGuideUI();
+    void FadeOutBattleGuideUI();
 
 private:
     void Reset() override;
@@ -86,6 +95,8 @@ private:
     QTE::InputViewerUI                  _inputViewerUI;
     QTE::FieldUI                        _fieldUI;
     QTE::GuideUI                        _guideUI;
+
+    BattleGuideUI                       _battleGuideUI;
 
     std::unordered_map<UINT, int>       _activedPoolIndices;
 

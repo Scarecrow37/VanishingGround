@@ -466,8 +466,8 @@ public:
     class SceneResourceManager
     {
     public:
-        SceneResourceManager();
-        ~SceneResourceManager();
+        SceneResourceManager() = default;
+        ~SceneResourceManager() = default;
 
         struct Engine
         {
@@ -520,6 +520,9 @@ public:
         void RequestSDFFontResource(const Component* component, const File::Guid& guid, const std::function<void()>& func);
         void RequestSDFFontResource(const Component* component, const File::Path& path, const std::function<void()>& func);
 
+        bool CheckAllResourceLoad();
+
+        void ClearResource();
     private:
         template <typename T>
         struct RenderResource
@@ -633,7 +636,6 @@ public:
         Input::Controller                               _inputController{&_inputAdapter};
         bool                                            _isConnect = false;
         std::array<Action, CONTROLLER_BUTTON_COUNT>     _actionTracker{Action::IDLE,};
-        std::array<bool, CONTROLLER_BUTTON_COUNT>       _actionChecker{false,};
 
         std::array<std::array<std::vector<std::pair<std::shared_ptr<bool>, std::function<void(const Input::Controller&)>>>, 
             ACTION_COUNT>,
@@ -643,8 +645,8 @@ public:
         std::deque<std::pair<bool*, std::weak_ptr<bool>>> _layerStack;
 
     private:
-        void UpdateTracker(Input::Controller::Button button);
-        void UpdateAnalogButtons();
+        void UpdateTracker(const Input::Controller::ButtonState& buttonState);
+        void CallInputReceiver(Input::Controller::Button button);
     };
 
 private:
@@ -663,12 +665,14 @@ private:
     void SceneUpdate();
  
 private:
+    bool ResourceLoadWait();
     void ObjectsInputUpdate();       //Input을 사용하는 Component들의 Event를 Update합니다.
     void ObjectsFixedUpdate();       //FixedUpdate를 호출합니다.
     void ObjectsUpdate();            //Update 를 호출합니다.
     void ObjectsLateUpdate();        //LateUpdate를 호출합니다.
 
     void ObjectsAddRuntime();        //추가 대기중인 오브젝트, 컴포넌트를 라이프 사이클에 포함시킵니다.
+    void ResourceManagerUpdate();    //리로스 매니저를 업데이트합니다.
     void ObjectsOnEnable();          //OnEnable 예정인 컴포넌트들의 OnEnable 함수를 호출합니다.
     void ObjectsOnDisable();         //OnDisable 예정인 컴포넌트들의 OnDisable 함수를 호출해줍니다.
     void ObjectsAwake();             //Awake 예정인 컴포넌트들의 Awake 함수를 호출합니다.
@@ -787,10 +791,13 @@ private:
     std::vector<Scene*> _lodedSceneList;
 
     //다음에 로드할 씬
-    File::Guid _nextSceneGuid;
+    std::vector<File::Guid> _nextSceneGuids;
 
     //다음에 로드할 스카이박스
     Scene* _nextSceneSkybox;
+
+    bool _waitResourceLoad = false;
+    bool _checkResourceLoad = false;
 
 protected:
     /// <summary>

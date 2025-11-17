@@ -29,6 +29,10 @@ public:
     virtual void OnKill(CharacterBase* source, CharacterBase* destination) override             {}
     virtual void OnTokenAdded(CharacterBase* owner, int tokenID) override                       {}
     virtual void OnTokenRemoved(CharacterBase* owner, int tokenID) override                     {}
+    virtual void OnPreTokenAdded(CharacterBase* source, int tokenID, int& count)                {}
+    virtual void OnPreTokenRemoved(CharacterBase* source, int tokenID, int& count)              {}
+    virtual void OnTokenEnter(CharacterBase* owner, int tokenID) override                       {}
+    virtual void OnTokenExit(CharacterBase* owner, int tokenID) override                        {}
     virtual void OnQTEStart(CharacterBase* owner) override                                      {}
     virtual void OnQTEEnd(CharacterBase* owner) override                                        {}
 
@@ -66,6 +70,7 @@ public:
 
 protected:
     std::string TokenLog(CharacterBase& dest);
+    void        TakeDamage(CharacterBase* dest, int damage);
 
 protected:
     TokenData _tokenData;

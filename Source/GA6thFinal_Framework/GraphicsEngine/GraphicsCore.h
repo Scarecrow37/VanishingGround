@@ -50,6 +50,7 @@ public:
 
 
 public:
+    void SetResource(std::shared_ptr<Model> model, IMeshRenderer* component) const;
     void LoadResource(std::wstring_view filePath, IMeshRenderer* component) const;
     void LoadResource(std::wstring_view filePath, ISpriteRenderer* component) const;
     //void LoadResource(std::wstring_view filePath, ITextRenderer* component) const;
@@ -98,4 +99,5 @@ private:
     class PipelineStateManager*       _pipelineStateManager;
     class ThreadPool*                 _threadPool;
     class SceneTransitionCore*        _sceneTransitionCore;
+    D3D12_GPU_DESCRIPTOR_HANDLE       _dummyTextureHandle;
 };

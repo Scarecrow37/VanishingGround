@@ -41,44 +41,41 @@ void RecoveryAction::ImGuiDrawActionEditor()
     ImguiDrawConditionEditor();
 }
 
+void RecoveryAction::OnPlayerBattleCalculateDamageModifier(Player& attacker, PlayerStats& attackerStats,
+                                                           WeaponStats& weaponStats, Enemy& target,
+                                                           EnemyStats& targetStats)
+{
+    if (ReflectFields->Trigger == TriggerType::ATTACK)
+    {
+        if (EvaluateConditions())
+        {
+            ProcessHeal();
+        }
+    }
+}
+
+void RecoveryAction::OnEquipAccessory() 
+{
+    if (ReflectFields->Trigger == TriggerType::EQUIP_ACCESSORY)
+    {
+        if (EvaluateConditions())
+        {
+            ProcessHeal();
+        }
+    }
+}
+
 void RecoveryAction::OnEnemyDeadByWeapon(Enemy& enemy, WeaponElement& weapon)
 {
     if (ReflectFields->Trigger == TriggerType::WEAPON_KILL_ENEMY)
     {
         if (EvaluateConditions())
         {
-            if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
-            {
-                CombatStartPhase* combatStartPhase = turnMode->States->CombatStartPhase;
-                if (combatStartPhase)
-                {
-                    std::vector<CharacterBase*> targetList = TurnSystemHelper::GetTargetCharacters(Target);
-                    if (false == targetList.empty())
-                    {
-                        int recoveryHP = ReflectFields->RecoveryHP;
-                        for (auto& target : targetList)
-                        {
-                            if (target)
-                            {
-                                switch (ReflectFields->RecoveryUnit)
-                                {
-                                case Unit::FLAT:
-                                    target->Heal(recoveryHP);
-                                    break;
-                                case Unit::PERCENT:
-                                    target->HealByPercentage(recoveryHP);
-                                    break;
-                                default:
-                                    break;
-                                }                           
-                            }
-                        }
-                    }
-                }
-            }
+            ProcessHeal();
         }
     }
 }
+
 
 void RecoveryAction::DeserializedReflectEvent() 
 {
@@ -93,6 +90,12 @@ void RecoveryAction::UpdateActionInfo()
     {
     case RecoveryAction::TriggerType::WEAPON_KILL_ENEMY:
         triggerName = (const char*)u8"무기 공격으로 적 처치시 ";
+        break;
+    case RecoveryAction::TriggerType::ATTACK:
+        triggerName = (const char*)u8"공격할 때 마다 ";
+        break;
+    case RecoveryAction::TriggerType::EQUIP_ACCESSORY:
+        triggerName = (const char*)u8"장신구로 장착시 ";
         break;
     default:
         break;
@@ -113,3 +116,35 @@ void RecoveryAction::UpdateActionInfo()
     }
     _actionInfo += (const char*)u8" 회복";
 }
+
+void RecoveryAction::ProcessHeal()
+{
+    std::vector<CharacterBase*> targetList = TurnSystemHelper::GetTargetCharacters(Target);
+    if (false == targetList.empty())
+    {
+        for (auto& target : targetList)
+        {
+            ProcessHeal(target);
+        }
+    }
+}
+
+void RecoveryAction::ProcessHeal(CharacterBase* target)
+{
+    int recoveryHP = ReflectFields->RecoveryHP;
+    if (target)
+    {
+        switch (ReflectFields->RecoveryUnit)
+        {
+        case Unit::FLAT:
+            target->Heal(recoveryHP);
+            break;
+        case Unit::PERCENT:
+            target->HealByPercentage(recoveryHP);
+            break;
+        default:
+            break;
+        }
+    }
+}
+

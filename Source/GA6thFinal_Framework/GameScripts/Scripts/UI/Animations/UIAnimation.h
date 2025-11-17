@@ -11,6 +11,7 @@ public:
     void SetDuration(float duration);
     void SetLoop(bool isLoop);
     void SetElapsedTime(float elapsedTime);
+    float GetElapsedTime() const { return _elapsedTime; }   
     void Reset();
 
     void Update(float deltaTime);

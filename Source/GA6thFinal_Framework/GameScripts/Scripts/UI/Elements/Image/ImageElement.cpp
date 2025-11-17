@@ -4,7 +4,7 @@
 
 UMREAL_COMPONENT(ImageElement)
 
-ImageElement::ImageElement()
+ImageElement::ImageElement() : _renderer(nullptr), _opacityFactor(1.0f)
 {
     FilePath.SetInputAutoEvent([this]() {
         if (ImGui::BeginDragDropTarget())
@@ -159,7 +159,18 @@ void ImageElement::SetOpacity(const float opacity)
 {
     const float clampedAlpha = std::clamp(opacity, 0.0f, 1.0f);
     ReflectFields->Alpha     = clampedAlpha;
-    UpdateRendererAlpha(clampedAlpha);
+    UpdateRendererAlpha();
+}
+
+void ImageElement::SetOpacityFactor(const float factor)
+{
+    _opacityFactor = factor;
+    UpdateRendererAlpha();
+}
+
+void ImageElement::BindResourceLoadedCallback(ResourceLoadedCallback callback)
+{
+    _resourceLoadedCallback = std::move(callback);
 }
 
 void ImageElement::LoadTexture(const File::Guid& guid) const
@@ -194,10 +205,11 @@ void ImageElement::UpdateRendererSize(const SIZE size) const
     }
 }
 
-void ImageElement::UpdateRendererAlpha(const float alpha) const
+void ImageElement::UpdateRendererAlpha() const
 {
     if (nullptr != _renderer)
     {
+        const float alpha = ReflectFields->Alpha * _opacityFactor;
         _renderer->SetAlpha(alpha);
     }
 }
@@ -218,8 +230,7 @@ void ImageElement::RequestResource()
             const SIZE size = Size;
             UpdateRendererSize(size);
 
-            const float alpha = Alpha;
-            UpdateRendererAlpha(alpha);
+            UpdateRendererAlpha();
 
             UpdateAtlas();
             UpdateAtlasIndex();
@@ -231,6 +242,13 @@ void ImageElement::RequestResource()
             SetRadialFill(radialFill);
 
             // ResetToSpriteSize();
+            if (_resourceLoadedCallback)
+            {
+                CallbackParameters params;
+                params.ResourceSize = _spriteOriginSize;
+                _resourceLoadedCallback(params);
+                _resourceLoadedCallback = nullptr;
+            }
         });
     }
 }

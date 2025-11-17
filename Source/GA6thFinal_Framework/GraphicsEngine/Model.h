@@ -7,6 +7,7 @@ class Animation;
 class Model : public Resource
 {
     friend class FBXConverter;
+    friend class MeshRenderer;
 
 public:
     Model();

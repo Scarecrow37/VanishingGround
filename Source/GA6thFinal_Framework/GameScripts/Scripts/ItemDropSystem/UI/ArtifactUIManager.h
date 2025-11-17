@@ -104,4 +104,8 @@ private:
     DropArtifactsViewModel::Handle _viewModelHandle;
 
     bool _obtainFlag;
+
+private:
+    inline static constexpr float OBTAIN_ICON_ALPHA = 0.4f;
+
 };

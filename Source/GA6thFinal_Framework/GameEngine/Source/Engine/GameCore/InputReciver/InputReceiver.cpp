@@ -5,7 +5,7 @@ InputReceiver::~InputReceiver()
     if (nullptr != _isDestroy)
     {
         if (_isPushStack)
-            PushInputLayer();
+            PopInputLayer();
 
         *_isDestroy = true;
     }

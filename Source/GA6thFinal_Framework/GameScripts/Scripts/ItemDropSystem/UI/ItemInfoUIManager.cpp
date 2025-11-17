@@ -6,6 +6,7 @@
 #include "ExcelDataSystem/ExcelDataSystem.h"
 #include "WeaponSystem/WeaponTable/WeaponTableComponent.h"
 #include "WeaponSystem/WeaponElement/WeaponElement.h"
+#include "UI/Contents/TooltipDescriptionPanel.h"
 
 UMREAL_COMPONENT(ItemInfoUIManager)
 
@@ -14,18 +15,19 @@ ItemInfoUIManager::~ItemInfoUIManager() = default;
 
 void ItemInfoUIManager::SetItemInfoUI(const DropItemInfo& info) 
 {
-    SetItemName(info.Name);
+    SetItemName(info);
     SetItemIcon(info);
     SetItemDescription(info);
     SetWeaponStats(info);
 }
 
-void ItemInfoUIManager::SetItemName(const std::string& name) 
+void ItemInfoUIManager::SetItemName(const DropItemInfo& info)
 {
     // 이름 UI 갱신
     if (_uiComponents.ItemName)
     {
-        _uiComponents.ItemName->Text = name;
+        _uiComponents.ItemName->Text  = info.Name;
+        _uiComponents.ItemName->Color = info.NameColor;
     }
 }
 
@@ -40,6 +42,11 @@ void ItemInfoUIManager::SetItemIcon(const DropItemInfo& info)
         message += std::to_string(iconAssetID);   
         message += " is not Import";
         UmLogger.Log(LogLevel::LEVEL_WARNING, message);
+    }
+
+    if (_uiComponents.FrameImage)
+    {
+        _uiComponents.FrameImage->SetImage(GetFrameGuid(info.Category));
     }
 }
 
@@ -67,8 +74,7 @@ void ItemInfoUIManager::SetItemDescription(const DropItemInfo& info)
     //TODO: Flavor 텍스트에 대한 표시 해야함.
     SetFlavorDescription("");
     
-    //TODO: 키워드에 대한 설명 표시해야함.
-    SetKeywordDescription("");
+    SetKeywordDescription(info);
 }
 
 void ItemInfoUIManager::SetItemDescription(const std::string& description) 
@@ -79,11 +85,20 @@ void ItemInfoUIManager::SetItemDescription(const std::string& description)
     }
 }
 
-void ItemInfoUIManager::SetKeywordDescription(const std::string& description) 
+void ItemInfoUIManager::SetKeywordDescription(const DropItemInfo& dropItemInfo)
 {
     if (_uiComponents.ItemKeyword)
     {
-        _uiComponents.ItemKeyword->Description = description;
+        std::vector<int> ids;
+        ids = DropItemInfo::GetArtifactTooltipIDs(dropItemInfo);
+        if (false == ids.empty())
+        {
+            _uiComponents.ItemKeyword->SetTooltips(ids);
+        }
+        else
+        {
+            _uiComponents.ItemKeyword->ClearTooltips();
+        }   
     }
 }
 
@@ -155,22 +170,39 @@ void ItemInfoUIManager::ClearWeaponStats()
     }
 }
 
-void ItemInfoUIManager::Awake() 
+void ItemInfoUIManager::Added() 
 {
-    Base::Awake();
-    gameObject->AddTag(TAG);
-    FindComponents();
-    
+    if (UmCore->IsPlay())
+    {       
+        gameObject->AddTag(TAG);
+        FindComponents();
+    }
 }
 
 void ItemInfoUIManager::FindComponents() 
 {
+    _uiComponents.FrameImage      = nullptr;
+    _uiComponents.ItemName        = nullptr;
+    _uiComponents.ItemIcon        = nullptr;
+    _uiComponents.ItemDescription = nullptr;
+    _uiComponents.ItemFlavor      = nullptr;
+    _uiComponents.ItemKeyword     = nullptr;
+
+    _uiComponents.Damage      = nullptr;
+    _uiComponents.Critical    = nullptr;
+    _uiComponents.AttackCount = nullptr;
+    _uiComponents.Speed       = nullptr;
+
     Transform::ForeachBFS(transform, [this](Transform* curr) 
     { 
         GameObject& object = curr->gameObject;
         if (nullptr == _uiComponents.ItemName && object.CompareTag("Name"))
         {
             _uiComponents.ItemName = object.GetComponent<TextElement>();
+        }
+        else if (nullptr == _uiComponents.FrameImage && object.CompareTag("Frame"))
+        {
+            _uiComponents.FrameImage = object.GetComponent<ImageElement>();
         }
         else if (nullptr == _uiComponents.ItemIcon && object.CompareTag("Icon"))
         {
@@ -182,7 +214,7 @@ void ItemInfoUIManager::FindComponents()
         }
         else if (nullptr == _uiComponents.ItemKeyword && object.CompareTag("Keyword Description"))
         {
-            _uiComponents.ItemKeyword = object.GetComponent<DescriptionPanel>();
+            _uiComponents.ItemKeyword = object.GetComponent<TooltipDescriptionPanel>();
         }
         else if (nullptr == _uiComponents.ItemFlavor && object.CompareTag("Flavor Description"))
         {

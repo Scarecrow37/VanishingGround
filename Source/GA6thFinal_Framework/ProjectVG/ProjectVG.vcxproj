@@ -246,6 +246,7 @@
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_UMEDITOR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>/D _UMEDITOR %(AdditionalOptions)</AdditionalOptions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -295,12 +296,12 @@
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_UMEDITOR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>/D _UMEDITOR %(AdditionalOptions)</AdditionalOptions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
     <ClInclude Include="Source\Application\GameApplication.h" />
-    <ClInclude Include="Source\Application\UmScripts.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application\GameApplication.cpp" />
@@ -317,7 +318,7 @@
     <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\GameEngine\Icon\umreal.ico" />
+    <Image Include="..\..\..\..\..\VanishingGround\Assets\Icon\VG.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

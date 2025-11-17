@@ -34,7 +34,7 @@
 
 namespace Global
 {
-    D3D12_GPU_DESCRIPTOR_HANDLE dummyTextureHandle;
+    D3D12_GPU_DESCRIPTOR_HANDLE* dummyTextureHandle;
 }
 
 Renderer::Renderer() = default;
@@ -301,6 +301,16 @@ void Renderer::ResetIBLSkyBox(std::string_view sceneName)
     scene->ResetIBLSkyBox();
 }
 
+void Renderer::UpdateRenderQueue()
+{
+    for (auto& renderScene : _renderScenes)
+    {
+        renderScene.second->UpdateRenderQueue();
+    }
+
+    Global::lightCore->UpdateLightQueue();
+}
+
 void Renderer::ClearComponents()
 {
     for (auto& component : _toBeReleasedComponents)
@@ -351,18 +361,19 @@ void Renderer::Render()
     for (auto& renderScene : _renderScenes)
     {
         renderScene.second->Execute();
-    }   
+    }
     
     RenderToBackBuffer();
 }
 
 void Renderer::Flip()
-{    
+{
     Global::device->Execute();
     Global::device->Flip();
     Global::device->ResetCommands();
     Global::device->ResetComputeCommands();
 
+    UpdateRenderQueue();
     ClearComponents();
 }
 
@@ -525,7 +536,7 @@ void Renderer::CreateDefaultTexture()
     std::shared_ptr<Texture> textureResource = std::make_shared<Texture>();
     textureResource->SetResource(texture.Get());
     textureResource->CreateShaderResourceView();
-    Global::dummyTextureHandle = textureResource->GetGPUHandle();
+    (*Global::dummyTextureHandle) = textureResource->GetGPUHandle();
 
     Global::resourceManager->AddResource("BlackTexture", textureResource);
     _defaultResource.push_back(textureResource);
@@ -614,7 +625,7 @@ void Renderer::CreateDefaultRenderTarget()
     }
 
     // Forward G-Buffer
-    renderTargetManager->AddRenderTargetGroup("Forward G-Buffer", {"Normal", "Depth", "CustomDepth"});
+    renderTargetManager->AddRenderTargetGroup("Forward G-Buffer", {"Normal", "CustomDepth"});
 }
 
 void Renderer::CreateDefaultShader()

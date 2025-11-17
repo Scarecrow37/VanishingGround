@@ -5,6 +5,8 @@
 
 class PlayerStatsComponent;
 class FiniteStateMachine;
+class ParticleComponent;
+class TokenHUD;
 class Player : public CharacterBase
 {
     USING_PROPERTY(Player)
@@ -54,6 +56,9 @@ public:
     virtual void Dead() override;
     /*플레이어에게 피격을 가합니다.*/
     virtual void TakeDamage(int damage, bool playAnim = true) override;
+    void ShowDamage(int damage, std::span<const std::string> sources) override;
+    void Heal(int amount) override;
+    void ShowHeal(int healAmount, std::span<const std::string> sources) override;
 
     FiniteStateMachine& GetFSM() { return *_finiteStateMachine; }
     const PlayerStates& GetFSMStates() { return _fsmStates; }
@@ -70,8 +75,9 @@ public:
     PlayerStatsComponent* GetPlayerStats();
 
 protected:
-    void Awake();
-    void Update();
+    void Awake() override;
+    void Start() override;
+    void OnDestroy() override;
 
     /// <summary>
     /// <para> 직렬화 직전 자동으로 호출되는 이벤트 함수입니다. </para>
@@ -101,7 +107,27 @@ public:
     void OnKill(CharacterBase* destination) override;
     void OnTokenAdded(int tokenID) override;
     void OnTokenRemoved(int tokenID) override;
+    void OnTokenEnter(int tokenID) override;
+    void OnTokenExit(int tokenID) override;
     void OnQTEStart() override;
     void OnQTEEnd() override;
     void OnNotifiedAnimationEvent(const Timeline::EventContext* context) override;
+
+private:
+    void RegisterTokenHUD(int tokenID);
+    void UnregisterTokenHUD(int tokenID);
+
+    std::unordered_map<int, TokenHUD*> _tokenHUDTable;
+
+private:
+    void AddCallback();
+    void ClearCallback();
+
+    void FocusIn();
+    void FocusOut();
+    void ShowTooltip();
+    void HideTooltip();
+
+    std::vector<std::pair<UmDelegate<>*, UmDelegate<>::Handle>> _callbacks;
+
 };

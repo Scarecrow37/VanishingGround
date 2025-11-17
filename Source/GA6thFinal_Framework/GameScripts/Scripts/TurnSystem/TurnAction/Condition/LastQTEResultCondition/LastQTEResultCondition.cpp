@@ -89,3 +89,8 @@ void LastQTEResultCondition::UpdateConditionInfo()
         break;
     }
 }
+
+bool LastQTEResultCondition::CheckEvaluate(CharacterBase* character)
+{
+    return false;
+}

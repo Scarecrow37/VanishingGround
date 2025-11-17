@@ -34,7 +34,6 @@ private:
     static UIRoot*      GetRoot(const GameObject& gameObject);
 
     static NavigationID _toID;
-
 public:
     UINavigationComponent();
 
@@ -117,6 +116,9 @@ public:
     /// </summary>
     /// <param name="root">내비게이션 ID를 획득할 대상 UIRoot 객체의 포인터입니다.</param>
     void AcquireNavigationID(UIRoot* root);
+
+    virtual void ShowTooltips();
+    virtual void HideTooltips();
 
 protected:
     UIComponent* GetSiblingUI() const;

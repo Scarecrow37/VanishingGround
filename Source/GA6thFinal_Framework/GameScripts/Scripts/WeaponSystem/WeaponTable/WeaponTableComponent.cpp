@@ -28,6 +28,26 @@ const WeaponElement* WeaponTableComponent::GetWeaponToName(const std::string& na
     return result;
 }
 
+const WeaponElement* WeaponTableComponent::GetWeaponToID(std::u8string_view id)
+{
+    if (ExcelDataSystem* data = SingletonComponent<ExcelDataSystem>::GetInstance())
+    {
+        if (auto db = data->FindExcelDataBase(u8"무기"))
+        {
+            size_t rowIndex = db->FindRowIndex(id, u8"ID");
+            if (rowIndex != db->FIND_INDEX_FAIL)
+            {
+                std::string_view data = db->FindData(rowIndex, u8"Name");
+                if (data != db->FIND_STR_FAIL)
+                {
+                    return GetWeaponToName(data.data());
+                }
+            }
+        }
+    }
+    return nullptr;
+}
+
 std::string WeaponTableComponent::SaveWeaponTable()
 {
     ReflectFields->_tableDatas.clear();
@@ -457,17 +477,20 @@ void WeaponTableComponent::ImGuiTableEditor()
                 {
                     if (false == weapon._actions.empty())
                     {
+                        auto& actionEditorShowFlags = _imguiEvent.ShowActionEditor[key];
+                        ImGui::PushID(weapon.Stats.WeaponID);
                         for (size_t i = 0; i < weapon._actions.size(); ++i)
                         {
                             auto& action = weapon._actions[i];
-                            if (_imguiEvent.ShowActionEditor.size() <= i)
+                            if (actionEditorShowFlags.size() <= i)
                             {
-                                _imguiEvent.ShowActionEditor.resize(i + 1);
+                                actionEditorShowFlags.resize(i + 1);
                             }
-                            bool showEditor = _imguiEvent.ShowActionEditor[i];
-                            TurnAction::ImGuiDrawActionMaker(key + std::to_string(i), action, showEditor);
-                            _imguiEvent.ShowActionEditor[i] = showEditor;
-                        }                    
+                            bool showEditor = actionEditorShowFlags[i];
+                            TurnAction::ImGuiDrawActionMaker(key + std::to_string(weapon.Stats.WeaponID), action, showEditor);
+                            actionEditorShowFlags[i] = showEditor;
+                        }        
+                        ImGui::PopID();
                     }                
                     if (ImGui::Button("Push"))
                     {

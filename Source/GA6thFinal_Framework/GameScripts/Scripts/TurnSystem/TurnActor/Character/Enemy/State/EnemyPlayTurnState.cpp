@@ -5,6 +5,7 @@
 #include "TurnSystem/TurnMode/TurnMode.h"
 #include "RoundInfoUI/RoundInfoUIManager.h"
 #include "Monster/Action/MonsterActionBase.h"
+#include "TurnSystem/TurnMode/State/EnemyActionPhase.h"
 
 REGISTER_CLASS(FSMStateFactory, EnemyPlayTurnState)
 
@@ -28,21 +29,14 @@ void EnemyPlayTurnState::OnStart()
 
 void EnemyPlayTurnState::OnEnter() 
 {
+    _isOnce = false;
+
     Enemy& enemy = GetEnemy();
     Monster::Controller& controller = enemy.GetController();
 
     std::string spawnPoint = Monster::SpawnPointToString(enemy.SpawnPoint);
     std::string actionName = STR_NULL;
 
-    if (Monster::Action::Base* action = controller.GetCurrentAction())
-    {
-        actionName = action->GetActionContext().Name;
-        if (auto roundInfo = _roundInfoUIManager.lock())
-        {
-            roundInfo->FadeInfoUI(actionName);           
-        }
-    }
-    
     const std::string message = std::format("{}{}{}{}", spawnPoint, (const char*)u8" Enemy 턴 시작. ",
                                             (const char*)u8"Action : ", actionName);
     UmLogger.Message(LogLevel::LEVEL_TRACE, message);
@@ -63,12 +57,34 @@ void EnemyPlayTurnState::OnExit()
     
 void EnemyPlayTurnState::OnUpdate()
 {
-    Enemy& enemy = GetEnemy();
-    Monster::Controller& controller = enemy.GetController();
-    bool succeed = controller.ProcessAction(); // 컨트롤러가 액션을 마치면 true를 반환함.
-    if (succeed)
+    if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
     {
-        enemy.EndTurn();
+        if (EnemyActionPhase* waitPhase = turnMode->States->EnemyActionPhase)
+        {
+            if (false == waitPhase->WaitPhase)
+            {
+                Enemy&               enemy      = GetEnemy();
+                Monster::Controller& controller = enemy.GetController();
+                bool                 succeed    = controller.ProcessAction(); // 컨트롤러가 액션을 마치면 true를 반환함.
+                if (succeed)
+                {
+                    enemy.EndTurn();
+                }
+
+                if (false == _isOnce)
+                {
+                    if (Monster::Action::Base* action = controller.GetCurrentAction())
+                    {
+                        const std::string& actionName = action->GetActionContext().Name;
+                        if (auto roundInfo = _roundInfoUIManager.lock())
+                        {
+                            roundInfo->FadeInfoUI(actionName);
+                        }
+                        _isOnce = true;
+                    }
+                }  
+            }     
+        }
     }
 }
 

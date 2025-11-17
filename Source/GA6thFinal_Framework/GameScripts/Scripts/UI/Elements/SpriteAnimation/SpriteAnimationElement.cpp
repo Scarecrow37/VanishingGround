@@ -31,6 +31,7 @@ void SpriteAnimationElement::ResetUV()
 {
     ReflectFields->Basefields.get().ColumnIndex = 0;
     ReflectFields->Basefields.get().RowIndex = 0;
+    UpdateAtlasIndex();
 }
 
 void SpriteAnimationElement::UpdateFrame()
@@ -58,6 +59,38 @@ void SpriteAnimationElement::UpdateFrame()
     ReflectFields->Basefields.get().ColumnIndex = _currentFrame % ReflectFields->Basefields.get().Column;
 
     UpdateAtlasIndex();
+}
+
+void SpriteAnimationElement::EditorUpdate() 
+{
+    if (_isPlaying) UpdateFrame();
+}
+
+void SpriteAnimationElement::OnDrawDebugOverride()
+{
+    Base::OnDrawDebugOverride();
+    EditorUpdate();
+}
+
+void SpriteAnimationElement::OnDrawDebugSelectedOverride()
+{
+    Base::OnDrawDebugSelectedOverride();
+    EditorUpdate();
+}
+
+void SpriteAnimationElement::ImGuiDrawPropertysEvent() 
+{
+    Base::ImGuiDrawPropertysEvent();
+    if (ImGui::Button("Play Animation"))
+    {
+        Setup();
+        StartAnimation();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Stop Animation"))
+    {
+        StopAnimation();
+    }
 }
 
 void SpriteAnimationElement::StartAnimation()

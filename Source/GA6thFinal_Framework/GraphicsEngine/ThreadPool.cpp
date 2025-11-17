@@ -92,11 +92,6 @@ void ThreadPool::Update()
     {
         if (Global::commandController->IsCompleteCommandQueue(CommandQueueType::GRAPHICS_QUEUE, _parallelFenceValue))
         {
-            for (auto& commandSet : _commandSets[PARALLEL])
-            {
-                commandSet.Reset();
-            }
-
             _isDone = false;
         }
     }
@@ -142,6 +137,7 @@ void ThreadPool::ParallelWorkerThread(CommandSet& commandSet, const unsigned int
         {
             std::function<void(ID3D12GraphicsCommandList*)> task;
             commandSet->Reset(commandSet, nullptr);
+
             while (!_taskQueue[PARALLEL].empty())
             {
                 if (_taskQueue[PARALLEL].try_pop(task))
@@ -150,8 +146,8 @@ void ThreadPool::ParallelWorkerThread(CommandSet& commandSet, const unsigned int
                     _parallelRemainingTasks--;
                 }
             }
-            commandSet.ExecuteCommand();
 
+            commandSet.ExecuteCommand();
             _threadEvents[PARALLEL][index] = ThreadEvent::NONE;
 
             if (0 == _parallelRemainingTasks)
@@ -182,6 +178,8 @@ void ThreadPool::AsyncWorkerThread(CommandSet& commandSet, const unsigned int in
         case ThreadEvent::PROCESS:
         {
             std::function<void(ID3D12GraphicsCommandList*)> task;
+            commandSet->Reset(commandSet, nullptr);
+
             while (!_taskQueue[ASYNK].empty())
             {
                 if (_taskQueue[ASYNK].try_pop(task))
@@ -190,6 +188,7 @@ void ThreadPool::AsyncWorkerThread(CommandSet& commandSet, const unsigned int in
                 }
             }
 
+            commandSet.ExecuteCommand();
             _threadEvents[ASYNK][index] = ThreadEvent::NONE;
             break;
         }

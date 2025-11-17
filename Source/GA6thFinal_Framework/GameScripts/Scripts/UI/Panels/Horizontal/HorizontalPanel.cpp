@@ -45,7 +45,8 @@ SIZE HorizontalPanel::MeasureOverride(const SIZE availableSize)
                 const SIZE childAvailableSize{.cx = childrenAvailableSize.cx, .cy = childrenAvailableSize.cy};
                 child->Measure(childAvailableSize);
                 const SIZE childDesiredSize = child->DesiredSize;
-                if (childrenDesiredSizePerLine[currentLine].first.cx + childDesiredSize.cx + space > childAvailableSize.cx)
+                if (childrenDesiredSizePerLine[currentLine].first.cx + childDesiredSize.cx + space > childAvailableSize.cx ||
+                    slot->BreakLine)
                 {
                     ++currentLine;
                     childrenDesiredSizePerLine.push_back(std::make_pair(SIZE{}, 0));

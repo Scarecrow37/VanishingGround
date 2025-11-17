@@ -390,6 +390,11 @@ public:
     }
 
     /// <summary>
+    /// 월드 행렬을 설정합니다.
+    /// </summary>
+    void SetWorldMatrix(const Matrix& matrix);
+
+    /// <summary>
     /// 자식을 DFS로 순회하면서 해당 테그가 존재하는 오브젝트들을 반환합니다.
     /// </summary>
     /// <param name="tag :">찾을 태그</param>
@@ -646,7 +651,7 @@ inline void Transform::ForeachExPostOrder(Transform& root, bool checkValid, cons
     trStack.emplace_back(&root, 0);
     while (trStack.empty() == false)
     {
-        auto& [currTr, currentDepth] = trStack.back();
+        auto [currTr, currentDepth] = trStack.back();
         trStack.pop_back();
         if (currTr)
         {
@@ -670,7 +675,7 @@ inline void Transform::ForeachExDFS(Transform& root, bool checkValid, const std:
     trStack.emplace_back(&root, 0);
     while (trStack.empty() == false)
     {
-        auto& [currTr, currentDepth] = trStack.back();
+        auto [currTr, currentDepth] = trStack.back();
         trStack.pop_back();
         if (currTr)
         {
@@ -717,7 +722,7 @@ inline void Transform::ForeachExBFS(Transform& root, bool checkValid, const std:
     trQueue.push({&root, 0});
     while (trQueue.empty() == false)
     {
-        auto& [currTr, currentDepth] = trQueue.front();
+        auto [currTr, currentDepth] = trQueue.front();
         trQueue.pop();
         if (currTr)
         {
@@ -730,6 +735,6 @@ inline void Transform::ForeachExBFS(Transform& root, bool checkValid, const std:
                     trQueue.push({_transform, currentDepth + 1});
                 }
             }
-        }      
+        }
     }
 }
