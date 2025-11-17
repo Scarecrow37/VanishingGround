@@ -38,9 +38,14 @@ namespace Timeline
         if (system.lock() != _track.lock())
         {
             _track = system;
-            SetSelectedContextID(0);
-            _dragHandler.ClearDragState();
+            ClearState();
         }
+    }
+
+    void SequencerEditor::ClearState() 
+    {
+        SetSelectedContextID(0);
+        _dragHandler.ClearDragState();
     }
 
     void SequencerEditor::ShowDebugData()
@@ -110,8 +115,10 @@ namespace Timeline
         WheelZooming();
         CanvasDragging();
 
+        // 위치 및 사이즈 갱신
         RefreshTransform();
 
+        // 그릴 공간에 대한 여백 만들어놓기
         ImGui::Dummy(_canvasRect.GetSize());
 
         // 캔버스에 대한 클리핑 영역 지정 (라인이 넘어가지 않도록)
@@ -177,39 +184,39 @@ namespace Timeline
 
         drawList->AddRectFilled(_canvasValidRectLower.Min, _canvasValidRectLower.Max, ReflectFields->LowerVaildBgColor[0]);
 
-        // Draw Unit Lines
+        // 단위 선 그리기
         Helper::ProcessUnitLines(this, drawList);
 
-        // Draw Min, Max Lines
+        // 최소, 최대 프레임 선 드래그 이벤트 처리 및 그리기
         Helper::ProcessMinMaxLine(this, drawList, track, "MinFrameLine", true);
         Helper::ProcessMinMaxLine(this, drawList, track, "MaxFrameLine", false);
 
-        // Draw Current Frame Line
+        // 현재 프레임 선 드래그 이벤트 처리 및 그리기
         Helper::ProcessCurrentFrameLine(this, drawList, track);
 
-        // Draw Context
+        // 콘텍스트 드래그 이벤트 처리 및 그리기
         Helper::ProcessContexts(this, drawList, track);
 
-        // ProcessInterction
+        // 상호 작용 처리
         Helper::ProcessInteraction(this);
 
-        // Draw FollowLine
+        // 따라다니는 선 그리기
         Helper::ProcessFollowLine(this, drawList);
     }
 
     void SequencerEditor::RefreshTransform()
     {
-        ImGuiIO& io       = ImGui::GetIO();
-        float minFrame    = GetMinFrame();
-        float maxFrame    = GetMaxFrame();
+        ImGuiIO& io         = ImGui::GetIO();
+        float minFrame      = GetMinFrame();
+        float maxFrame      = GetMaxFrame();
 
-        ImVec2 windowPos  = ImGui::GetCursorScreenPos();
-        ImVec2 frameSize  = ImGui::GetContentRegionAvail();
-        ImVec2 canvasSize = _sequencerSize;
-        bool autoSizeX = _sequencerSize.x == 0.0f;
-        bool autoSizeY = _sequencerSize.y == 0.0f;
-        canvasSize.x = autoSizeX ? frameSize.x : _sequencerSize.x;
-        canvasSize.y = autoSizeY ? frameSize.y : _sequencerSize.y;
+        ImVec2 windowPos    = ImGui::GetCursorScreenPos();
+        ImVec2 frameSize    = ImGui::GetContentRegionAvail();
+        ImVec2 canvasSize   = _sequencerSize;
+        bool autoSizeX      = _sequencerSize.x == 0.0f;
+        bool autoSizeY      = _sequencerSize.y == 0.0f;
+        canvasSize.x        = autoSizeX ? frameSize.x : _sequencerSize.x;
+        canvasSize.y        = autoSizeY ? frameSize.y : _sequencerSize.y;
 
         /// Frame Rect /////////////////////////////////////////////
         _frameRect = ImRect(windowPos, windowPos + frameSize);
@@ -241,11 +248,6 @@ namespace Timeline
         /// MousePos /////////////////////////////////////////////////////
         _mousePos       = io.MousePos;
         _canvasMousePos = io.MousePos - _canvasRect.Min;
-        //_mouseFrame     = 0.0f;
-        /// Indicate /////////////////////////////////////////////////////
-        //_indicatePos       = ImVec2(0.0f, 0.0f);
-        //_canvasIndicatePos = ImVec2(0.0f, 0.0f);
-        //_indicateFrame     = 0.0f;
         /// Snap /////////////////////////////////////////////////////
         _snapPos       = ImVec2(0.0f, 0.0f);
         _canvasSnapPos = ImVec2(0.0f, 0.0f);

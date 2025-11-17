@@ -73,17 +73,20 @@ namespace Timeline
 
     public:
         /// <summary>
-        /// <para>Sequencer용 Gui를 렌더링합니다.</para>
+        /// <para>시퀀서용 Gui를 렌더링합니다.</para>
         /// <para>따로 Frame을 열지 않고 렌더링합니다.</para>
         /// </summary>
         void Show();
 
-        /// <summary>시퀀서의 디버그 정보를 출력합니다</summary>
+        /// <summary>시퀀서의 디버그 정보를 출력합니다.</summary>
         void ShowDebugData();
 
-        /// <summary>Sequencer에서 사용할 TimelineSystem을 설정합니다.</summary>
+        /// <summary>시퀀서에서 사용할 TimelineSystem을 설정합니다.</summary>
         /// <param name="system">해당 System에 대한 weak_ptr입니다.</param>
         void SetEventTrack(std::weak_ptr<EventTrack> system);
+
+        /// <summary>시퀀서의 상태를 초기화합니다.</summary>
+        void ClearState();
 
     public:
         /// <summary>시퀀서 에디터가 차지할 크기를 설정합니다. 각 원소가 0일 시 자동으로 크기를 조정합니다.</summary>
