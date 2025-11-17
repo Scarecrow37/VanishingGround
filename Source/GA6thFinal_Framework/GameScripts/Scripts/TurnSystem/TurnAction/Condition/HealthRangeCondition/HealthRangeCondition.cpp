@@ -32,20 +32,13 @@ bool HealthRangeCondition::Evaluate()
     float    value1 = ReflectFields->value1;
     float    value2 = ReflectFields->value2;
 
-    auto CheckOperation = [&](int currentHP, int v1, int v2) 
-    {
-        switch (oper)
-        {
-            case Operator::GREATER_EQUAL: return currentHP >= v1;
-            case Operator::LESS_EQUAL:    return currentHP <= v1;
-            case Operator::EQUAL:         return currentHP == v1;
-            case Operator::BETWEEN:       return v1 <= currentHP && currentHP <= v2;
-            default:                      return false;
-        }
-    };
-
     for (const auto& target : targetList)
     {
+        if (target->IsDead())
+        {
+            return false;
+        }
+
         CharacterStats* stats = target->GetCharacterStats();
         if (!stats)
         {
@@ -209,5 +202,56 @@ void HealthRangeCondition::UpdateConditionInfo()
         break;
     default:
         break;
+    }
+}
+
+bool HealthRangeCondition::CheckEvaluate(CharacterBase* character)
+{
+    if (character)
+    {
+        Operator oper   = ReflectFields->Operator;
+        Unit     unit   = ReflectFields->Unit;
+        float    value1 = ReflectFields->value1;
+        float    value2 = ReflectFields->value2;
+ 
+        if (character->IsDead())
+        {
+            return false;
+        }
+
+        if (CharacterStats* stats = character->GetCharacterStats())
+        {
+            int hp = stats->CurrentHP;
+            int v1 = (int)std::round(ReflectFields->value1);
+            int v2 = (int)std::round(ReflectFields->value2);
+    
+            if (Unit::PERCENT == unit)
+            {
+                v1 = (int)std::round(stats->MaxHP * value1);
+                if (oper == Operator::BETWEEN)
+                {
+                    v2 = (int)std::round(stats->MaxHP * value2);
+                }
+            }
+            return CheckOperation(hp, v1, v2);
+        }
+    }
+    return false;
+}
+
+bool HealthRangeCondition::CheckOperation(int currentHP, int v1, int v2)
+{
+    switch (ReflectFields->Operator)
+    {
+    case Operator::GREATER_EQUAL:
+        return currentHP >= v1;
+    case Operator::LESS_EQUAL:
+        return currentHP <= v1;
+    case Operator::EQUAL:
+        return currentHP == v1;
+    case Operator::BETWEEN:
+        return v1 <= currentHP && currentHP <= v2;
+    default:
+        return false;
     }
 }

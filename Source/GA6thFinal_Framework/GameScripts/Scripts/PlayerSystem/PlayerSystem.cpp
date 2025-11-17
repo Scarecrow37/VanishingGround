@@ -118,6 +118,11 @@ void PlayerSystem::Awake()
 
 void PlayerSystem::Start() 
 {
+    if constexpr (false == IS_EDITOR)
+    {
+        UmApplication.HideCursor(true);
+    } 
+
     if (ReflectFields->RevivePlayer)
     {
         SetStatsGameStart();
@@ -133,6 +138,14 @@ void PlayerSystem::OnDestroy()
             PlayerStats& stats = _playerStatsComponent->GetStats();
             stats.UnregisterHUD();
         }
+    }
+}
+
+void PlayerSystem::OnApplicationQuit() 
+{
+    if constexpr (false == IS_EDITOR)
+    {
+        UmApplication.HideCursor(false);
     }
 }
 

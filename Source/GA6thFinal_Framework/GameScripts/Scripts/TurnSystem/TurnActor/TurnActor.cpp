@@ -40,7 +40,6 @@ void TurnActor::PlayTurn()
     {
         _currState = STATE::Play;
     }
-    OnTurnStart();
 }
 
 void TurnActor::Revive() 
@@ -65,7 +64,6 @@ void TurnActor::EndTurn()
     {
         _currState = STATE::Wait;
     }
-    OnTurnEnd();
 }
 
 void TurnActor::Awake() 
@@ -92,6 +90,10 @@ void TurnActor::OnKill(CharacterBase* destination) {}
 void TurnActor::OnTokenAdded(int tokenID) {}
 
 void TurnActor::OnTokenRemoved(int tokenID) {}
+
+void TurnActor::OnTokenEnter(int tokenID) {}
+
+void TurnActor::OnTokenExit(int tokenID) {}
 
 void TurnActor::OnQTEStart() {}
 

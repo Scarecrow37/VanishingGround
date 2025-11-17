@@ -62,8 +62,8 @@ namespace QTE
             File::Guid& guid = ButtonGuid[result.PressedButton];
             if (ActivedNode < NodePool.size())
             {
-                InputNodeUI& node = NodePool[ActivedNode];;
-                node.Show(result.PressedButton);
+                InputNodeUI& node = NodePool[ActivedNode];
+                node.Show(result.PressedButton, result.Result);
                 if (Horizontal)
                 {
                     Transform& parent = Horizontal->transform;

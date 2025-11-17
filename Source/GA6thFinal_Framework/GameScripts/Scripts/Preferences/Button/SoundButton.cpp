@@ -210,7 +210,7 @@ void SoundButton::ControlVolumeUp(const Input::Controller& controller)
         return;
     _isOptionDirty = true;
     _isVolumeUp    = true;
-    UmAudio.Play("-40000");
+    UmAudio.Play("-901000");
 }
 
 void SoundButton::ControlVolumeDown(const Input::Controller& controller)
@@ -219,7 +219,7 @@ void SoundButton::ControlVolumeDown(const Input::Controller& controller)
         return;
     _isOptionDirty = true;
     _isVolumeDown  = true;
-    UmAudio.Play("-40000");
+    UmAudio.Play("-901000");
 }
 
 void SoundButton::ControlVolumeStick(const Input::Controller& controller)

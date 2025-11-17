@@ -332,6 +332,8 @@ namespace ReflectHelper
         template <typename Type>
         bool DeserializedObjet(Type& obj, std::string_view data)
         {
+            using NavigationRoute  = std::tuple<unsigned int, unsigned char, std::string, int>;
+            using NavigationRoutes = std::vector<NavigationRoute>;
             auto result = rfl::json::read<Type>(data.data());
             if (result)
             {
@@ -361,12 +363,24 @@ namespace ReflectHelper
                                         {
                                             value = yyjson_get_real(jsonVal);
                                         }
+                                        else if (yyjson_is_sint(jsonVal))
+                                        {
+                                            value = static_cast<float>(yyjson_get_sint(jsonVal));
+                                        }
+                                        else if (yyjson_is_uint(jsonVal))
+                                        {
+                                            value = static_cast<float>(yyjson_get_uint(jsonVal));
+                                        }
                                     }
                                     else
                                     {
                                         if (yyjson_is_sint(jsonVal))
                                         {
                                             value = yyjson_get_sint(jsonVal);
+                                        }
+                                        else if (yyjson_is_uint(jsonVal))
+                                        {
+                                            value = static_cast<int>(yyjson_get_uint(jsonVal));
                                         }
                                     }                               
                                 }
@@ -472,7 +486,34 @@ namespace ReflectHelper
                                         free(data);
                                     }
                                 }
-                            }
+                                else if constexpr (std::is_same_v<FieldType, NavigationRoute>)
+                                {
+                                    char* data = yyjsonValToCStr(jsonVal);
+                                    if (nullptr != data)
+                                    {
+                                        auto result = rfl::json::read<NavigationRoute>(data);
+                                        if (result)
+                                        {
+                                            value = result.value();
+                                        }
+                                        free(data);
+                                    }
+                                }
+                                else if constexpr (std::is_same_v<FieldType, NavigationRoutes>)
+                                {
+                                    char* data = yyjsonValToCStr(jsonVal);
+                                    if (nullptr != data)
+                                    {
+                                        auto result = rfl::json::read<NavigationRoutes>(data);
+                                        if (result)
+                                        {
+                                            value = result.value();
+                                        }
+                                        free(data);
+                                    }
+                                }
+                                
+                            }                       
                         });
                     }
                 }

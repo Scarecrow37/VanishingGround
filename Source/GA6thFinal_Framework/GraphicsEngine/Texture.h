@@ -4,8 +4,8 @@
 class Texture : public Resource
 {
 public:
-    Texture()          = default;
-    virtual ~Texture() = default;
+    Texture();
+    virtual ~Texture();
 
 public:
     const SIZE& GetSize() const { return _size; }
@@ -22,5 +22,6 @@ public:
     void LoadResource(const std::filesystem::path& filePath, const std::function<void()>& callback = nullptr) override;
 
 private:
-    SIZE _size;
+    DescriptorHandles _textureHandle;
+    SIZE              _size;
 };

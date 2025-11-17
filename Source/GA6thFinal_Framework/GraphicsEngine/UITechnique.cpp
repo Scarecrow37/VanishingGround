@@ -15,9 +15,9 @@ UITechnique::~UITechnique() = default;
 void UITechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 {
     _uiMaterialDataBuffer = std::make_unique<ConstantBufferView>();
-    _uiMaterialDataBuffer->Initialize(sizeof(UIMaterialData) * MAX_UI_MATERIAL_DATA);
+    _uiMaterialDataBuffer->Initialize(sizeof(UIMaterialData) * MAX_OBJECTS);
 
-    _uiMaterialDatas.resize(MAX_UI_MATERIAL_DATA);
+    _uiMaterialDatas.resize(MAX_OBJECTS);
 
     _depthStencilView = MakeSharedResource<DepthStencilView>();
     _depthStencilView->Initialize(_ownerScene->_depthStencilView->GetDesc());

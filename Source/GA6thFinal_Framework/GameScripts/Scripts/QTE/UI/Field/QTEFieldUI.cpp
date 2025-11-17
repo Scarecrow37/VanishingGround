@@ -15,9 +15,23 @@ namespace QTE
             for (int i = 0; i < poolSize; ++i)
             {
                 NotePool.emplace_back(noteGuid, &parent);
+            }
+            for (int i = 0; i < poolSize; ++i)
+            {
                 EffectPool.emplace_back(effectGuid, &parent);
             }
         }
+
+        FieldFader.SetDuration(2.0f);
+        FieldFader.SetFadeMode(Fader::FADE_IN);
+        FieldFader.SetFadeInType(Mathf::EASE_OUT, Mathf::EXPO);
+        FieldFader.SetOnFadeInEndCallback([this]() {
+            if (StartAnimation)
+            {
+                StartAnimation->gameObject->ActiveSelf = false;
+            }
+            State = STATE_EXIT;
+        });
     }
     void FieldUI::MatchUIFromObject(GameObject& object) 
     {
@@ -73,16 +87,19 @@ namespace QTE
         if (StartAnimation)
         {
             StartAnimation->Setup();
+            StartAnimation->StopAnimation();
             StartAnimation->gameObject->ActiveSelf = false;
         }
         if (JudgeNote)
         {
             JudgeNote->Setup();
+            JudgeNote->StopAnimation();
             JudgeNote->gameObject->ActiveSelf = false;
         }
         if (Flow)
         {
             Flow->Setup();
+            Flow->StopAnimation();
             Flow->gameObject->ActiveSelf = false;
         }
         if (Line)
@@ -97,6 +114,8 @@ namespace QTE
         {
             effectUI.Reset();
         }
+        FieldFader.Reset();
+        State = STATE_NONE;
     }
     void FieldUI::OnQTEEnter()
     {
@@ -105,26 +124,37 @@ namespace QTE
             StartAnimation->gameObject->ActiveSelf = true;
             StartAnimation->StartAnimation();
         }
-        if (Flow)
-        {
-            Flow->gameObject->ActiveSelf = true;
-            Flow->StartAnimation();
-        }
+        State = STATE_ENTER;
     }
     void FieldUI::Update()
     {
         if (StartAnimation)
         {
-            if (false == StartAnimation->IsPlaying)
+            if (STATE_ENTER == State)
             {
-                StartAnimation->gameObject->ActiveSelf = false;
+                if (false == StartAnimation->IsPlaying)
+                {
+                    State = STATE_STAY;
+                    if (Flow)
+                    {
+                        Flow->gameObject->ActiveSelf = true;
+                        Flow->StartAnimation();
+                    }
+                }
+            }
+            if (STATE_STAY == State)
+            {
+                const float factor    = std::clamp(FieldFader.Fade(), 0.0f, 1.0f);
+                StartAnimation->Alpha = 1.0f - factor;
                 if (Line)
                 {
                     Line->gameObject->ActiveSelf = true;
+                    Line->Alpha = factor;
                 }
                 if (JudgeNote)
                 {
                     JudgeNote->gameObject->ActiveSelf = true;
+                    JudgeNote->Alpha = factor;
                 }
             }
         }
@@ -137,5 +167,4 @@ namespace QTE
             JudgeNote->StartAnimation();
         }
     }
-
 } // namespace QTE

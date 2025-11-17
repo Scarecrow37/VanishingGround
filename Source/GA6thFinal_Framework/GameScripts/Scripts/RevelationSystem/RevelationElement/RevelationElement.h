@@ -88,7 +88,7 @@ protected:
     void DeserializedReflectEvent() override;
 
 public:
-    ImU32 GetGradeColor() 
+    ImU32 GetGradeColor() const
     { 
         RevelationGrade garde = ReflectFields->Grade;
         switch (garde)
@@ -96,7 +96,7 @@ public:
         case RevelationGrade::COMMON:
             return ImColor{255, 255, 255, 255};
         case RevelationGrade::RARE:
-            return ImColor{45, 205, 255, 255};
+            return ImColor{58, 183, 255, 255};
         case RevelationGrade::LEGENDARY:
             return ImColor{245, 200, 0, 255};
         case RevelationGrade::EXTINCTION:

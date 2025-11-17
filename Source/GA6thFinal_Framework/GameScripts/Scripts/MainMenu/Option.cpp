@@ -39,5 +39,6 @@ void Option::Update()
 
 void Option::Submit()
 {
+    Base::Submit();
     _onDirtyFlag = true;
 }

@@ -66,25 +66,10 @@ void FadePass::End(ID3D12GraphicsCommandList* commandList)
 
 void FadePass::InitializeShaderAndPSO()
 {
-    D3D12_BLEND_DESC blendDesc       = {};
-    blendDesc.AlphaToCoverageEnable  = FALSE;
-    blendDesc.IndependentBlendEnable = TRUE;
-    auto& rtDesc                     = blendDesc.RenderTarget[0];
-    rtDesc.BlendEnable               = TRUE;
-    rtDesc.SrcBlend                  = D3D12_BLEND_SRC_ALPHA;
-    rtDesc.DestBlend                 = D3D12_BLEND_INV_SRC_ALPHA;
-    rtDesc.BlendOp                   = D3D12_BLEND_OP_ADD;
-    rtDesc.SrcBlendAlpha             = D3D12_BLEND_ZERO;
-    rtDesc.DestBlendAlpha            = D3D12_BLEND_ONE;
-    rtDesc.BlendOpAlpha              = D3D12_BLEND_OP_ADD;
-    rtDesc.RenderTargetWriteMask     = D3D12_COLOR_WRITE_ENABLE_ALL;
-
     PipelineStateStream pss;
     pss.RasterizerState                       = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    (&pss.RasterizerState)->CullMode          = D3D12_CULL_MODE_BACK;
-    (&pss.BlendState)->AlphaToCoverageEnable  = FALSE;
-    (&pss.BlendState)->IndependentBlendEnable = TRUE;
-    (&pss.BlendState)->RenderTarget[0]        = rtDesc;
+    (&pss.RasterizerState)->CullMode          = D3D12_CULL_MODE_NONE;
+    pss.BlendState                            = CD3DX12_BLEND_DESC(CommonStates::NonPremultiplied);
     pss.DepthStencilState                     = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
     (&pss.DepthStencilState)->DepthEnable     = FALSE;
     pss.PrimitiveTopology                     = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;

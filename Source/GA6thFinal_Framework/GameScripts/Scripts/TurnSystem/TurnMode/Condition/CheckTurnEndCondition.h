@@ -13,4 +13,6 @@ public:
     void OnAwake() override;
     void OnStart() override;
     bool Evaluate() override;
+
+    bool IsTurnEnd = false;
 };

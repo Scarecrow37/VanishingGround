@@ -65,15 +65,20 @@ void GBufferPass::Update(ID3D12GraphicsCommandList* commandList, const float del
             if (blendMode == Material::BlendModeType::TRANSLUCENT)
                 continue;
 
-            const auto& cameraFrustum = _ownerScene->_camera->GetWorldFrustum();
-
-            BoundingOrientedBox boundingOrientedBox;
-            const auto&         meshBoundingBox = meshInfo.Mesh->GetBoundingBox();
-            meshBoundingBox.Transform(boundingOrientedBox, XMMatrixTranspose(_ownerScene->_matrices[meshInfo.InstanceData.MatrixID].World));
-
-            if (!cameraFrustum.Intersects(boundingOrientedBox))
+            if (meshInfo.Mesh->IsCullingEnabled())
             {
-                continue;
+                const auto& cameraFrustum = _ownerScene->_camera->GetWorldFrustum();
+
+                BoundingOrientedBox boundingOrientedBox;
+                const auto&         meshBoundingBox = meshInfo.Mesh->GetBoundingBox();
+                meshBoundingBox.Transform(
+                    boundingOrientedBox,
+                    XMMatrixTranspose(_ownerScene->_matrices[meshInfo.InstanceData.MatrixID].World));
+
+                if (!cameraFrustum.Intersects(boundingOrientedBox))
+                {
+                    continue;
+                }
             }
 
             int cullMode = (int)meshInfo.Material.CullMode;

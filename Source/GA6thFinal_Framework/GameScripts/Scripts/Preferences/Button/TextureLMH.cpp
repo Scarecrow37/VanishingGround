@@ -130,7 +130,10 @@ void TextureLMH::FocusOut(const FocusCallType callType)
     _isOptionDirty = true;
 }
 
-void TextureLMH::Submit() {}
+void TextureLMH::Submit()
+{
+    Base::Submit();
+}
 
 void TextureLMH::SerializedReflectEvent() {}
 
@@ -276,7 +279,7 @@ void TextureLMH::UpQuality(const Input::Controller& controller)
     {
         _isOptionDirty = true;
         _isOptionUp    = true;
-        UmAudio.Play("-40000");
+        UmAudio.Play("-901000");
     }
 }
 
@@ -286,7 +289,7 @@ void TextureLMH::DownQuality(const Input::Controller& controller)
     {
         _isOptionDirty = true;
         _isOptionDown  = true;
-        UmAudio.Play("-40000");
+        UmAudio.Play("-901000");
     }
 }
 

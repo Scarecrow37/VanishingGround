@@ -129,6 +129,7 @@ void GraphicsCore::SyncGlobalVariable()
     Global::commandController        = _commandController;
     Global::sceneTransitionCore      = _sceneTransitionCore;
     Global::renderPassDatas          = _renderPassDatas;
+    Global::dummyTextureHandle       = &_dummyTextureHandle;
 }
 
 void GraphicsCore::AddRenderScene(const std::string_view sceneName, const RenderTechniqueFlag flag) const
@@ -199,6 +200,11 @@ void GraphicsCore::CreateLight(ILight** component) const
     light->AddReference();
 
     *component = light;
+}
+
+void GraphicsCore::SetResource(std::shared_ptr<Model> model, IMeshRenderer* component) const
+{
+    static_cast<MeshRenderer*>(component)->SetModel(model);
 }
 
 void GraphicsCore::LoadResource(std::wstring_view filePath, IMeshRenderer* component) const
@@ -284,6 +290,8 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     Global::threadPool               = _threadPool;
     Global::sceneTransitionCore      = _sceneTransitionCore;
     Global::isRayTracing             = isRayTracing;
+    Global::dummyTextureHandle       = &_dummyTextureHandle;
+
     _device->SetUpDevice(hwnd, width, height, feature);
     _viewManager->Initialize();
     _device->Initialize();
@@ -330,22 +338,31 @@ void GraphicsCore::Finalize() const
 {
     _device->Finalize();
 
-    delete _threadPool;
-    delete _pipelineStateManager;
-    delete _moduleManager;
-    delete _renderPassDatas;
-    delete _debugDrawCore;
-    delete _commandController;
-    delete _dxResourceManager;
-    delete _particleManager;
-    delete _multiRenderTargetManager;
-    delete _resourceManager;
-    delete _viewManager;
-    delete _lightCore;
-    delete _animationCore;
-    delete _renderer;
-    delete _device;
-    delete _sceneTransitionCore;
+    auto SafeDelete = [](auto& ptr)
+    {
+        if (ptr)
+        {
+            delete ptr;
+            ptr = nullptr;
+        }
+    };
+
+    SafeDelete(Global::threadPool);
+    SafeDelete(Global::pipelineStateManager);
+    SafeDelete(Global::moduleManager);
+    SafeDelete(Global::renderPassDatas);
+    SafeDelete(Global::debugDrawCore);
+    SafeDelete(Global::commandController);
+    SafeDelete(Global::dxResourceManager);
+    SafeDelete(Global::particleManager);
+    SafeDelete(Global::multiRenderTargetManager);
+    SafeDelete(Global::resourceManager);
+    SafeDelete(Global::viewManager);
+    SafeDelete(Global::lightCore);
+    SafeDelete(Global::animationCore);
+    SafeDelete(Global::renderer);
+    SafeDelete(Global::device);
+    SafeDelete(Global::sceneTransitionCore);
 }
 
 void GraphicsCore::ClearGraphicsResource() const

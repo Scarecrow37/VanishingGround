@@ -86,11 +86,13 @@ void WeaponElement::DeepCopyAction(const std::vector<std::unique_ptr<TurnAction>
 
 DropItemInfo WeaponElement::GetItemInfo() const
 {
+    ImVec4 imColor = WeaponStats::GetGradeToColor(Stats.Grade);
     DropItemInfo info
     {
         .Category = GetCategoryType(),
         .ID = Stats.WeaponID,
         .Name = (const std::string&)Stats.WeaponName,
+        .NameColor = Color(imColor.x, imColor.y, imColor.z, imColor.w)
     };
     return info;
 }

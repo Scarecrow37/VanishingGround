@@ -3,6 +3,9 @@
 #include "SceneTransition/SceneTransitionComponent.h"
 #include "PlayerSystem/PlayerSystem.h"
 #include "Map/MapManager.h"
+#include "QTE/System/QTESystem.h"
+#include "TutorialSystem/TutorialSystem.h"
+#include "ItemDropSystem/ItemDropSystem.h"
 
 UMREAL_COMPONENT(NewGame)
 
@@ -22,12 +25,25 @@ NewGame::NewGame()
             ImGui::EndDragDropTarget();
         }
     });
+    SetSubmitAudioID("-101000");
 }
 
 NewGame::~NewGame() = default;
 
 void NewGame::Submit()
 {
+    Base::Submit();
+
+    if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
+    {
+        system->ResetState();
+    }
+
+    if (TutorialSystem* tutorialSystem = SingletonComponent<TutorialSystem>::GetInstance())
+    {
+        tutorialSystem->ResetTutorials();
+    }
+
     TransitionToNextScene();
 }
 
@@ -61,6 +77,7 @@ void NewGame::TransitionToNextScene()
                 {
                     GameObject::Destroy(mapManager);
                 }
+                ItemDropSystem::WinCount = 0;
             });
         }
     }

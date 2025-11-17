@@ -100,13 +100,23 @@ foreach ($shaderFile in $shaderFiles) {
     $outputHeaderPath = Join-Path $shaderOutputPath $outputHeaderName
     $variableName = "g_$($baseName)"
 
-    $maxRetries = 5 # Define max retries
+    $maxRetries = 10 # Increased max retries for file lock issues
     $retryCount = 0
     $compileSuccess = $false
 
     do {
         Write-Host "Compiling: $fileName (Attempt $($retryCount + 1)/$maxRetries)"
         Write-Host "  - Profile: $shaderProfile, Entry Point: $entryPoint"
+        
+        # Clean up any existing output file that might be locked
+        if (Test-Path $outputHeaderPath) {
+            try {
+                Remove-Item $outputHeaderPath -Force -ErrorAction SilentlyContinue
+                Start-Sleep -Milliseconds 100 # Brief wait for file system
+            } catch {
+                # Ignore cleanup errors
+            }
+        }
         
         $arguments = @()
         $arguments += "/T", $shaderProfile
@@ -119,13 +129,26 @@ foreach ($shaderFile in $shaderFiles) {
         $result = & $fxcPath $arguments 2>&1
 
         if ($LASTEXITCODE -ne 0) {
-            Write-Warning "Warning: Failed to compile '$fileName' on attempt $($retryCount + 1). Retrying in 0.5 seconds..."
-            Write-Warning $result
-            Start-Sleep -Milliseconds 500 # Short delay before retrying
+            $errorMessage = $result | Out-String
+            $isFileLockError = $errorMessage -match "cannot open file|already in use|access denied|sharing violation" -or 
+                               $errorMessage -match "파일을 열 수 없습니다|이미 사용 중|액세스가 거부|공유 위반"
+            
+            if ($isFileLockError) {
+                # Exponential backoff for file lock issues: 100ms, 200ms, 400ms, 800ms, etc.
+                $delayMs = [Math]::Min(100 * [Math]::Pow(2, $retryCount), 2000) # Cap at 2 seconds
+                Write-Warning "Warning: File lock detected for '$fileName' on attempt $($retryCount + 1). Retrying in $($delayMs)ms..."
+                Start-Sleep -Milliseconds $delayMs
+            } else {
+                Write-Warning "Warning: Failed to compile '$fileName' on attempt $($retryCount + 1). Retrying in 500ms..."
+                Write-Warning $errorMessage
+                Start-Sleep -Milliseconds 500
+            }
             $retryCount++
         } else {
             $compileSuccess = $true
             Write-Host "  - Success: '$fileName'" -ForegroundColor Green
+            # Wait a bit for fxc.exe to fully release file handles
+            Start-Sleep -Milliseconds 100
         }
     } while (-not $compileSuccess -and $retryCount -lt $maxRetries)
 
@@ -141,30 +164,76 @@ foreach ($shaderFile in $shaderFiles) {
 
         do {
             try {
-                # 0.1초 대기하여 fxc.exe의 파일 핸들이 완전히 해제되도록 보장
-                Start-Sleep -Milliseconds 200 # Keep this initial sleep
+                # 파일 핸들 해제를 위한 대기 시간 (지수 백오프 적용)
+                $initialDelay = [Math]::Min(200 * [Math]::Pow(1.5, $postProcessRetries), 1000) # Cap at 1 second
+                Start-Sleep -Milliseconds $initialDelay
+
+                # 파일이 실제로 존재하고 접근 가능한지 확인
+                if (-not (Test-Path $outputHeaderPath)) {
+                    throw "Output file does not exist: $outputHeaderPath"
+                }
+
+                # 파일 락 테스트 - 파일을 독점 모드로 열어보기
+                $fileStream = $null
+                try {
+                    $fileStream = [System.IO.File]::Open($outputHeaderPath, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::None)
+                    $fileStream.Close()
+                } catch [System.IO.IOException] {
+                    throw "File is still locked by another process: $outputHeaderPath"
+                } finally {
+                    if ($fileStream) { $fileStream.Dispose() }
+                }
 
                 # fxc가 생성한 파일을 읽음
-                $fileContent = Get-Content -Path $outputHeaderPath -Raw -ErrorAction Stop # Use -ErrorAction Stop to catch file locking errors
+                $fileContent = Get-Content -Path $outputHeaderPath -Raw -ErrorAction Stop
+                
+                if ([string]::IsNullOrWhiteSpace($fileContent)) {
+                    throw "File is empty or contains only whitespace: $outputHeaderPath"
+                }
                 
                 # 정규식을 사용해 'const BYTE ...' 변수 선언 라인 전체를 찾음
                 $pattern = "(?s)const\s+BYTE\s+$($variableName)\[\]\s*=\s*\{.*?\};"
                 $match = [regex]::Match($fileContent, $pattern)
 
                 if ($match.Success) {
-                    # 찾은 내용만으로 파일을 덮어씀
-                    Set-Content -Path $outputHeaderPath -Value $match.Value -Encoding ASCII
-                    Write-Host "  - Success (cleaned): $outputHeaderPath" -ForegroundColor Green
-                    $compiledHeaders.Add($outputHeaderName)
-                    $postProcessSuccess = $true
+                    # 파일 쓰기 전에 백업 생성 (쓰기 실패 시 복구용)
+                    $backupPath = "$outputHeaderPath.bak"
+                    Copy-Item $outputHeaderPath $backupPath -Force
+                    
+                    try {
+                        # 찾은 내용만으로 파일을 덮어씀
+                        Set-Content -Path $outputHeaderPath -Value $match.Value -Encoding ASCII -ErrorAction Stop
+                        Write-Host "  - Success (cleaned): $outputHeaderPath" -ForegroundColor Green
+                        $compiledHeaders.Add($outputHeaderName)
+                        $postProcessSuccess = $true
+                        
+                        # 백업 파일 삭제
+                        Remove-Item $backupPath -Force -ErrorAction SilentlyContinue
+                    } catch {
+                        # 백업에서 복구
+                        if (Test-Path $backupPath) {
+                            Copy-Item $backupPath $outputHeaderPath -Force
+                            Remove-Item $backupPath -Force -ErrorAction SilentlyContinue
+                        }
+                        throw "Failed to write cleaned content: $_"
+                    }
                 } else {
-                    Write-Error "Error: Could not find variable declaration in '$outputHeaderPath'. The file might be corrupted. Retrying..." -ForegroundColor Red
-                    # This is a logic error, not a file lock, so maybe don't retry this specific error indefinitely
-                    # For now, we'll retry, but a more robust script might distinguish
+                    throw "Could not find variable declaration pattern in file. Content preview: $($fileContent.Substring(0, [Math]::Min(200, $fileContent.Length)))..."
                 }
             } catch {
-                Write-Warning "Warning: Failed to process and clean '$outputHeaderPath' (Attempt $($postProcessRetries + 1)/$maxPostProcessRetries). Exception: $_. Retrying in 0.5 seconds..."
-                Start-Sleep -Milliseconds 500 # Delay for file release
+                $errorMsg = $_.Exception.Message
+                $isFileLockError = $errorMsg -match "locked|in use|access denied|sharing violation|IOException" -or
+                                   $errorMsg -match "잠금|사용 중|액세스.*거부|공유.*위반"
+                
+                if ($isFileLockError) {
+                    # File lock detected - use exponential backoff
+                    $delayMs = [Math]::Min(500 * [Math]::Pow(1.8, $postProcessRetries), 3000) # Cap at 3 seconds
+                    Write-Warning "Warning: File lock detected during post-processing of '$outputHeaderPath' (Attempt $($postProcessRetries + 1)/$maxPostProcessRetries). Retrying in $($delayMs)ms..."
+                    Start-Sleep -Milliseconds $delayMs
+                } else {
+                    Write-Warning "Warning: Failed to process '$outputHeaderPath' (Attempt $($postProcessRetries + 1)/$maxPostProcessRetries). Error: $errorMsg. Retrying in 800ms..."
+                    Start-Sleep -Milliseconds 800
+                }
                 $postProcessRetries++
             }
         } while (-not $postProcessSuccess -and $postProcessRetries -lt $maxPostProcessRetries)

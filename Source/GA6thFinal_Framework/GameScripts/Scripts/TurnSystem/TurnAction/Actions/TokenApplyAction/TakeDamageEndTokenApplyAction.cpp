@@ -6,6 +6,7 @@
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
 
+REFLECT_FUNCTION(TakeDamageEndTokenApplyAction)
 REGISTER_TURN_ACTION(TakeDamageEndTokenApplyAction)
 
 const std::string& TakeDamageEndTokenApplyAction::GetActionInfo()
@@ -29,50 +30,48 @@ void TakeDamageEndTokenApplyAction::UpdateActionInfo()
 {
     using namespace u8_literals;
     _actionInfo.clear();
-    _actionInfo = (const char*)TurnSystemHelper::GetTurnTargetToolTip(Target).data();
-    _actionInfo += u8" 데미지 입을때 "_c_str;
+    _actionInfo += u8"플레이어가 데미지 입을때 "_c_str;
+    _actionInfo += (const char*)TurnSystemHelper::GetTurnTargetToolTip(Target).data();
+    _actionInfo += u8" 에게 "_c_str;
     _actionInfo += TokenSystem::TokenIDToName(TokenID);
     _actionInfo += u8"토큰을 "_c_str;
     _actionInfo += std::to_string(TokenCount);
     _actionInfo += u8"개 부여"_c_str;
 }
 
-void TakeDamageEndTokenApplyAction::OnPlayerTakeDamageEnd(Player& target, int damage) 
+void TakeDamageEndTokenApplyAction::OnPlayerTakeDamageEnd(Player& player, int damage) 
 {
-    std::vector<CharacterBase*> targets =  TurnSystemHelper::GetTargetCharacters(Target);
-    CharacterBase* player = &target;
-    bool isTarget = false;
-    for (auto& targetCharacter : targets)
-    {    
-        if (targetCharacter == player)
-        {
-            isTarget = true;
-            break;
-        }
-    }
-
-    if (isTarget && EvaluateConditions())
+    if (ReflectFields->OnlyAttackDamage == false)
     {
-        target.GetTokenInventory().AddTokenStackFromID(TokenID, TokenCount);
+        if (EvaluateConditions())
+        {
+            std::vector<CharacterBase*> targets = TurnSystemHelper::GetTargetCharacters(Target);
+            for (auto& target : targets)
+            {
+                if (target)
+                {
+                    target->GetTokenInventory().AddTokenStackFromID(TokenID, TokenCount);
+                }
+            }
+        }
     }
 }
 
-void TakeDamageEndTokenApplyAction::OnEnemyTakeDamageEnd(Enemy& target, int damage) 
+void TakeDamageEndTokenApplyAction::OnEnemyBattleCalculateDamageModifier(Enemy& attacker, EnemyStats& attackerStats,
+                                                                         Player& target, PlayerStats& targetStats)
 {
-    std::vector<CharacterBase*> targets = TurnSystemHelper::GetTargetCharacters(Target);
-    CharacterBase* enemy = &target;
-    bool isTarget = false;
-    for (auto& targetCharacter : targets)
+    if (ReflectFields->OnlyAttackDamage == true)
     {
-        if (targetCharacter == enemy)
+        if (EvaluateConditions())
         {
-            isTarget = true;
-            break;
+            std::vector<CharacterBase*> targets = TurnSystemHelper::GetTargetCharacters(Target);
+            for (auto& target : targets)
+            {
+                if (target)
+                {
+                    target->GetTokenInventory().AddTokenStackFromID(TokenID, TokenCount);
+                }
+            }
         }
-    }
-
-    if (isTarget && EvaluateConditions())
-    {
-        target.GetTokenInventory().AddTokenStackFromID(TokenID, TokenCount);
     }
 }

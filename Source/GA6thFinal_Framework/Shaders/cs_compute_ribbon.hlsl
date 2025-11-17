@@ -21,7 +21,7 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     
     float3 acceleration = float3(0, -9.8, 0) * input.Mass;
     float3 gravityOffset = acceleration * input.Age;
-    float ratio = saturate(input.Age / emitter.Particlelifetime);
+    float ratio = saturate(input.Age / emitter.Particlelifetime.x);
     
     
     float dragCoefficient = emitter.DragForce.z;
@@ -30,25 +30,19 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     
     // Get the useWorldSpace flag (1.0f for true, 0.0f for false)
     float useWorldSpace = emitter.Particlelifetime.y;
+    float useWorldScale = clamp(emitter.DragForce.y, 0.f, 1.f);
 
-    // Calculate the rotation center. It's the emitter's world position if in world space, otherwise it's (0,0,0).
     float3 emitterCenter = emitter.WorldMatrix[3].xyz * useWorldSpace;
 
-    // Calculate the vector from the rotation center to the particle.
     float3 r = input.Position.xyz - emitterCenter;
 
-    // Get the base vortex axis and normalize it.
     float3 vortexAxis = emitter.VortexForce.xyz;
     float3 localAxisDir = normalize(vortexAxis);
 
-    // Transform the axis to world space to account for the emitter's rotation.
     float3 worldAxisDir = mul(localAxisDir, (float3x3) emitter.WorldMatrix);
 
-    // Select the correct axis direction using lerp to avoid branching.
-    // If useWorldSpace is 1.0, worldAxisDir is chosen. If 0.0, localAxisDir is chosen.
     float3 axisDir = lerp(localAxisDir, worldAxisDir, useWorldSpace);
 
-    // Calculate vortex strength and velocity.
     float vortexAttenuation = emitter.VortexForce.w;
     float vortexStrength = length(vortexAxis);
     float strength = vortexStrength / (1.0 + vortexAttenuation * length(r));
@@ -67,8 +61,14 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
    
     // 4. 스케일 적용
     float4 currentScale = lerp(float4(emitter.StartScale.xy, 1, 1), float4(emitter.EndScale.xy, 1, 1), ratio);
-    float4x4 scaleMat = CreateScaleMatrix(currentScale);
-    
+    float4x4 localScaleMat = CreateScaleMatrix(currentScale);
+    float4x4 worldScaleMat = ExtractScaleMatrix(emitter.OrientedWorldMatrix);
+    localScaleMat = mul(localScaleMat, lerp(IdentityMatrix, worldScaleMat, useWorldScale));
+
+    float ribbonWidth = localScaleMat[0][0];
+    float ribbonThickness = localScaleMat[1][1];
+    output.FrameInfo = float4(ribbonWidth, ribbonThickness, ratio, 0);
+
     float4 worldPos = mul(float4(input.Position.xyz, 1.0), emitter.WorldMatrix);
     worldPos.xyz += gravityOffset * input.Age;
     float4 viewPos = mul(worldPos, mvp.ViewMatrix);
@@ -95,14 +95,14 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
         0, 0, 1, 0,
     worldPos.x, worldPos.y, worldPos.z, 1);
 
-    output.FinalMatrix = scaleMat;
+    output.FinalMatrix = localScaleMat;
     output.FinalMatrix = mul(output.FinalMatrix, translationMat);
     output.FinalMatrix = mul(output.FinalMatrix, mvp.ViewMatrix);
     output.FinalMatrix = mul(output.FinalMatrix, mvp.ProjMatrix);
+    output.Paddings2 = float4(emitter.DragForce.w, 0, 0, 0);
 
-    output.FrameInfo = float4(currentScale.x, currentScale.y, ratio, 0);
-    
-    
+
+    //output.FrameInfo = float4(currentScale.x, currentScale.y, ratio, 0);
     
     ParticleOutputBuffer[idx*2] = output;
     ParticleOutputBuffer[idx*2+1] = output;

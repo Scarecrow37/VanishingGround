@@ -109,6 +109,20 @@ public:
         return _clientSize;
     }
 
+    inline void HideCursor(bool isHide)
+    {
+        if (isHide)
+        {
+            _hideMouseCursor = true;
+            Application::ShowMouseCursor(false);
+        }
+        else
+        {
+            _hideMouseCursor = false;
+            Application::ShowMouseCursor(true);
+        }
+    }
+
 public:
     /*엔진을 사용하는 프로젝트의 MainEntry에서 사용해야합니다.*/
     struct MainEntry
@@ -197,6 +211,9 @@ protected:
     /*클라이언트 크기를 모니터 해상도로*/
     void SetOptimalScreenSize();
 
+    /*마우스 커서를 숨기거나 표시합니다.*/
+    static void ShowMouseCursor(bool show);
+
 protected:
     /** 클래스 스타일. Initialize() 실행전에만 적용됩니다.*/
     UINT _winClassStyle = CS_HREDRAW | CS_VREDRAW;
@@ -222,6 +239,7 @@ private:
     HWND      _hWnd      = NULL;
     HINSTANCE _hInstance = NULL;
     MSG       _msg{};
+    bool      _hideMouseCursor = false;
 
     bool                                     _moduleInit = false;
     std::unordered_set<std::string>          _moduleSet;

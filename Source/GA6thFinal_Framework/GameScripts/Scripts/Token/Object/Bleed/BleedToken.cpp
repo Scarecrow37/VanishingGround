@@ -3,6 +3,7 @@
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <Token/TokenInventory.h>
+#include <Particle/ParticleComponent.h>
 
 namespace TokenObject
 {
@@ -10,22 +11,22 @@ namespace TokenObject
     REGISTER_TOKEN(BleedGrant)
     REGISTER_TOKEN(BleedResistance)
 
-    bool Bleed::CanAdd(CharacterBase* owner) const
+    void Bleed::OnPreTokenAdded(CharacterBase* owner, int tokenID, int& count)
     {
-        if (owner && false == owner->IsDead())
+        if (owner && false == owner->IsDead() && count > 0)
         {
             auto& tokenInventory = owner->GetTokenInventory();
-            if (tokenInventory.HasTokenFromID(BleedResistance::ID))
+            int   numResistance  = tokenInventory.GetTokenStackFromID(BleedResistance::ID);
+            if (numResistance > 0)
             {
-                tokenInventory.RemoveTokenStackFromID(BleedResistance::ID);
-                return false;
-            }
-            else
-            {
-                return true;
+                // 실제로 상쇄되는 개수
+                int reduced = std::min(count, numResistance);
+                // 토큰 감소
+                count -= reduced;
+                // 저항 소모
+                tokenInventory.RemoveTokenStackFromID(BleedResistance::ID, reduced);
             }
         }
-        return false;
     }
     void Bleed::OnTurnStart(CharacterBase* owner)
     {
@@ -38,7 +39,13 @@ namespace TokenObject
                 int param  = GetTokenParam(0);
                 int damage = param * stackCount;
                 UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(*owner));
-                owner->TakeDamage(damage);
+                TakeDamage(owner, damage);
+
+                // 이펙트 출력
+                if (ParticleComponent* particle = owner->GetParticleComponent())
+                {
+                    particle->PlayEffect("bleed");
+                }
             }
             tokenInventory.RemoveTokenStackFromID(ID);
         }

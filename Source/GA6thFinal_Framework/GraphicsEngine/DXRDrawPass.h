@@ -23,6 +23,7 @@ private:
         std::array<uint8_t, 32> MissID{};
         std::array<uint8_t, 32> HitGroupID{};
         std::array<uint8_t, 32> ShadowMissID{};
+        std::array<uint8_t, 32> ShadowHitGroupID{};
     };
 
 public:

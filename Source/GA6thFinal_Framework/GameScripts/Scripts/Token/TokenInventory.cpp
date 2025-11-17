@@ -3,6 +3,7 @@
 #include "TurnSystem/TurnActor/Character/CharacterBase.h"
 #include "TurnSystem/TurnMode/TurnMode.h"
 #include "Token/TokenSystem.h"
+#include "ExcelDataSystem/ExcelDataSystem.h"
 
 namespace
 {
@@ -44,24 +45,33 @@ namespace
         }
         return "";
     }
+    bool IsValidToken(int tokenID)
+    {
+        if (TokenSystem* tokenSystem = GetTokenSystem())
+        {
+            if (tokenSystem->GetTokenFromID(tokenID))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
 TokenInventory::TokenInventory(CharacterBase* owner) 
-    : _tokenTable(), _owner(*owner)
+    : _validTokenTable(), _owner(*owner)
 {
    
 }
 
 TokenInventory::~TokenInventory() 
 {
-    _tokenTable.clear();
-    _vaildTokenVector.clear();
+    Clear();
 }
 
 void TokenInventory::Initialize()
 {
-    _vaildTokenVector.clear();
-    _tokenTable.clear();
+    Clear();
     if (TokenSystem* tokenSystem = GetTokenSystem())
     {
         const auto& instances = tokenSystem->GetTokenInstances();
@@ -69,7 +79,7 @@ void TokenInventory::Initialize()
         {
             if (token)
             {
-                _tokenTable[token->GetTokenID()] = 0;
+                _validTokenTable[token->GetTokenID()] = 0;
             }
         }
     }
@@ -77,11 +87,8 @@ void TokenInventory::Initialize()
 
 void TokenInventory::Clear()
 {
-    for (auto& [id, token] : _tokenTable)
-    {
-        RemoveTokenFromID(id);
-    }
-    _vaildTokenVector.clear();
+    _validTokenTable.clear();
+    _validTokenVector.clear();
 }
 
 void TokenInventory::NotifyCombatStart()
@@ -188,7 +195,7 @@ void TokenInventory::NotifyKill(CharacterBase* destination)
 void TokenInventory::NotifyTokenAdded(int tokenID)
 {
     NotifyTokenEvent([this, tokenID](Token& token) {
-        bool valid = HasTokenFromID(token.GetTokenID());
+        bool valid = token.GetTokenID() == tokenID;
         if (valid)
         {
             token.OnTokenAdded(&_owner, tokenID);
@@ -199,10 +206,54 @@ void TokenInventory::NotifyTokenAdded(int tokenID)
 void TokenInventory::NotifyTokenRemoved(int tokenID)
 {
     NotifyTokenEvent([this, tokenID](Token& token) {
-        bool valid = HasTokenFromID(token.GetTokenID());
+        bool valid = token.GetTokenID() == tokenID;
         if (valid)
         {
             token.OnTokenRemoved(&_owner, tokenID);
+        }
+    });
+}
+
+void TokenInventory::NotifyPreTokenAdded(int tokenID, int& count)
+{
+    NotifyTokenEvent([this, tokenID, &count](Token& token) {
+        bool valid = token.GetTokenID() == tokenID;
+        if (valid)
+        {
+            token.OnPreTokenAdded(&_owner, tokenID, count);
+        }
+    });
+}
+
+void TokenInventory::NotifyPreTokenRemoved(int tokenID, int& count)
+{
+    NotifyTokenEvent([this, tokenID, &count](Token& token) {
+        bool valid = token.GetTokenID() == tokenID;
+        if (valid)
+        {
+            token.OnPreTokenRemoved(&_owner, tokenID, count);
+        }
+    });
+}
+
+void TokenInventory::NotifyTokenEnter(int tokenID) 
+{
+    NotifyTokenEvent([this, tokenID](Token& token) {
+        bool valid = token.GetTokenID() == tokenID;
+        if (valid)
+        {
+            token.OnTokenEnter(&_owner, tokenID);
+        }
+    });
+}
+
+void TokenInventory::NotifyTokenExit(int tokenID) 
+{
+    NotifyTokenEvent([this, tokenID](Token& token) {
+        bool valid = token.GetTokenID() == tokenID;
+        if (valid)
+        {
+            token.OnTokenExit(&_owner, tokenID);
         }
     });
 }
@@ -422,8 +473,52 @@ void TokenInventory::NotifyRollRandomSpeed(int& randomSpeed)
     });
 }
 
+std::vector<int> TokenInventory::GetTokensTooltips()
+{
+    if (ExcelDataSystem* excelDataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
+    {
+        if (std::unique_ptr<ExcelDataBase> dataBase = excelDataSystem->FindExcelDataBase(u8"툴팁"))
+        {
+            std::vector<int> ids;
+            for (auto& tokenID : _validTokenVector)
+            {
+               const char* name = TokenSystem::TokenIDToName(tokenID);
+               if (STR_NULL != name)
+               {
+                   size_t index = dataBase->FindRowIndex((const char8_t*)name, u8"note");
+                   if (index != dataBase->FIND_INDEX_FAIL)
+                   {
+                       std::string_view id = dataBase->FindData(index, u8"ID");
+                       if (id != dataBase->FIND_STR_FAIL)
+                       {
+                           ids.push_back(std::stoi(id.data()));
+                       }
+                   }
+               }
+            }
+            return ids;
+        }
+    }
+    return std::vector<int>();
+}
+
+void TokenInventory::RemoveAllToken()
+{
+    for (auto& [id, token] : _validTokenTable)
+    {
+        RemoveTokenFromID(id);
+    }
+    _validTokenVector.clear();
+}
+
 void TokenInventory::AddTokenStackFromID(int tokenID, int count /* = 1 */)
 {
+    // owner가 죽었으면 Add하지 않음
+    if (_owner.IsDead())
+    {
+        return;
+    }
+
     if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
     {
         turnMode->ApplyActions([&](TurnAction& action) 
@@ -432,38 +527,46 @@ void TokenInventory::AddTokenStackFromID(int tokenID, int count /* = 1 */)
         });
     }
 
-    if (0 == count)
+    NotifyPreTokenAdded(tokenID, count);
+
+    if (0 == count || false == IsValidToken(tokenID))
     {   // 추가할 스택이 0이면 아무것도 하지 않습니다. (이벤트를 호출하지 않기 위해 필요)
         return;
     }
 
-    auto it = _tokenTable.find(tokenID);
-    if (it != _tokenTable.end())
+    if (IToken* token = GetTokenFromID(tokenID))
     {
-        if (IToken* token = GetTokenFromID(tokenID))
+        // 테이블에 없다면 0초기화
+        if (false == _validTokenTable.contains(tokenID))
         {
-            int  maxStackCount = token->GetMaxStackCount();
-            int& curStackCount = it->second;
-            if (curStackCount >= maxStackCount)
-            {   // 이미 최대 스택에 도달했으면 추가하지 않습니다.(이벤트를 호출하지 않기 위해 필요)
-                return; 
-            }
-            if (token->CanAdd(&_owner))
-            {
-                curStackCount += count;
-                curStackCount = std::min(maxStackCount, curStackCount);
-                UpdateToken(tokenID);
-                _owner.OnTokenAdded(tokenID);
-                std::string msg = std::format("{}{}{}{}{}{}", 
-                    _owner.gameObject->ToString(),
-                    (const char*)u8" 에게 ",
-                    token->GetTokenName(),
-                    (const char*)u8" 토큰이 ",
-                    count,
-                    (const char*)u8"개 부여되었습니다."
-                );
-                UmLogger.Log(LogLevel::LEVEL_TRACE, msg);
-            }
+            _validTokenTable[tokenID] = 0;
+        }
+
+        int   maxStackCount = token->GetMaxStackCount();
+        auto& curStackCount = _validTokenTable[tokenID];
+        if (curStackCount >= maxStackCount)
+        { // 이미 최대 스택에 도달했으면 추가하지 않습니다.(이벤트를 호출하지 않기 위해 필요)
+            return;
+        }
+        if (token->CanAdd(&_owner))
+        {
+            count = std::min(count, maxStackCount - curStackCount);
+            curStackCount = curStackCount + count;
+            _waitAvailableTokenTable[tokenID] += count;
+            std::string msg = std::format("{}{}{}{}{}{}{}{}",
+                _owner.gameObject->ToString(),
+                (const char*)u8" 에게 ",
+                token->GetTokenName(), 
+                (const char*)u8" 토큰이 ",
+                count,
+                (const char*)u8"개 부여되었습니다. (",
+                curStackCount.Get(), 
+                (const char*)u8")"
+            );
+            UmLogger.Log(LogLevel::LEVEL_TRACE, msg);
+
+            UpdateToken(tokenID);
+            _owner.OnTokenAdded(tokenID);
         }
     }
 
@@ -493,45 +596,62 @@ void TokenInventory::SetTokenStackFromID(int tokenID, int count)
 
 void TokenInventory::RemoveTokenStackFromID(int tokenID, int count /* = 1 */)
 {
-    if (0 == count)
+    if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
+    {
+        turnMode->ApplyActions([&](TurnAction& action) 
+        { 
+            action.OnTokenRemovedStart(_owner, tokenID, count); 
+        });
+    }
+
+    NotifyPreTokenRemoved(tokenID, count);
+
+    if (0 == count || false == IsValidToken(tokenID))
     {   // 제거할 스택이 0이면 아무것도 하지 않습니다. (이벤트를 호출하지 않기 위해 필요)
         return;
     }
-    auto it = _tokenTable.find(tokenID);
-    if (it != _tokenTable.end())
+
+    if (_validTokenTable.contains(tokenID))
     {
         if (IToken* token = GetTokenFromID(tokenID))
         {
-            int& curStackCount = it->second;
-            if (curStackCount <= 0)
-            { // 스택이 0 이하이면 제거하지 않습니다. (이벤트를 호출하지 않기 위해 필요)
-                return;
-            }
+            auto& curStackCount = _validTokenTable[tokenID];
             if (token->CanRemove(&_owner))
             {
-                curStackCount -= count;
-                curStackCount = std::max(0, curStackCount);
-                UpdateToken(tokenID);
-                _owner.OnTokenRemoved(tokenID);
-                std::string msg = std::format("{}{}{}{}{}{}", 
+                count = std::min(count, curStackCount.Get());
+                curStackCount = curStackCount - count;
+                std::string msg = std::format("{}{}{}{}{}{}{}{}", 
                     _owner.gameObject->ToString(),
                     (const char*)u8"에게 ",
                     token->GetTokenName(),
                     (const char*)u8" 토큰이 ",
                     count,
-                    (const char*)u8"개 제거되었습니다."
+                    (const char*)u8"개 제거되었습니다. (",
+                    curStackCount.Get(), 
+                    (const char*)u8")"
                 );
                 UmLogger.Log(LogLevel::LEVEL_TRACE, msg);
+
+                UpdateToken(tokenID);
+                _owner.OnTokenRemoved(tokenID);
             }
         }
+    }
+    
+    if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
+    {
+        turnMode->ApplyActions([&](TurnAction& action) 
+        { 
+            action.OnTokenRemovedEnd(_owner, tokenID, count); 
+        });
     }
 }
 
 void TokenInventory::RemoveTokenFromID(int tokenID)
 {
-    if (_tokenTable.contains(tokenID))
+    if (_validTokenTable.contains(tokenID))
     {
-        int& count = _tokenTable[tokenID];
+        auto& count = _validTokenTable[tokenID];
         if (0 < count)
         {
             RemoveTokenStackFromID(tokenID, count);
@@ -541,8 +661,8 @@ void TokenInventory::RemoveTokenFromID(int tokenID)
 
 bool TokenInventory::HasTokenFromID(int tokenID) const
 {
-    auto it = _tokenTable.find(tokenID);
-    if (it != _tokenTable.end())
+    auto it = _validTokenTable.find(tokenID);
+    if (it != _validTokenTable.end())
     {
         bool isValid = 0 < it->second;
         return isValid;
@@ -571,12 +691,23 @@ bool TokenInventory::HasTokenFromTag(const std::string& tag) const
 
 int TokenInventory::GetTokenStackFromID(int tokenID) const
 {
-    auto it = _tokenTable.find(tokenID);
-    if (it != _tokenTable.end())
+    auto it = _validTokenTable.find(tokenID);
+    if (it != _validTokenTable.end())
     {
         return it->second;
     }
     return 0;
+}
+
+MVVM::Model<int>& TokenInventory::GetTokenModelFromID(int tokenID)
+{
+    auto it = _validTokenTable.find(tokenID);
+    if (it != _validTokenTable.end())
+    {
+        return it->second;
+    }
+    
+    throw std::runtime_error("TokenInventory::GetTokenModelFromID - Token ID not found.");
 }
 
 int TokenInventory::GetTokenStackFromTag(const std::string& tag) const
@@ -597,7 +728,7 @@ int TokenInventory::GetTokenStackFromTag(const std::string& tag) const
 
 int TokenInventory::GetValidTokenCount() const
 {
-    return static_cast<int>(_vaildTokenVector.size());
+    return static_cast<int>(_validTokenVector.size());
 }
 
 int TokenInventory::GetValidTokenCount(const std::string& tag) const
@@ -635,19 +766,20 @@ int TokenInventory::GetValidTokenCountByTag() const
 
 bool TokenInventory::IsEmpty() const
 {
-    return _vaildTokenVector.empty();
+    return _validTokenVector.empty();
 }
 
 void TokenInventory::DrawImGuiDebugData() 
 {
+#ifdef _UMEDITOR
     if (TokenSystem* tokenSystem = GetTokenSystem())
     {
         const auto& instances = tokenSystem->GetTokenInstances();
-
-        ImGui::BeginChild("ValidTokenStack", ImVec2(0, 0), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY);
-        for (size_t i = 0; i < _vaildTokenVector.size(); ++i)
+        ImGui::Text("ValidTokenStack");
+        ImGui::BeginChild("##ValidTokenStack", ImVec2(0, 0), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY);
+        for (size_t i = 0; i < _validTokenVector.size(); ++i)
         {
-            TokenID     tokenID     = _vaildTokenVector[i];
+            TokenID     tokenID     = _validTokenVector[i];
             const auto& tokenName   = GetTokenNameFromID(tokenID);
             int         tokenCount  = GetTokenStackFromID(tokenID);
             std::string tokenInfo   = std::format("{} ({})", tokenName, tokenCount);
@@ -655,7 +787,7 @@ void TokenInventory::DrawImGuiDebugData()
             {
                 // 선택된 토큰에 대한 추가 작업이 필요하면 여기에 작성
             }
-            if (i < _vaildTokenVector.size() - 1)
+            if (i < _validTokenVector.size() - 1)
             {
                 ImGui::Separator();
             }
@@ -666,7 +798,7 @@ void TokenInventory::DrawImGuiDebugData()
         {
             if (ImGui::TreeNodeEx("Token Instances##token inventory"))
             {
-                ImGui::Text("Token Count: %zu", _vaildTokenVector.size());
+                ImGui::Text("Token Count: %zu", _validTokenVector.size());
                 ImGui::Text("Total Tokens: %zu", instances.size());
                 ImGui::BeginChild("TokenList", ImVec2(0, 200), true);
                 for (const auto& token : instances)
@@ -717,42 +849,80 @@ void TokenInventory::DrawImGuiDebugData()
             ImGui::TreePop();
         }
     }
+    else
+    {
+        ImGuiHelper::StyleBuilder style;
+        style.PushStyleColor(ImGuiCol_Text, IM_COL32(255, 100, 100, 255));
+        ImGui::Text("null TokenSystem...");
+    }
+#endif
+}
+
+bool TokenInventory::IsAvailableTokenFromID(int tokenID, int tokenCount)
+{
+    // 현재 유효한 토큰 테이블 확인
+    if (_validTokenTable.contains(tokenID))
+    {
+        const int validCount = _validTokenTable[tokenID];
+        // 유효한 토큰이 많다면
+        if (validCount >= tokenCount)
+        {
+            // 대기 중인 토큰이 있으면 사용 가능 개수를 확인
+            if (_waitAvailableTokenTable.contains(tokenID))
+            {
+                const int waitCount = _waitAvailableTokenTable[tokenID];
+                bool isValid = validCount - waitCount >= tokenCount;
+                return isValid;
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+void TokenInventory::UpdateAvailableToken() 
+{
+    // 대기 중인 토큰 초기화
+    _waitAvailableTokenTable.clear();
 }
 
 void TokenInventory::UpdateToken(TokenID tokenID)
 {
-    auto iter = _tokenTable.find(tokenID);
-    if (iter != _tokenTable.end())
+    auto iter = _validTokenTable.find(tokenID);
+    if (iter != _validTokenTable.end())
     {
         int count = iter->second;
         if (0 < count)
         {
-            // 유효한 토큰 벡터에 추가
-            auto it = std::find(_vaildTokenVector.begin(), _vaildTokenVector.end(), tokenID);
-            if (it == _vaildTokenVector.end())
+            // 현재 유효한 토큰 리스트에 없다면 벡터에 추가
+            auto it = std::find(_validTokenVector.begin(), _validTokenVector.end(), tokenID);
+            if (it == _validTokenVector.end())
             {
-                _vaildTokenVector.push_back(tokenID);
+                _validTokenVector.push_back(tokenID);
+                _owner.OnTokenEnter(tokenID);
             }
         }
         else
         {
-            // 유효한 토큰 벡터에서 제거
-            auto it = std::find(_vaildTokenVector.begin(), _vaildTokenVector.end(), tokenID);
-            if (it != _vaildTokenVector.end())
+            // 현재 유효한 토큰 리스트에 있다면 벡터에서 제거
+            auto it = std::find(_validTokenVector.begin(), _validTokenVector.end(), tokenID);
+            if (it != _validTokenVector.end())
             {
-                _vaildTokenVector.erase(it);
+                _validTokenVector.erase(it);
+                _owner.OnTokenExit(tokenID);
             }
+            _validTokenTable.erase(tokenID);
         }
     }
 }
 
 bool TokenInventory::CheckValidTokenFromID(TokenID tokenID)
 {
-    auto iter = _tokenTable.find(tokenID);
-    if (iter != _tokenTable.end())
+    auto iter = _validTokenTable.find(tokenID);
+    if (iter != _validTokenTable.end())
     {
-        auto it = std::find(_vaildTokenVector.begin(), _vaildTokenVector.end(), tokenID);
-        if (it != _vaildTokenVector.end())
+        auto it = std::find(_validTokenVector.begin(), _validTokenVector.end(), tokenID);
+        if (it != _validTokenVector.end())
         {
             return true;
         }

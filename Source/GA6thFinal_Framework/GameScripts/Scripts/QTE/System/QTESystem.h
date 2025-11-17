@@ -2,10 +2,13 @@
 #include "DLLExportDefine.h"
 #include "QTE/Common/QTECommon.h"
 #include "QTE/Callback/Callback.h"
+#include "QTE/Fade/QTEFadeState.h"
 #include "QTE/Result/QTEResult.h"
 #include "QTE/KeyBinder/QTEKeyBinder.h"
+#include "QTE/Audio/QTEAudioState.h"
 #include "QTE/Track/QTETrack.h"
 #include "Utility/SingletonHelper.h"
+#include "Stats/Weapon/WeaponStats.h"
 
 class QTEUIManager;
 class QTEEditor;
@@ -20,7 +23,7 @@ struct WeaponStats;
 class QTESystem : public Component, public InputReceiver
 {
     using ControllerState = std::pair<const Input::Controller*, Input::ControllerTypes::Button>;
-    using TrackTable = std::unordered_map<int, std::vector<QTE::Track*>>;
+    using TrackTable = std::unordered_map<int, std::vector<QTE::Track>>;
 
     friend class QTEUIManager;
     USING_PROPERTY(QTESystem)
@@ -31,11 +34,7 @@ public:
 
     REFLECT_PROPERTY(ScaledSpeedFactor, CurrentTrackTime, MaxTracktime, IsPlaying)
 
-    GETTER_ONLY(float, ScaledSpeedFactor) {
-        const float systemSpeedScale = ReflectFields->QTESpeedScale;
-        const float trackSpeedScale  = _currentQTETrack ? _currentQTETrack->GetQTESpeedScale() : 1.0f;
-        return systemSpeedScale * trackSpeedScale;
-    }
+    GETTER_ONLY(float, ScaledSpeedFactor) { return ReflectFields->QTESpeedScale * _trackSpeed; }
     PROPERTY(ScaledSpeedFactor)
 
     GETTER_ONLY(float, CurrentTrackTime) { return _currTime; }
@@ -52,25 +51,39 @@ public:
 private:
     void Reset() override;
     void Awake() override;
-    void Start() override;
     void Update() override;
     void OnDestroy() override;
+    void OnLoadScene(Scene& loadScene, LoadSceneMode mode) override;
 
     void SerializedReflectEvent() override;
     void DeserializedReflectEvent() override;
     void ImGuiDrawPropertysEvent() override;
 
 public:
+    void ResetState();
+
     /// <summary>QTE를 시작합니다. 현재 무기에 맞는 트랙이 있는 경우 트랙으로, 없으면 무기 기반으로 재생합니다.</summary>
     void StartQTE();
     /// <summary>무기 기반으로 트랙을 생성하여 QTE를 시작합니다.</summary>
     void StartQTE(const WeaponStats& weapon);
+        // 이후 추가할거... 가이드 노트, QTE 종료 페이드 아웃 듀레이션 등.
     /// <summary>QTE를 중지합니다.</summary>
     void StopQTE();
     /// <summary>QTE를 일시정지하거나 재개합니다. QTE플레이 중이 아니라면 무시됩니다.</summary>
     void PauseQTE(bool pause);
     /// <summary>QTE 트랙을 비웁니다.</summary>
     void ClearTrack();
+
+public:
+    // QTE 스피드 조정(인자로 단계 수 입력)
+    void IncreaseQTESpeedLevel(int value);
+    void DecreaseQTESpeedLevel(int value);
+
+public:
+    /// <summary>QTE 페이드 상태를 설정합니다.</summary>
+    void SetFadeState(const QTE::FadeState& fadeState);
+    /// <summary>QTE 현재 페이드 상태를 가져옵니다.</summary>
+    const QTE::FadeState& GetCurrentFadeState();
 
 public:
     /// <summary>QTE 키 바인드 상태를 초기화합니다.</summary>
@@ -90,12 +103,11 @@ public:
     inline QTE::PlayState                    GetPlayState() const { return _currState; }
     inline const QTE::KeyBinder&             GetKeyBinder() const { return _keyBinder; }
     inline QTE::OverallResult&               GetQTEOverallResult() { return _overallResult; }
-    inline QTE::Track*                       GetCurrentQTETrack() const { return _currentQTETrack; }
     inline const std::vector<QTE::NoteData>& GetCurrentQTEAvailQueue() const { return _noteAvailQueue; }
     inline const TrackTable&                 GetWeaponIDToTrackTable() const { return _weaponIDToTrackTable; }
 
 private:
-    void ResetQTEState();
+    void ResetQTETimeState();
     void ClearQueue();
     void UpdateQTETrack();
     QTE::ResultType GetQTEResult(float noteTime);
@@ -136,42 +148,47 @@ public:
     inline void SetFadeOutPosFactor(float start, float end) { ReflectFields->FadeOutPosFactor = {start, end}; }
     inline std::pair<float, float> GetFadeOutPosFactor() const { return ReflectFields->FadeOutPosFactor; }
 
-    /// <summary>무기 ID에 매핑 트랙을 추가합니다. path인자를 NULL_PATH로 지정하면 빈 트랙을 생성합니다.</summary>
+    /// <summary>[EditorOnly]무기 ID에 매핑 트랙을 추가합니다. path인자를 NULL_PATH로 지정하면 빈 트랙을 생성합니다.</summary>
     /// <param name="weaponID">매핑 트랙을 추가할 무기의 ID입니다.</param>
     /// <param name="path">추가할 트랙의 파일 경로입니다.</param>
     QTE::Track* AddMappingTrackToWeaponID(int weaponID, const File::Path& path = File::NULL_PATH);
 
-    /// <summary>weaponID와 관련된 매핑 트랙을 제거합니다. index가 -1이면 마지막 매핑 트랙을 제거합니다.</summary>
+    /// <summary>[EditorOnly]weaponID와 관련된 매핑 트랙을 제거합니다. index가 -1이면 마지막 매핑 트랙을 제거합니다.</summary>
     /// <param name="weaponID">매핑을 제거할 무기의 ID입니다.</param>
     /// <param name="index">제거할 매핑 트랙의 인덱스입니다. 기본값은 -1로, 마지막 매핑 트랙을 제거합니다.</param>
     bool RemoveMappingTrackToWeaponID(int weaponID, int index = -1);
 
-    /// <summary>weaponID와 선택적 인덱스에 해당하는 매핑된 트랙을 반환합니다.</summary>
+    /// <summary>[EditorOnly]weaponID와 선택적 인덱스에 해당하는 매핑된 트랙을 반환합니다.</summary>
     /// <param name="weaponID">매핑할 무기의 ID입니다.</param>
     /// <param name="index">매핑된 트랙의 인덱스(기본값은 0)입니다.</param>
     QTE::Track* GetMappingTrackToWeaponID(int weaponID, int index = 0);
 
 private:
-    std::string GetRandomAnimationName(const WeaponStats& weapon);
+    bool        ValidAnimation(WeaponType type, const std::string& animKey) const;
+    std::string GetRandomAnimationName(WeaponType type) const;
 
 private:
+    SingletonObject<QTESystem>      _singletonObject{this};
     SingletonComponent<QTESystem>   _singletonComponent{this};
 
-    TrackTable                      _weaponIDToTrackTable;              // 무기 ID QTE 매핑 테이블
-    QTE::Track*                     _currentQTETrack  = nullptr;
-    size_t                          _currentNoteIndex = 0;              // 현재 가리키는 노트 인덱스
-    std::vector<QTE::NoteData>      _noteAvailQueue;                    // 유효한 노트 큐
+    TrackTable                      _weaponIDToTrackTable;                      // 무기 ID QTE 매핑 테이블
+    size_t                          _currentNoteIndex = 0;                      // 현재 가리키는 노트 인덱스
+    std::vector<QTE::NoteData>      _noteAvailQueue;                            // 유효한 노트 큐
 
-    QTE::PlayState                  _currState = QTE::STATE_WAITING;    // QTE 현재 상태
-    QTE::PlayState                  _prevState = QTE::STATE_WAITING;    // QTE 이전 상태
-    QTE::KeyBinder                  _keyBinder;                         // QTE 키 바인딩 처리
-    QTE::CallbackHandler            _callbackHandler;                   // QTE 콜백 처리
-    QTE::OverallResult              _overallResult;                     // QTE 최종 결과
-    ControllerState                 _nextKeyEvent = {nullptr, Input::ControllerTypes::UNDEFINED};
+    QTE::PlayState                  _currState = QTE::STATE_WAITING;            // QTE 현재 상태
+    QTE::PlayState                  _prevState = QTE::STATE_WAITING;            // QTE 이전 상태
+    QTE::FadeState                  _fadeState;
+    QTE::AudioIDState               _audioIDState;                              // QTE 오디오 아이디
+    QTE::KeyBinder                  _keyBinder;                                 // QTE 키 바인딩 처리
+    QTE::CallbackHandler            _callbackHandler;                           // QTE 콜백 처리
+    QTE::OverallResult              _overallResult;                             // QTE 최종 결과
+    std::vector<ControllerState>    _nextKeyEvent;
 
-    float                           _currTime          = 0.0f;                     // QTE 타이머
-    float                           _totalTime         = 0.0f;                     // QTE 최대 시간
-    bool                            _isPaused          = false;                    // QTE 일시정지 여부
+    float                           _currTime           = 0.0f;                 // QTE 타이머
+    float                           _totalTime          = 0.0f;                 // QTE 최대 시간
+    bool                            _isPaused           = false;                // QTE 일시정지 여부
+
+    float                           _trackSpeed         = 1.0f;                 // 현재 QTE 스피드 스케일
 
     REFLECT_FIELDS_BEGIN(Component)
     float                   QTESpeedScale       = 1.0f;                         // QTE 속도 배율
@@ -203,4 +220,6 @@ private:
         .LeftMotorSpeed  = (unsigned short)(0.2f * 65535.0f),
         .RightMotorSpeed = (unsigned short)(0.7f * 65535.0f),
         .Duration        = std::chrono::milliseconds(150)};
+
+    inline constexpr static float SPEED_LEVEL_PER_SCALE = 0.15f; // 단계 당 스피드 변화 값
 };

@@ -1,51 +1,14 @@
 ﻿#include "pchScripts.h"
 #include "DescriptionPanel.h"
-#include <Regex>
+
+#include "UI/Elements/Dummy/DummyElement.h"
 
 #include "UI/Elements/Text/TextElement.h"
 #include "UI/Elements/Image/ImageElement.h"
 #include "UI/Wrappers/Ratio/RatioWrapper.h"
+#include "Utility/HexToColor.h"
 
 UMREAL_COMPONENT(DescriptionPanel)
-
-struct HexToColor
-{
-    Color operator()(const std::string& hex) const
-    {
-        static const std::regex HEX_COLOR_REGEX(R"(^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})$)");
-
-        if (!std::regex_match(hex, HEX_COLOR_REGEX))
-            return {0.0f, 0.0f, 0.0f, 1.0f}; // Invalid hex format
-
-        std::string hexColor = hex;
-        hexColor             = hexColor.substr(1);
-
-        unsigned int      r = 0, g = 0, b = 0, a = 255;
-        std::stringstream ss;
-        ss << std::hex << hexColor.substr(0, 2);
-        ss >> r;
-        ss.clear();
-        ss << std::hex << hexColor.substr(2, 2);
-        ss >> g;
-        ss.clear();
-        ss << std::hex << hexColor.substr(4, 2);
-        ss >> b;
-
-        if (hexColor.length() == 8)
-        {
-            ss.clear();
-            ss << std::hex << hexColor.substr(6, 2);
-            ss >> a;
-        }
-
-        float red   = static_cast<float>(r) / 255.0f;
-        float green = static_cast<float>(g) / 255.0f;
-        float blue  = static_cast<float>(b) / 255.0f;
-        float alpha = static_cast<float>(a) / 255.0f;
-
-        return {red, green, blue, alpha};
-    }
-};
 
 struct ParseData
 {
@@ -88,7 +51,8 @@ struct ParseData
                 }
                 else if (auto assetAttribute = node.attribute("asset"); !assetAttribute.empty())
                 {
-                    int id = std::stoi(assetAttribute.as_string());
+                    std::string idString = assetAttribute.as_string();
+                    int         id       = idString.empty() ? 0 : std::stoi(idString);
                     guid   = UmFileSystem.GetGuidFromAssetID(id);
                 }
                 else
@@ -100,13 +64,18 @@ struct ParseData
                 ElementData     elementData{.Type = ElementType::IMAGE, .Data = attributes};
                 elements.push_back(elementData);
             }
+            else if (std::strcmp(node.name(), "Break") == 0)
+            {
+                ElementData elementData{.Type = ElementType::BREAK, .Data = {}};
+                elements.push_back(elementData);
+            }
         }
 
         return elements;
     }
 };
 
-DescriptionPanel::DescriptionPanel()
+DescriptionPanel::DescriptionPanel() : _fontWeight(0.5f), _opacityFactor(1.0f)
 {
     FontPath.SetInputAutoEvent([this]() {
         if (ImGui::BeginDragDropTarget())
@@ -149,6 +118,18 @@ void DescriptionPanel::SetOpacity(const float opacity)
     UpdateAlpha();
 }
 
+void DescriptionPanel::SetOpacityFactor(const float factor)
+{
+    _opacityFactor = factor;
+    UpdateAlpha();
+}
+
+void DescriptionPanel::SetFontWeight(const float fontWeight)
+{
+    _fontWeight = fontWeight;
+    UpdateContent();
+}
+
 void DescriptionPanel::DeserializedReflectEvent()
 {
     HorizontalPanel::DeserializedReflectEvent();
@@ -178,13 +159,35 @@ void DescriptionPanel::Awake()
     UpdateContent();
 }
 
+void DescriptionPanel::Update()
+{
+    HorizontalPanel::Update();
+
+    if (_invalidateLater)
+    {
+        InvalidateMeasure();
+        InvalidateArrange();
+        _invalidateLater = false;
+    }
+}
+
 void DescriptionPanel::UpdateContent()
 {
-    if (const bool enableInHierarchy = EnableInHierarchy; enableInHierarchy)
+    EraseChild();
+    MakeChild();
+    if (const UIRoot* root = Root)
     {
-        EraseChild();
-        MakeChild();
+        root->SortViewOrder();
+    }
+
+    if (const bool enableInHierarchy = EnableInHierarchy; true == enableInHierarchy)
+    {
         InvalidateMeasure();
+        InvalidateArrange();
+    }
+    else
+    {
+        _invalidateLater = true;
     }
 }
 
@@ -211,11 +214,29 @@ void DescriptionPanel::MakeChild()
 {
     Transform&        transform = this->transform;
     const std::string text      = ReflectFields->Description;
+    bool              breakNext = false;
 
     for (const std::vector<ElementData> elementData = ParseData()(text); const auto& [Type, Data] : elementData)
     {
+        if (Type == ElementType::BREAK)
+        {
+            breakNext = true;
+            continue;
+        }
+
         const std::shared_ptr<GameObject> child =
             NewGameObject(GameObject::Helper::GenerateUniqueName("Description Child"));
+        child->transform->SetParent(transform, true);
+
+        if (breakNext)
+        {
+            if (HorizontalPanelSlot* slot = child->GetComponent<HorizontalPanelSlot>())
+            {
+                slot->BreakLine = true;
+            }
+            breakNext = false;
+        }
+
         switch (Type)
         {
         case ElementType::TEXT: {
@@ -228,13 +249,13 @@ void DescriptionPanel::MakeChild()
             color.w                    = ReflectFields->Alpha;
             element.Color              = color;
             element.FontScale          = ReflectFields->FontScale;
+            element.FontWeight         = _fontWeight;
             element.SetArtificial(true);
         }
         break;
         case ElementType::IMAGE: {
-            RatioWrapper& ratio      = child->AddComponent<RatioWrapper>();
-            ratio.HorizontalFillMode = FillMode::FILL;
-            ratio.VerticalFillMode   = FillMode::FILL;
+            RatioWrapper& ratio    = child->AddComponent<RatioWrapper>();
+            ratio.VerticalFillMode = FillMode::FILL;
             const std::shared_ptr<GameObject> imageChild =
                 NewGameObject(GameObject::Helper::GenerateUniqueName("Image Element"));
             auto [guid]           = std::get<ImageAttributes>(Data);
@@ -244,17 +265,26 @@ void DescriptionPanel::MakeChild()
             element.VerticalFillMode   = FillMode::FILL;
             element.Alpha              = ReflectFields->Alpha;
             element.SetArtificial(true);
+            std::weak_ptr<RatioWrapper> weakRatio = ratio.GetWeakPtrAs<RatioWrapper>();
+            element.BindResourceLoadedCallback([weakRatio](const ImageElement::CallbackParameters params) {
+                if (const auto sharedRatio = weakRatio.lock(); nullptr != sharedRatio && params.ResourceSize.cx != 0)
+                {
+                    sharedRatio->Ratio =
+                        static_cast<float>(params.ResourceSize.cy) / static_cast<float>(params.ResourceSize.cx);
+                }
+            });
             imageChild->transform->SetParent(child->transform, true);
         }
         break;
+        default:
+            break;
         }
-        child->transform->SetParent(transform, true);
     }
 }
 
 void DescriptionPanel::UpdateAlpha()
 {
-    const float alpha = ReflectFields->Alpha;
+    const float alpha = ReflectFields->Alpha * _opacityFactor;
     Transform::ForeachBFS(transform, [alpha](Transform* t) 
     {
         GameObject& object = t->gameObject;

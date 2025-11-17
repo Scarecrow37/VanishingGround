@@ -249,7 +249,10 @@ void EnableButton::FocusOut(const FocusCallType callType)
     _isOptionDirty = true;
 }
 
-void EnableButton::Submit() {}
+void EnableButton::Submit()
+{
+    Base::Submit();
+}
 
 void EnableButton::SerializedReflectEvent()
 {
@@ -276,7 +279,7 @@ void EnableButton::ChangeOptionDpad(const Input::Controller& controller)
     {
         _isOptionOn = !_isOptionOn;
         _isOptionDirty = true;
-        UmAudio.Play("-40000");
+        UmAudio.Play("-901000");
     }
 }
 
@@ -289,7 +292,7 @@ void EnableButton::ChangeOptionStick(const Input::Controller& controller)
         {
             _isOptionOn = !_isOptionOn;
             _isOptionDirty = true;
-            UmAudio.Play("-40000");
+            UmAudio.Play("-901000");
         }
     }
 }

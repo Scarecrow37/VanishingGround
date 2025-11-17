@@ -85,29 +85,32 @@ void MeshComponent::DrawMaterialsList()
     static UINT     lastSelected    = 0;
     IMeshRenderer*& lastRenderer    = GetLastSelectMeshRenderer();
 
-    const auto& model        = Renderer->GetModel();
-    const auto& customDepths = Renderer->GetCustomDepths();
-    auto&       materials    = Renderer->GetMaterials();
-    const auto& meshes       = model->GetMeshes();
-    UINT        count        = (UINT)model->GetMeshCount();
-
-    for (UINT i = 0; i < count; i++)
+    const auto& model = Renderer->GetModel();
+    if (model)
     {
-        ImGui::PushID(i);
-        bool isOpened = ImGui::TreeNodeEx(meshes[i]->GetName().data());
-        
-        if (ImGui::IsItemClicked())
-        {
-            HandleMeshSelection(i, lastRenderer, lastCustomDepth, lastSelected);
-        }
-        
-        if (isOpened)
-        {
-            DrawMaterialProperties(i, materials[i], customDepths[i]);
-            ImGui::TreePop();
-        }
+        const auto& customDepths = Renderer->GetCustomDepths();
+        auto&       materials    = Renderer->GetMaterials();
+        const auto& meshes       = model->GetMeshes();
+        UINT        count        = (UINT)model->GetMeshCount();
 
-        ImGui::PopID();
+        for (UINT i = 0; i < count; i++)
+        {
+            ImGui::PushID(i);
+            bool isOpened = ImGui::TreeNodeEx(meshes[i]->GetName().data());
+
+            if (ImGui::IsItemClicked())
+            {
+                HandleMeshSelection(i, lastRenderer, lastCustomDepth, lastSelected);
+            }
+
+            if (isOpened)
+            {
+                DrawMaterialProperties(i, materials[i], customDepths[i]);
+                ImGui::TreePop();
+            }
+
+            ImGui::PopID();
+        }
     }
 }
 

@@ -74,9 +74,6 @@ protected:
 private:
     void DrawShowLog();
     void DrawLogSetting();
-    void UpdateKeboread();
 
     bool  _isShowLog;
-    bool  _isShowSetting;
-
 };

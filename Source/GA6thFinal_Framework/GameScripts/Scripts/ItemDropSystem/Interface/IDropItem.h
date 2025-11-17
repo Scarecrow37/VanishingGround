@@ -21,6 +21,7 @@ struct DropItemInfo
     ArtifactDropType Category;     // 분류 타입
     int              ID;           // 아이템 아이디
     std::string      Name;         // 아이템 이름
+    Color            NameColor = Color(1.f, 1.f, 1.f, 1.f); // 아이템 이름 색
 
     /// <summary>
     /// 엑셀 데이터 베이스의 이름을 반환합니다.
@@ -34,7 +35,7 @@ struct DropItemInfo
     /// </summary>
     /// <param name="type :">변환할 타입</param>
     /// <returns>실패시 0</returns>
-    static int GetArtifactCategoryAssetID(ArtifactDropType type);
+    static int GetArtifactCategoryAssetID(ArtifactDropType type, bool isMapScene);
 
     /// <summary>
     /// 해당 유물의 에셋 ID를 반환합니다.
@@ -42,6 +43,13 @@ struct DropItemInfo
     /// <param name="itemInfo :">아이템 정보</param>
     /// <returns></returns>
     static int GetArtifactIconID(DropItemInfo itemInfo);
+
+    /// <summary>
+    /// 해당 아이템의 툴팁 ID들을 반환합니다.
+    /// </summary>
+    /// <param name="itemInfo">: 가져올 아이템</param>
+    /// <returns></returns>
+    static std::vector<int> GetArtifactTooltipIDs(DropItemInfo itemInfo);
 
     /// <summary>
     /// 해당 유물의 Description을 엑셀 DB에서 반환합니다.

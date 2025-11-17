@@ -1,4 +1,5 @@
 #include "CommonData.hlsli"
+#include "Function.hlsli"
 
 struct PSInput
 {
@@ -43,6 +44,8 @@ float4 ps_main(PSInput input) : SV_Target
     color.a *= material[index].alpha;
     
     clip(color.a - Epsilon);    
+    
+    color = Premultiply(color);
     
     switch (uiMaterialData[index].type)
     {

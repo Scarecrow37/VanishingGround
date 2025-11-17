@@ -7,6 +7,9 @@
 #include "RevelationSystem/RevelationSystem.h"
 #include "AccessorySystem/AccessorySystem.h"
 #include "Inventory/UINavi/InventoryItemFocusNavi.h"
+#include "UI/Elements/Text/TextElement.h"
+#include "ExcelDataSystem/ExcelDataSystem.h"
+#include "PlayerSystem/PlayerSystem.h"
 
 UMREAL_COMPONENT(InventoryUIManager)
 
@@ -40,6 +43,7 @@ void InventoryUIManager::Added()
     if (_singletonComponent.TrySingleTon())
     {
         BindInputAction(ControllerButton::B, Action::PRESSED, this, &InventoryUIManager::OnButtonB);
+        InitMaps();
     }
 }
 
@@ -65,6 +69,8 @@ void InventoryUIManager::FindUIElements()
     _revelationUI.Icons.clear();
     _accessoryUI.Manager = nullptr;
     _accessoryUI.Icons.clear();
+    _bookImage = nullptr;
+    _bookName  = nullptr;
     if (Transform* itemsPanel = transform->FindWithTag("Items Panel"))
     {
         for (size_t i = 0; i < itemsPanel->ChildCount; i++)
@@ -108,6 +114,33 @@ void InventoryUIManager::FindUIElements()
                 {
                     _consumableUI   = FindIcons(curr);
                     _consumableNavi = FindFocus(curr);
+                }
+            }
+        }
+    }
+
+    if (Transform* playerInfoTr = transform->Find("Player Info Panel"))
+    {
+        for (int i = 0; i < playerInfoTr->ChildCount; i++)
+        {
+            if (Transform* child = playerInfoTr->GetChild(i))
+            {
+                GameObject& object = child->gameObject;
+                if (object.CompareTag("Book Panel"))
+                {
+                    Transform::ForeachBFS(object.transform, [this](Transform* tr) 
+                    {
+                        GameObject& bookChild = tr->gameObject;
+                        if (bookChild.CompareTag("Icon"))
+                        {
+                            _bookImage = bookChild.GetComponent<ImageElement>();
+                        }
+                        else if (bookChild.CompareTag("Name"))
+                        {
+                            _bookName = bookChild.GetComponent<TextElement>();
+                        }
+                    });
+                    break;
                 }
             }
         }
@@ -172,6 +205,14 @@ size_t InventoryUIManager::GetHorizontalPageCount(size_t artifactCount)
     return pageCount;
 }
 
+void InventoryUIManager::InitMaps() 
+{
+    using namespace u8_literals;
+    _bookNameToImage[u8"피투성이 기사"_c_str] = UmFileSystem.GetGuidFromAssetID(430005);
+    _bookNameToImage[u8"쥐의 왕"_c_str]       = UmFileSystem.GetGuidFromAssetID(430007);
+    _bookNameToImage[u8"용의 비가"_c_str]     = UmFileSystem.GetGuidFromAssetID(430009);
+}
+
 void InventoryUIManager::OpenInventory(UINavigationComponent* lastFocus) 
 {
     if (false == EnableInHierarchy)
@@ -186,6 +227,7 @@ void InventoryUIManager::OpenInventory(UINavigationComponent* lastFocus)
         UpdateRevelationUI();
         UpdateAccessoryUI();
         UpdateConsumable();
+        UpdateBookInfo();
         if (0 < _weaponsNavi.size())
         {
             UmTime.Invoke(this, 0.f, [this]() 
@@ -229,6 +271,7 @@ void InventoryUIManager::UpdateWeaponUI()
             if (i < _weaponsNavi.size())
             {
                 _weaponsNavi[i]->SetItemInfo(info);
+                _weaponsNavi[i]->SetWeaponStats(weapon.Stats);
                 _weaponsNavi[i]->Enable = true;
             }
         }
@@ -383,6 +426,24 @@ void InventoryUIManager::UpdateConsumable()
             navi->Enable = false;
         }
     }
+}
+
+void InventoryUIManager::UpdateBookInfo() 
+{
+    if (PlayerSystem* system = SingletonComponent<PlayerSystem>::GetInstance())
+    {
+        if (_bookImage)
+        {
+            if (auto find = _bookNameToImage.find(system->PlayerBookName); find != _bookNameToImage.end())
+            {
+                _bookImage->SetImage(find->second);
+            }        
+        }
+        if (_bookName)
+        {
+            _bookName->Text = system->PlayerBookName;
+        }
+    }  
 }
 
 void InventoryUIManager::UpdateScroll(HorizontalPageUIManager* manager)

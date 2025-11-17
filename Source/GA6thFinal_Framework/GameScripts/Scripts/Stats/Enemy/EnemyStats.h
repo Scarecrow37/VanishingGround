@@ -35,12 +35,13 @@ public:
     {
         if (this != &rhs)
         {
-            //reflect_fields_struct& myFields  = *this->ReflectFields;
-            //reflect_fields_struct& rhsFields = *this->ReflectFields;
-            //myFields                         = rhsFields;
-            ReflectFields->Speed = rhs.ReflectFields->Speed;
-            ReflectFields->Damage = rhs.ReflectFields->Damage;
-            ReflectFields->DamageMultiplier = rhs.ReflectFields->DamageMultiplier;
+            *ReflectFields          = *rhs.ReflectFields;
+            _hpModel                = rhs._hpModel.Get();
+            _currentHP              = rhs._currentHP;
+            _reduceHpModel          = rhs._reduceHpModel.Get();
+            _currentChainCount      = rhs._currentChainCount.Get();
+            _currentChainRoundCount = rhs._currentChainRoundCount;
+            _sturnResistanceModel   = rhs._sturnResistanceModel.Get();
         }
         return *this;
     }
@@ -54,6 +55,10 @@ public:
         {
             UmWatcher.Unregister<CharacterHPViewModel>(key);
             UmWatcher.Register<CharacterHPViewModel>(key, _hpModel);
+
+            std::string newKey = key + "_reduce";
+            UmWatcher.Unregister<CharacterHPViewModel>(newKey);
+            UmWatcher.Register<CharacterHPViewModel>(newKey, _reduceHpModel);
 
             UmWatcher.Unregister<ChainCountViewModel>(key);
             UmWatcher.Register<ChainCountViewModel>(key, _currentChainCount);

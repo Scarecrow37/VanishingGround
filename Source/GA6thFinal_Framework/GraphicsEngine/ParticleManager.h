@@ -3,8 +3,9 @@
 
 class ParticleManager
 {
-    using EffectID = void*;
+    using EffectID       = void*;
     using EffectCallback = std::function<void(void)>;
+
 private:
     // -------------------------------------
     // [ Core DX12 Objects ]
@@ -12,32 +13,33 @@ private:
     ComPtr<ID3D12CommandAllocator>    _computeAllocator;
     ComPtr<ID3D12GraphicsCommandList> _computeCommandList;
 
-    ComPtr<ID3D12RootSignature>       _computeSpriteRootSignature;
-    ComPtr<ID3D12PipelineState>       _computeSpritePSO;
+    ComPtr<ID3D12RootSignature> _computeSpriteRootSignature;
+    ComPtr<ID3D12PipelineState> _computeSpritePSO;
 
-    ComPtr<ID3D12RootSignature>       _computeRibbonRootSignature;
-    ComPtr<ID3D12PipelineState>       _computeRibbonPSO;
+    ComPtr<ID3D12RootSignature> _computeRibbonRootSignature;
+    ComPtr<ID3D12PipelineState> _computeRibbonPSO;
 
     // -------------------------------------
     // [ Scene & Resource Management ]
     // -------------------------------------
-    std::unordered_map<std::string, ParticleSceneResource>                         _sceneResources;
-    std::unordered_map<std::string, UINT64>                                        _computeFences;
-    std::unordered_map<EffectID, std::unordered_map<std::string, class ParticleEffect*>> _effectIDTable;
+    std::unordered_map<std::string, ParticleSceneResource>                                             _sceneResources;
+    std::unordered_map<std::string, UINT64>                                                            _computeFences;
+    std::unordered_map<EffectID, std::unordered_map<std::string, std::weak_ptr<class ParticleEffect>>> _effectIDTable;
+    std::unordered_map<EffectID, std::unordered_map<std::string, const Matrix*>> _effectBoneMatTable;
 
     // -------------------------------------
     // [ Configuration & State ]
     // -------------------------------------
     UINT _maxParticles = MAX_PARTICLE;
-    UINT _maxEmitters = 100;
-    int  _namingIndex = 0;
+    UINT _maxEmitters  = 100;
+    int  _namingIndex  = 0;
     UMPARTICLE_PROPERTY(float, _deltaScale, DeltaScale, 1.f);
 
     // -------------------------------------
     // [ Editor-related State ]
     // -------------------------------------
-    class ParticleEffect* _editorCurrentEffect = nullptr;
-    bool                  _editorRefreshFlag   = false;
+    std::weak_ptr<class ParticleEffect> _editorCurrentEffect;
+    bool                                _editorRefreshFlag = false;
 
 public:
     // =================================================================================================================
@@ -65,11 +67,10 @@ public:
     // [ 4. Emitter Management ]
     // =================================================================================================================
     class ParticleEmitter* RegisterEmitter(class ParticleEffect* effect, SIZE_T maxParticles = 10000,
-                                           float             emissionRate    = 1000.f,
-                                           float             emitterLifetime = 150.f,
-                                           LocationShape     locatorShape    = LocationShape::SPHERE,
-                                           Vector3           locationFactor  = Vector3(1, 1, 1),
-                                           ParticleType      particleType    = ParticleType::SPRITE,
+                                           float emissionRate = 1000.f, float emitterLifetime = 150.f,
+                                           LocationShape       locatorShape   = LocationShape::SPHERE,
+                                           Vector3             locationFactor = Vector3(1, 1, 1),
+                                           ParticleType        particleType   = ParticleType::SPRITE,
                                            const std::wstring& meshspritePath = L"");
 
     // =================================================================================================================
@@ -105,7 +106,7 @@ public:
     // =================================================================================================================
     class ParticleEffect* RegisterEffectOnEditor();
     void                  SetCurrentEditorEffect(class ParticleEffect* newEffect);
-    class ParticleEffect* GetCurrentEditorEffect() { return _editorCurrentEffect; }
+    class ParticleEffect* GetCurrentEditorEffect();
     void                  RefreshEditor();
     void                  UpdateEditorLifeCycle();
     UMPARTICLE_PROPERTY(bool, _isAutoRefresh, AutoRefresh, false);

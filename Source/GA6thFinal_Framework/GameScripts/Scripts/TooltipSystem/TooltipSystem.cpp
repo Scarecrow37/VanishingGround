@@ -1,0 +1,238 @@
+﻿#include "pchScripts.h"
+#include "TooltipSystem.h"
+#include "Scripts/UI/Contents/TooltipGroupComponent.h"
+#include "ExcelDataSystem/ExcelDataSystem.h"
+#include "Utility/HexToColor.h"
+
+UMREAL_COMPONENT(TooltipSystem)
+
+TooltipSystem::TooltipSystem() = default;
+
+void TooltipSystem::RegisterTooltipGroup(const Tooltip::Group group, const std::weak_ptr<TooltipGroupComponent>& component)
+{
+    _tooltipGroups[group] = component;
+}
+
+void TooltipSystem::Show(const Tooltip::Group group, const int id) const
+{
+    Show(group, std::span(&id, 1));
+}
+
+void TooltipSystem::Show(const Tooltip::Group group, const std::initializer_list<int> ids) const
+{
+    Show(group, std::span(ids));
+}
+
+void TooltipSystem::Show(const Tooltip::Group group, const std::span<const int> ids) const
+{
+    try
+    {
+        if (const auto sharedGroup = _tooltipGroups.at(group).lock())
+        {
+            sharedGroup->Hide();
+            for (const int id : ids)
+            {
+                sharedGroup->Show(id, _tooltips.at(id));
+            }
+            sharedGroup->FadeIn();
+        }
+    }
+    catch (const std::out_of_range& exception)
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, "Tooltip group or tooltip data not found.");
+        UmLogger.Log(LogLevel::LEVEL_WARNING, exception.what());
+    }
+}
+
+void TooltipSystem::Hide()
+{
+    for (const Tooltip::Group weakGroup : _tooltipGroups | std::views::keys)
+    {
+        Hide(weakGroup);
+    }
+}
+
+void TooltipSystem::Hide(const Tooltip::Group group)
+{
+    try
+    {
+        std::weak_ptr<TooltipGroupComponent> weakGroup = _tooltipGroups.at(group);
+        if (const auto sharedGroup = weakGroup.lock())
+        {
+            sharedGroup->FadeOut();
+            UmTime.Invoke(this, sharedGroup->GetFadeDuration(), [weakGroup]() {
+                if (const auto sharedInInvokeGroup = weakGroup.lock())
+                {
+                    sharedInInvokeGroup->Hide();
+                }
+            });
+        }
+    }
+    catch (const std::out_of_range& exception)
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, "Tooltip group not found.");
+        UmLogger.Log(LogLevel::LEVEL_WARNING, exception.what());
+    }
+}
+
+Tooltip::TooltipData TooltipSystem::GetTooltip(const int id) const
+{
+    try
+    {
+        return _tooltips.at(id);
+    }
+    catch (const std::out_of_range& exception)
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, "Tooltip data not found.");
+        UmLogger.Log(LogLevel::LEVEL_WARNING, exception.what());
+        return Tooltip::TooltipData{};
+    }
+}
+
+void TooltipSystem::Awake()
+{
+    Component::Awake();
+
+    if (_singletonObject.TrySingleTon(true))
+    {
+        _singletonComponent.TrySingleTon();
+    }
+}
+
+void TooltipSystem::Start()
+{
+    Component::Start();
+
+    SetupData();
+}
+
+void TooltipSystem::ImGuiDrawPropertysEvent()
+{
+    Component::ImGuiDrawPropertysEvent();
+
+    ShowDataProperty();
+    ShowTestTooltipProperty();
+}
+
+void TooltipSystem::SetupData()
+{
+    if (ExcelDataSystem* excelDataSystemComponent = SingletonComponent<ExcelDataSystem>::GetInstance())
+    {
+        if (const std::unique_ptr<ExcelDataBase> tooltipSheet = excelDataSystemComponent->FindExcelDataBase(DATA_TOOLTIP_SHEET_NAME))
+        {
+            if (const std::unique_ptr<ExcelDataBase> textSheet =
+                    excelDataSystemComponent->FindExcelDataBase(DATA_TEXT_SHEET_NAME))
+            {
+                const size_t rowCount = tooltipSheet->RowCount();
+                for (size_t row = 0; row < rowCount; ++row)
+                {
+                    std::string_view idStringView = tooltipSheet->FindData(row, DATA_TOOLTIP_COLUMN_KEY_ID);
+                    std::string      idString     = std::string(idStringView);
+                    int              id           = idString.empty() ? 0 : std::stoi(idString);
+
+                    std::string_view nameIdStringView = tooltipSheet->FindData(row, DATA_TOOLTIP_COLUMN_KEY_NAME_ID);
+                    std::u8string    nameIdU8String =
+                        std::u8string(reinterpret_cast<const char8_t*>(nameIdStringView.data()));
+                    const size_t     nameIndex       = textSheet->FindRowIndex(nameIdU8String, DATA_TEXT_COLUMN_KEY_ID);
+                    std::string_view nameContentView = textSheet->FindData(nameIndex, DATA_TEXT_COLUMN_CONTENT);
+                    std::string      nameContent     = std::string(nameContentView);
+                    std::string_view nameColorView   = textSheet->FindData(nameIndex, DATA_TEXT_COLUMN_COLOR);
+                    std::string      nameColorString       = "#" + std::string(nameColorView);
+
+                    std::string_view descriptionIdStringView =
+                        tooltipSheet->FindData(row, DATA_TOOLTIP_COLUMN_KEY_DESCRIPTION_ID);
+                    std::u8string descriptionIdU8String =
+                        std::u8string(reinterpret_cast<const char8_t*>(descriptionIdStringView.data()));
+                    const size_t descriptionIndex =
+                        textSheet->FindRowIndex(descriptionIdU8String, DATA_TEXT_COLUMN_KEY_ID);
+                    std::string_view descriptionContentView =
+                        textSheet->FindData(descriptionIndex, DATA_TEXT_COLUMN_CONTENT);
+                    std::string descriptionContent = std::string(descriptionContentView);
+
+                    std::string_view iconIdStringView = tooltipSheet->FindData(row, DATA_TOOLTIP_COLUMN_KEY_ICON_ID);
+                    std::string      iconIdString     = std::string(iconIdStringView);
+                    int              iconId           = iconIdString.empty() ? 0 : std::stoi(iconIdString);
+
+                    Tooltip::TooltipData tooltipData{.ImageAssetId = iconId,
+                                                     .Title        = std::move(nameContent),
+                                                     .TitleColor   = HexToColor()(nameColorString),
+                                                     .Description  = std::move(descriptionContent)};
+
+                    _tooltips.emplace(id, std::move(tooltipData));
+                }
+            }
+        }
+    }
+}
+
+void TooltipSystem::ShowDataProperty()
+{
+    if (ImGui::TreeNodeEx("Tooltip Data##details"))
+    {
+        if (ImGui::BeginTable("TooltipTable##Details", 4, ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_RowBg))
+        {
+            // Headers
+            ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthStretch, 0.3f);
+            ImGui::TableSetupColumn("Title", ImGuiTableColumnFlags_WidthStretch, 0.3f);
+            ImGui::TableSetupColumn("Image AssetID", ImGuiTableColumnFlags_WidthStretch, 0.3f);
+            ImGui::TableSetupColumn("Description Existed", ImGuiTableColumnFlags_WidthStretch, 0.1f);
+            ImGui::TableHeadersRow();
+
+            for (const auto& [id, tooltips] : _tooltips)
+            {
+                ImGui::PushID(id);
+                ImGui::TableNextRow();
+                // ID
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("%d", id);
+                // Title
+                ImGui::TableSetColumnIndex(1);
+                ImGui::TextUnformatted(tooltips.Title.c_str());
+                // Image AssetID
+                ImGui::TableSetColumnIndex(2);
+                ImGui::Text("%d", tooltips.ImageAssetId);
+                // Description Existed
+                ImGui::TableSetColumnIndex(3);
+                ImGui::Text("%s", tooltips.Description.empty() ? "No" : "Yes");
+                ImGui::PopID();
+            }
+            ImGui::EndTable();
+        }
+        ImGui::TreePop();
+    }
+}
+
+void TooltipSystem::ShowTestTooltipProperty()
+{
+    static int   id    = 0;
+    static Tooltip::Group group = Tooltip::Group::PLAYER;
+
+    ImGui::InputInt("Tooltip ID", &id);
+    if (constexpr const char* groupItems[] = {"Player", "Enemy", "Revelation"};
+        ImGui::BeginCombo("Tooltip Group", groupItems[static_cast<size_t>(group)]))
+    {
+        for (size_t i = 0; i < std::size(groupItems); ++i)
+        {
+            const bool isSelected = (static_cast<size_t>(group) == i);
+            if (ImGui::Selectable(groupItems[i], isSelected))
+            {
+                group = static_cast<Tooltip::Group>(i);
+            }
+            if (isSelected)
+            {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+        ImGui::EndCombo();
+    }
+
+    if (ImGui::Button("Show Tooltip"))
+    {
+        Show(group, id);
+    }
+
+    if (ImGui::Button("Hide Tooltip"))
+    {
+        Hide(group);
+    }
+}

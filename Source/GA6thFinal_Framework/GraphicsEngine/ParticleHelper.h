@@ -1,7 +1,7 @@
 ﻿#pragma once
 #define MAX_PARTICLE 1000000
 #define PROP_DECL_INIT(type, varName, initValue)                                                                       \
-private:                                                                                                             \
+private:                                                                                                               \
     type varName = initValue;
 
 #define PROP_GET(type, varName, FuncName)                                                                              \
@@ -44,8 +44,6 @@ public:                                                                         
 
 #define BYTEALIGN(value, alignment) (((value) + ((alignment) - 1)) & ~((alignment) - 1))
 
-
-
 struct ParticleOutput
 {
     Vector4 Position; // ribbon -> normal
@@ -54,6 +52,7 @@ struct ParticleOutput
     Vector4 FrameInfo;
     int     EmitterIndex;
     Vector3 Paddings;
+    Vector4 Paddings2;
 };
 
 struct EmitterInfo
@@ -87,9 +86,6 @@ struct __declspec(align(16)) MVPConstants
     float pad3[3]; // 12바이트 (총 16+16+12 = 44바이트)
 };
 
-
-
-
 enum class LocationShape
 {
     SPHERE,
@@ -105,7 +101,7 @@ enum class ParticleType
     MESH,
     RIBBON,
     MISC,
-}; 
+};
 enum ParticleMiscFlag
 {
     DISTORTION,
@@ -130,7 +126,7 @@ struct ParticleUpdateResource
 {
     std::string Name;
 
-    std::vector<std::unique_ptr<class ParticleEffect>> SceneEffects;
+    std::vector<std::shared_ptr<class ParticleEffect>> SceneEffects;
 
     std::vector<class Particle>           TotalParticles;
     std::vector<EmitterInfo>              EmitterMatrix;
@@ -150,7 +146,6 @@ struct ParticleUpdateResource
     ComPtr<ID3D12Resource> RibbonEmitterInfo;
     ComPtr<ID3D12Resource> RibbonParticleInputUpload;
     ComPtr<ID3D12Resource> RibbonEmitterInfoUpload;
-
 };
 
 struct ParticleRenderResource

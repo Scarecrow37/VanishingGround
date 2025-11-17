@@ -9,9 +9,9 @@ constexpr UINT MAX_SHADOW_POINT_LIGHT = 10;
 constexpr UINT MAX_LIGHT              = MAX_DIRECTIONAL_LIGHT + MAX_POINT_LIGHT + MAX_SPOT_LIGHT + MAX_SHADOW_POINT_LIGHT;
 constexpr UINT MAX_MIPMAP_LEVEL       = 5;
 constexpr UINT MAX_CASCADES           = 3;
-constexpr UINT MAX_UI_MATERIAL_DATA   = 512;
 constexpr UINT MAX_OBJECTS            = 1000;
-constexpr UINT MAX_CHARS              = 512;
+constexpr UINT MAX_CHARS              = 64;
+constexpr UINT MAX_FORWARD_GROUP      = 3;
 
 // volumetric fog medium
 constexpr UINT VOXEL_VOLUME_SIZEX = 240;

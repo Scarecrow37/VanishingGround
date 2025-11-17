@@ -1,7 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "MonsterActionWhisperOfFear.h"
-#include <TurnSystem/TurnMode/TurnMode.h>
-#include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+#include "TurnSystem/TurnMode/TurnMode.h"
+#include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
+#include "Particle/ParticleComponent.h"
 
 REGISTER_MONSTER_ACTION(Monster::Action::WhisperOfFear)
 namespace Monster
@@ -10,7 +11,10 @@ namespace Monster
     {
         WhisperOfFear::WhisperOfFear() : Base("Attack1") {}
         WhisperOfFear::~WhisperOfFear() = default;
-        void WhisperOfFear::OnActionEnter() {}
+        void WhisperOfFear::OnActionEnter()
+        {
+            _attackCount = 0;
+        }
         void WhisperOfFear::OnActionUpdate() {}
         void WhisperOfFear::OnActionExit() {}
         void WhisperOfFear::OnActionReset() {}
@@ -19,7 +23,11 @@ namespace Monster
             const std::string& label = context->GetLabel();
             if ("Attack" == label)
             {
-                Attack();
+                if (_attackCount < GetActionContext().AttackCount)
+                {
+                    Attack();
+                    ++_attackCount;
+                }
             }
         }
 
@@ -30,17 +38,25 @@ namespace Monster
         */
         void WhisperOfFear::Attack() 
         {
-            if (auto player = GetTargetFromString("Player").lock())
+            if (auto target = GetTargetFromString("Player").lock())
             {
                 TokenParam      tokenParam     = GetTokenParam(1);
-                TokenInventory& tokenInventory = player->GetTokenInventory();
+                TokenInventory& tokenInventory = target->GetTokenInventory();
                 tokenInventory.AddTokenStackFromID(tokenParam.TokenID, tokenParam.Count);
+                if (ParticleComponent* particle = target->GetParticleComponent())
+                {
+                    particle->PlayEffect("debuff");
+                }
             }
             if (auto* owner = GetOwnerEnemy())
             {
                 TokenParam      tokenParam     = GetTokenParam(2);
                 TokenInventory& tokenInventory = owner->GetTokenInventory();
                 tokenInventory.AddTokenStackFromID(tokenParam.TokenID, tokenParam.Count);
+                if (ParticleComponent* particle = owner->GetParticleComponent())
+                {
+                    particle->PlayEffect("buff");
+                }
             }
             ActionParam damage = GetActionParam(1);
             ProcessBattle(damage.Param);

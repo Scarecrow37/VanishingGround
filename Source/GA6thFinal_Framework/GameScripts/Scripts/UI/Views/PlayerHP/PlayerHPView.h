@@ -26,6 +26,7 @@ private:
     CharacterHPViewModel::Handle _handle;
 };
 
+class ReduceGage;
 class ImageElement;
 class PlayerHPImageView : public Component
 {
@@ -35,7 +36,7 @@ public:
     PlayerHPImageView();
     ~PlayerHPImageView() override;
 
-public:
+protected:
     void Start() override;
     void OnDestroy() override;
 
@@ -47,6 +48,8 @@ protected:
     REFLECT_FIELDS_END(PlayerHPImageView)
 
 private:
-    ImageElement*                _hpGage{nullptr};
+    ImageElement*                _reduceHpImageElement{nullptr};
+    ImageElement*                _hpImageElement{nullptr};
+    ReduceGage*                  _reduceGage{nullptr};
     CharacterHPViewModel::Handle _handle;
 };

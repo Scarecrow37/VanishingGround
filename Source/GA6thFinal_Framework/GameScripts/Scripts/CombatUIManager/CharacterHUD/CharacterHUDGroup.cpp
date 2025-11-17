@@ -2,12 +2,17 @@
 #include "CharacterHUDGroup.h"
 
 #include <UI/Panels/Overlay/OverlayPanel.h>
-#include <Camera/CameraComponent.h>
+#include <UI/Animations/FadeImageElement/FadeImageElement.h>
+#include <Camera/UmCineMotion.h>
 
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+#include <Monster/System/MonsterSystem.h>
+
 #include <UI/Animations/FadeUIComponent/FadeUIComponent.h>
+#include <UI/Contents/SpawnDamagePanel.h>
+#include <UI/Contents/SpawnTokenPanel.h>
 
 namespace CombatUI
 {
@@ -16,31 +21,82 @@ namespace CombatUI
         Root = GameObject::FindWithTag("Character HUD Group").lock().get();
         if (Root)
         {
+            Overlay = Root->GetComponent<OverlayPanel>();
+            FadeUI  = Root->GetComponent<FadeUIComponent>();
             // 그룹 패널 내부를 탐색
             Transform& transform = Root->transform;
             Transform::ForeachBFS(transform, [this](Transform* curr) {
                 if (curr)
                 {
-                    if (curr->gameObject->CompareTag("Left Monster HUD"))
+                    for (size_t i = 0; i < 3; ++i)
                     {
-                        EnemyHUDPanel[0] = curr->gameObject->GetComponent<OverlayPanel>();
+                        // HUD
+                        if (curr->gameObject->CompareTag(MONSTER_HUD[i]))
+                        {
+                            EnemyHUDPanel[i] = curr->gameObject->GetComponent<OverlayPanel>();
+                        }
+                        // 데미지 텍스트 스포너
+                        else if (curr->gameObject->CompareTag(MONSTER_ACTION_HUD[i]))
+                        {
+                            EnemyActionPanel[i] = curr->gameObject->GetComponent<OverlayPanel>();
+                        }
+                        // 데미지 텍스트 스포너
+                        else if (curr->gameObject->CompareTag(MONSTER_SPAWN_DAMAGE_HUD[i]))
+                        {
+                            EnemySpawnDamagePanel[i] = curr->gameObject->GetComponent<SpawnDamagePanel>();
+                        }
+                        // 치명타 데미지 텍스트 스포너
+                        else if (curr->gameObject->CompareTag(MONSTER_SPAWN_CRIT_DAMAGE_HUD[i]))
+                        {
+                            EnemySpawnCriticalDamage[i] = curr->gameObject->GetComponent<SpawnDamagePanel>();
+                        }
+                        // 힐 데미지 텍스트 스포너
+                        else if (curr->gameObject->CompareTag(MONSTER_SPAWN_HEAL_HUD[i]))
+                        {
+                            EnemySpawnHealPanel[i] = curr->gameObject->GetComponent<SpawnDamagePanel>();
+                        }
+                        // 포커스 HUD
+                        else if (curr->gameObject->CompareTag(MONSTER_FOCUS_HUD[i]))
+                        {
+                            FocusEnemyHUDPanel[i] = curr->gameObject->GetComponent<OverlayPanel>();
+                            FocusEnemyHUDFade[i]  = curr->gameObject->GetComponent<FadeUIComponent>();
+                            if (FocusEnemyHUDPanel[i])
+                            {
+                                FocusEnemyHUDPanel[i]->gameObject->ActiveSelf = false;
+                            }
+                        }
+                        else if (curr->gameObject->CompareTag(MONSTER_SPAWN_TOKEN_HUD[i]))
+                        {
+                            EnemySpawnTokenPanel[i] = curr->gameObject->GetComponent<SpawnTokenPanel>();
+                        }
                     }
-                    else if (curr->gameObject->CompareTag("Middle Monster HUD"))
-                    {
-                        EnemyHUDPanel[1] = curr->gameObject->GetComponent<OverlayPanel>();
-                    }
-                    else if (curr->gameObject->CompareTag("Right Monster HUD"))
-                    {
-                        EnemyHUDPanel[2] = curr->gameObject->GetComponent<OverlayPanel>();
-                    }
-                    else if (curr->gameObject->CompareTag("Player HUD"))
+                    if (curr->gameObject->CompareTag("Player HUD"))
                     {
                         PlayerHUDPanel = curr->gameObject->GetComponent<OverlayPanel>();
                     }
+                    else if (curr->gameObject->CompareTag("Player Focus HUD"))
+                    {
+                        FocusPlayerHUDPanel = curr->gameObject->GetComponent<OverlayPanel>();
+                        FocusPlayerHUDFade  = curr->gameObject->GetComponent<FadeUIComponent>();
+                        if (FocusPlayerHUDPanel)
+                        {
+                            FocusPlayerHUDPanel->gameObject->ActiveSelf = false;
+                        }
+                    }
+                    else if (curr->gameObject->CompareTag("Player Spawn Damage UI"))
+                    {
+                        PlayerSpawnDamagePanel = curr->gameObject->GetComponent<SpawnDamagePanel>();
+                    }
+                    else if (curr->gameObject->CompareTag("Player Spawn Heal UI"))
+                    {
+                        PlayerSpawnHealPanel = curr->gameObject->GetComponent<SpawnDamagePanel>();
+                    }
+                    else if (curr->gameObject->CompareTag("Player Spawn Token UI"))
+                    {
+                        PlayerSpawnTokenPanel = curr->gameObject->GetComponent<SpawnTokenPanel>();
+                    }
                 }
             });
-
-            FadeUI = Root->GetComponent<FadeUIComponent>();
         }
 
         return IsValid();
@@ -48,7 +104,13 @@ namespace CombatUI
 
     bool CharacterHUDGroup::IsValid() const 
     {
-        return Root && PlayerHUDPanel && EnemyHUDPanel[0] && EnemyHUDPanel[1] && EnemyHUDPanel[2];
+        return Root && PlayerHUDPanel && EnemyHUDPanel[0] && EnemyHUDPanel[1] && EnemyHUDPanel[2] &&
+               PlayerSpawnDamagePanel && EnemySpawnDamagePanel[0] && EnemySpawnDamagePanel[1] &&
+               EnemySpawnDamagePanel[2] && PlayerSpawnHealPanel && EnemySpawnHealPanel[0] && EnemySpawnHealPanel[1] &&
+               EnemySpawnHealPanel[2] && EnemySpawnCriticalDamage[0] && EnemySpawnCriticalDamage[1] &&
+               EnemySpawnCriticalDamage[2] && PlayerSpawnTokenPanel && EnemySpawnTokenPanel[0] &&
+               EnemySpawnTokenPanel[1] && EnemySpawnTokenPanel[2] && FadeUI && EnemyActionPanel[0] &&
+               EnemyActionPanel[1] && EnemyActionPanel[2];
     }
 
     void CharacterHUDGroup::ActiveUI(bool active)
@@ -61,70 +123,167 @@ namespace CombatUI
 
     void CharacterHUDGroup::RefreshUIPosition()
     {
-        if (false == IsValid())
+        SIZE    hudPanelSize[3] = {};
+        POINT   hudPanelPoint[3] = {};
+        SIZE    actionPanelSize[3] = {};
+        POINT   actionPanelPoint[3] = {};
+
+        const int left   = 0;
+        const int middle = 1;
+        const int right  = 2;
+
+        //////////////////////
+        //  Middle Panel    //
+        //////////////////////
+        if (EnemyHUDPanel[middle])
         {
-            return;
+            hudPanelSize[middle]         = EnemyHUDPanel[middle]->Size;
+            hudPanelPoint[middle]        = {(LONG)EnemyFootPosition[middle].x - hudPanelSize[middle].cx / 2,
+                                            (LONG)EnemyFootPosition[middle].y};
+            EnemyHUDPanel[middle]->Point = hudPanelPoint[middle];
+        }
+        if (EnemyActionPanel[middle])
+        {
+            actionPanelSize[middle]       = EnemyActionPanel[middle]->Size;
+            actionPanelPoint[middle]      = {(LONG)EnemyHeadPosition[middle].x - actionPanelSize[middle].cx / 2,
+                                             (LONG)EnemyHeadPosition[middle].y};
+            EnemyActionPanel[middle]->Point = actionPanelPoint[middle];
+        }
+        
+        //////////////////////
+        //  Left Panel      //
+        //////////////////////
+        if (EnemyHUDPanel[left])
+        {
+            hudPanelSize[left]          = EnemyHUDPanel[left]->Size;
+            hudPanelPoint[left]         = {hudPanelPoint[middle].x - hudPanelSize[left].cx - MONSTER_HUD_SPACE_X,
+                                           hudPanelPoint[middle].y + MONSTER_HUD_SPACE_Y};
+            EnemyHUDPanel[left]->Point  = hudPanelPoint[left];
+        }
+        if (EnemyActionPanel[left])
+        {
+            actionPanelSize[left]       = EnemyActionPanel[left]->Size;
+            actionPanelPoint[left]      = {actionPanelPoint[middle].x - actionPanelSize[left].cx - MONSTER_HUD_SPACE_X,
+                                           (LONG)EnemyHeadPosition[left].y};
+            EnemyActionPanel[left]->Point = actionPanelPoint[left];
         }
 
-        POINT       point;
-        const SIZE& resolution = UmGraphics.GetResolution();
-
-        for (size_t i = 0; i < 3; ++i)
+        //////////////////////
+        //  Right Panel     //
+        //////////////////////
+        if (EnemyHUDPanel[right])
         {
-            const float offsetY = -150.0f;
-            if (EnemyHUDPanel[i])
-            {
-                SIZE size               = EnemyHUDPanel[i]->Size;
-                point.x                 = (LONG)(EnemyPosition[i].x - size.cx / 2);
-                point.y                 = (LONG)(EnemyPosition[i].y - size.cy + offsetY);
-                EnemyHUDPanel[i]->Point = point;
-            }
+            hudPanelSize[right]         = EnemyHUDPanel[right]->Size;
+            hudPanelPoint[right]        = {hudPanelPoint[middle].x + hudPanelSize[middle].cx + MONSTER_HUD_SPACE_X,
+                                           hudPanelPoint[middle].y + MONSTER_HUD_SPACE_Y};
+            EnemyHUDPanel[right]->Point = hudPanelPoint[right];
+        }
+        if (EnemyActionPanel[right])
+        {
+            actionPanelSize[right]      = EnemyActionPanel[right]->Size;
+            actionPanelPoint[right]     = {actionPanelPoint[middle].x + actionPanelSize[middle].cx + MONSTER_HUD_SPACE_X,
+                                           (LONG)EnemyHeadPosition[right].y};
+            EnemyActionPanel[right]->Point = actionPanelPoint[right];
         }
 
         if (PlayerHUDPanel)
         {
-            const float offsetY   = -800.0f;
-            SIZE        size      = PlayerHUDPanel->Size;
-            point.x               = (LONG)(PlayerPosition.x - size.cx / 2);
-            point.y               = (LONG)(PlayerPosition.y - size.cy + offsetY);
+            SIZE  size  = PlayerHUDPanel->Size;
+            POINT point = {(LONG)(PlayerPosition.x - size.cx / 2),
+                           (LONG)(PlayerPosition.y)};
+            point.x     = std::max(point.x, (LONG)50);
+            point.y     = std::max(point.y, (LONG)100);
             PlayerHUDPanel->Point = point;
         }
+
+
+        //////////////////////
+        //  Focus Panel     //
+        //////////////////////
+        if (MonsterSystem* system = SingletonComponent<MonsterSystem>::GetInstance())
+        {
+            for (int i = 0; i < 3; ++i)
+            {
+                Monster::SpawnPoint spawnPoint = static_cast<Monster::SpawnPoint>(i);
+                if (auto enemy = system->GetSpawnedEnemyFromSpawnPoint(spawnPoint).lock())
+                {
+                    if (FocusEnemyHUDFade[i])
+                    {
+                        if (FocusEnemyHUDPanel[i] && EnemyHUDPanel[i])
+                        {
+                            FocusEnemyHUDPanel[i]->Point = EnemyHUDPanel[i]->Point;
+                        }
+                    }
+                }
+            }
+        }
+        if (FocusPlayerHUDPanel && PlayerHUDPanel)
+        {
+            FocusPlayerHUDPanel->Point = PlayerHUDPanel->Point;
+        }
+
     }
 
-    bool CharacterHUDGroup::RefreshEnemiesPosition()
+    bool CharacterHUDGroup::RefreshCharactersUIPosition()
     {
-        if (CameraComponent* camera = CameraComponent::MainCamera())
+        for (size_t i = 0; i < 3; ++i)
         {
-            if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
-            {
-                const auto& enemies = turnMode->GetEnemies();
+            EnemyFootPosition[i] = Vector3::Zero;
+            EnemyHeadPosition[i] = Vector3::Zero;
+        }
 
-                for (size_t i = 0; i < enemies.size(); ++i)
+        if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
+        {
+            // 연출 카메라 가져오기
+            CameraComponent* camera = turnMode->GetBattleCamera();
+            // 연출 카메라가 없다면 메인 카메라로
+            if (nullptr == camera)
+            {
+                camera = CameraComponent::MainCamera();
+            }
+            if (camera)
+            {
+                if (MonsterSystem* system = SingletonComponent<MonsterSystem>::GetInstance())
                 {
-                    if (enemies[i])
+                    for (size_t i = 0; i < 3; ++i)
                     {
-                        Monster::SpawnPoint spawnPoint = enemies[i]->SpawnPoint;
-                        int                 index      = static_cast<int>(spawnPoint);
-                        if (EnemyHUDPanel[index])
+                        Monster::SpawnPoint spawnIndex = static_cast<Monster::SpawnPoint>(i);
+
+                        auto weakEnemy      = system->GetSpawnedEnemyFromSpawnPoint(spawnIndex);
+                        auto weakSpawnPoint = system->GetSpawnPointObject(spawnIndex);
+
+                        Vector3 foot = Vector3::Zero;
+                        Vector3 head = Vector3::Zero;
+
+                        if (auto spawnPoint = weakSpawnPoint.lock().get())
                         {
-                            EnemyPosition[index] = camera->WorldToViewport(enemies[i]->transform->GetWorldPosition());
+                            foot = spawnPoint->transform->GetWorldPosition();
+                        }
+                        else
+                        {
+                            foot = Vector3(FLT_MIN, FLT_MIN, 0.0f);
                         }
 
+                        if (auto enemy = weakEnemy.lock().get())
+                        {
+                            head = foot + GetHeadOffset(enemy);
+                        }
+                        else
+                        {
+                            head = foot;
+                        }
+                        EnemyFootPosition[i] = camera->WorldToViewport(foot);
+                        EnemyHeadPosition[i] = camera->WorldToViewport(head);
                     }
                 }
-
-                bool valid = PlayerHUDPanel;
-                if (valid)
+                if (Player* player = turnMode->GetPlayer())
                 {
-
-                    if (Player* player = turnMode->GetPlayer())
-                    {
-                        const auto& playerWorld = player->transform->GetWorldPosition();
-                        PlayerPosition          = camera->WorldToViewport(playerWorld);
-                    }
+                    const Vector3 foot = player->transform->GetWorldPosition();
+                    const Vector3 head = foot + GetHeadOffset(player);
+                    PlayerPosition     = camera->WorldToViewport(head);
                 }
-                return true;
             }
+            return true;
         }
         return false;
     }
@@ -134,6 +293,7 @@ namespace CombatUI
         if (FadeUI)
         {
             FadeUI->FadeDuration = duration;
+            FadeUI->ReFindTargets();
             FadeUI->FadeIn();
         }
         else
@@ -147,11 +307,91 @@ namespace CombatUI
         if (FadeUI)
         {
             FadeUI->FadeDuration = duration;
+            FadeUI->ReFindTargets();
             FadeUI->FadeOut();
         }
         else
         {
             UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Fade UI Component가 존재하지 않습니다.");
+        }
+    }
+    Vector3 CharacterHUDGroup::GetHeadOffset(Enemy* enemy)
+    {
+        if (enemy)
+        {
+            const EnemyType type = enemy->Type;
+            const Vector3   scale = enemy->transform->Scale;
+            const Vector3   offset = Vector3(0.0f, 0.7f, 0.0f) * scale;
+            switch (type)
+            {
+            case EnemyType::MONSTER_A:
+                return Vector3(0.0f, 2.0f, 0.0f) * scale + offset;
+            case EnemyType::MONSTER_B:
+                return Vector3(0.0f, 1.5f, 0.0f) * scale + offset;
+            case EnemyType::MONSTER_C:
+                return Vector3(0.0f, 2.65f, 0.0f) * scale + offset;
+            default:
+                break;
+            }
+        }
+        return Vector3();
+    }
+    Vector3 CharacterHUDGroup::GetHeadOffset(Player* player)
+    {
+        if (player)
+        {
+            const Vector3 scale = player->transform->Scale;
+            const Vector3 offset = Vector3(0.0f, 0.3f, 0.0f) * scale;
+            return Vector3(0.0f, 2.0f, 0.0f) * scale + offset;
+        }
+        return Vector3();
+    }
+    void CharacterHUDGroup::MonsterFocusIn(Monster::SpawnPoint spawnPoint, const float duration) 
+    {
+        int spawnIndex = static_cast<int>(spawnPoint);
+        if (FocusEnemyHUDFade[spawnIndex])
+        {
+            if (FocusEnemyHUDPanel[spawnIndex] && EnemyHUDPanel[spawnIndex])
+            {
+                FocusEnemyHUDPanel[spawnIndex]->gameObject->ActiveSelf = true;
+                FocusEnemyHUDPanel[spawnIndex]->Point = EnemyHUDPanel[spawnIndex]->Point;
+            }
+            FocusEnemyHUDFade[spawnIndex]->FadeDuration = duration;
+            FocusEnemyHUDFade[spawnIndex]->FadeIn();
+        }
+    }
+    void CharacterHUDGroup::MonsterFocusOut(Monster::SpawnPoint spawnPoint, const float duration) 
+    {
+        int spawnIndex = static_cast<int>(spawnPoint);
+        if (FocusEnemyHUDFade[spawnIndex])
+        {
+            FocusEnemyHUDFade[spawnIndex]->FadeDuration = duration;
+            FocusEnemyHUDFade[spawnIndex]->FadeOut();
+            auto& fade = FocusEnemyHUDFade[spawnIndex];
+            UmTime.Invoke(fade, fade->FadeDuration, [fade]() { fade->gameObject->ActiveSelf = false; });
+        }
+    }
+    void CharacterHUDGroup::PlayerFocusIn(const float duration) 
+    {
+        if (FocusPlayerHUDFade)
+        {
+            if (FocusPlayerHUDPanel && PlayerHUDPanel)
+            {
+                FocusPlayerHUDPanel->gameObject->ActiveSelf = true;
+                FocusPlayerHUDPanel->Point = PlayerHUDPanel->Point;
+            }
+            FocusPlayerHUDFade->FadeDuration = duration;
+            FocusPlayerHUDFade->FadeIn();
+        }
+    }
+    void CharacterHUDGroup::PlayerFocusOut(const float duration) 
+    {
+        if (FocusPlayerHUDFade)
+        {
+            FocusPlayerHUDFade->FadeDuration = duration;
+            FocusPlayerHUDFade->FadeOut();
+            auto& fade = FocusPlayerHUDFade;
+            UmTime.Invoke(fade, fade->FadeDuration, [fade]() { fade->gameObject->ActiveSelf = false; });
         }
     }
 } // namespace CombatUI

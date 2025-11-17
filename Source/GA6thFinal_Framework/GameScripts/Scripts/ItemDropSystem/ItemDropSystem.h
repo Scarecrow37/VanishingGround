@@ -3,10 +3,20 @@
 #include "Interface/IDropItem.h"
 #include "Utility/SingletonHelper.h"
 
+enum class ItemDropBonusType
+{
+    WEAPON,
+    ACCESSORY,
+    REVELATION,
+
+    UNKNOWN,
+};
+
 class ItemDropSystem : public Component
 {
     USING_PROPERTY(ItemDropSystem)
 public:
+    inline static int WinCount = 0;
     inline static const std::string WATCHER_KEY = "8940F3B8-1D49-4556-9588-5D423CAC794D";
     static const size_t ARTIFACT_TYPE_COUNT; // 유물 카테고리 개수
     inline static constexpr int ITEM_DROP_RATE_BONUS_MAX = 5; //아이템 드롭 확률 보너스 최대 개수
@@ -19,6 +29,11 @@ public:
     /// Artifact 아이템들을 랜덤으로 뽑아서 정보들을 반환합니다.
     /// </summary>
     std::array<DropItemInfo, ARTIFACT_DROP_COUNT> RollArtifacts();
+
+    /// <summary>
+    /// 현재 정해진 카테고리를 유지하고 랜덤으로 아이템을 뽑습니다.
+    /// </summary>
+    void RollArtifactsCurrent();
 
     /// <summary>
     /// 현재 보상 아이템을 설정합니다. UI도 갱신됩니다.
@@ -69,8 +84,7 @@ public:
 
 public:
     REFLECT_PROPERTY(
-        StageClearCount,
-        ItemDropRateBonus
+        StageClearCount
     )
     
     GETTER(int, StageClearCount) { return _stageClearCount; }
@@ -79,11 +93,9 @@ public:
     // type : int
     PROPERTY(StageClearCount)
 
-    GETTER(int, ItemDropRateBonus) { return _itemDropRateBonus; }
-    SETTER(int, ItemDropRateBonus) { _itemDropRateBonus = std::clamp(value, 0, ITEM_DROP_RATE_BONUS_MAX); }
-    // 아이템 드랍 확률 보정 수치입니다.
-    // type : int
-    PROPERTY(ItemDropRateBonus)
+    void AddItemDropRateBonus(ItemDropBonusType type);
+    void ResetItemDropRateBonus(ItemDropBonusType type);
+    int  GetItemDropRateBonus(ItemDropBonusType type);
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
@@ -125,6 +137,6 @@ private:
     SingletonComponent<ItemDropSystem>     _singletonComponent{this};
     MVVM::Model<std::vector<DropItemInfo>> _dropItemsModel;
     int _stageClearCount = 0;
-    int _itemDropRateBonus = 0;
     std::array<bool, ARTIFACT_DROP_COUNT>  _obtainArtifactFlag{}; // 이번 보상 획득 여부 플래그
+    std::array<int, static_cast<size_t>(ItemDropBonusType::UNKNOWN)> _itemDropRateBonus{};
 };

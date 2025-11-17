@@ -246,6 +246,22 @@ public:
     virtual void OnTokenAddedEnd(CharacterBase& target, int tokenID, int tokenCount) {};
 
     /// <summary>
+    /// 토큰 스택을 제거시키기 직전에 호출합니다.
+    /// </summary>
+    /// <param name="target :">부여 대상</param>
+    /// <param name="tokenID :">제거하는 토큰 아이디</param>
+    /// <param name="tokenCount :">제거하는 갯수</param>
+    virtual void OnTokenRemovedStart(CharacterBase& target, int& tokenID, int& tokenCount) {};
+
+    /// <summary>
+    /// 토큰 스택을 제거시키기 직전에 호출합니다.
+    /// </summary>
+    /// <param name="target :">부여 대상</param>
+    /// <param name="tokenID :">제거된 토큰 아이디</param>
+    /// <param name="tokenCount :">제거된 갯수</param>
+    virtual void OnTokenRemovedEnd(CharacterBase& target, int tokenID, int tokenCount) {};
+
+    /// <summary>
     /// 플레이어에 TakeDamage가 들어가기 직전에 호출됩니다.
     /// </summary>
     /// <param name="player :">대상</param>
@@ -272,6 +288,67 @@ public:
     /// <param name="target :">대상</param>
     /// <param name="damage :">들어갈 데미지</param>
     virtual void OnEnemyTakeDamageEnd(Enemy& target, int damage) {}
+
+    /// <summary>
+    /// 플레이어 무기의 Speed 사용할때 호출됩니다.
+    /// </summary>
+    /// <param name="weapon :">해당 무기</param>
+    /// <param name="plusSpeed :">부여할 추가 속도</param>
+    virtual void OnWeaponRoundSpeedApply(WeaponElement& weapon, int& plusSpeed) {}
+
+    /// <summary>
+    /// 소멸 계시 뽑기를 실행할때 호출됩니다.
+    /// </summary>
+    /// <param name="count"></param>
+    virtual void OnRandomExtinctionPushPlayer(size_t& count) {}
+
+    /// <summary>
+    /// 이 액션이 악세서리로 장착되면 호출됩니다.
+    /// </summary>
+    virtual void OnEquipAccessory() {}
+
+    /// <summary>
+    /// 플레이어가 스턴에 걸리면 호출됩니다.
+    /// </summary>
+    virtual void OnPlayerStun(Player& player) {}
+
+    /// <summary>
+    /// 적이 스턴에 걸리면 호출됩니다.
+    /// </summary>
+    /// <param name="enemy"></param>
+    virtual void OnEnemyStun(Enemy& enemy){}
+
+    /// <summary>
+    /// WeaponViewModel의 Convert가 요청될때마다 호출됩니다.
+    /// </summary>
+    virtual void OnConvertWeaponViewModel(WeaponStats& stats) {}
+
+    /// <summary>
+    /// 플레이어가 토큰 데미지를 입기 전에 호출됩니다.
+    /// </summary>
+    virtual void OnPlayerTokenTakeDamage(int tokenID, int tokenCount, int& damage) {}
+
+    /// <summary>
+    /// 적이 토큰 데미지를 입기 전에 호출됩니다.
+    /// </summary>
+    virtual void OnEnemyTokenTakeDamage(int tokenID, int tokenCount, int& damage) {}
+    
+    /// <summary>
+    /// 캐릭터의 연격 유지 라운드 수를 사용할때 호출됩니다.
+    /// </summary>
+    /// <param name="character"></param>
+    /// <param name="maxChainRoundCount"></param>
+    virtual void OnCharacterMaxChainRoundCountUse(CharacterBase& character, int& maxChainRoundCount) {}
+
+    /// <summary>
+    /// (몬스터 전용) 이 액션이 몬스터의 커스텀 액션에 있으면 호출됩니다.
+    /// </summary>
+    virtual void OnEnemyCombatStartPhase(Enemy& enemy) {}
+
+    /// <summary>
+    /// (몬스터 전용) 이 액션이 몬스터의 커스텀 액션에 있으면 호출됩니다.
+    /// </summary>
+    virtual void OnEnemyTurnEnd(Enemy& enemy) {}
 
 public:
     REFLECT_PROPERTY(ActionName, ActionInfo, LogicOperator)

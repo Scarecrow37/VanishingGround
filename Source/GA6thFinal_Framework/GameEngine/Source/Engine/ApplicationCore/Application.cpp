@@ -1,4 +1,5 @@
 ﻿#include "pch.h"
+#include "minidumpapiset.h"
 using namespace Global;
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -6,7 +7,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 LRESULT CALLBACK Application::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wParam, lParam))
-        return true;
+        return 0;
 
     if (App)
     {
@@ -14,7 +15,7 @@ LRESULT CALLBACK Application::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
         {
             if (handle._handle(hwnd, msg, wParam, lParam))
             {
-                return true;
+                return 0;
             }
         }
     }
@@ -23,7 +24,7 @@ LRESULT CALLBACK Application::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
     {
     case WM_DESTROY:
         PostQuitMessage(0);
-        return true;
+        return 0;
     }
 
     return DefWindowProc(hwnd, msg, wParam, lParam);
@@ -56,19 +57,46 @@ Application::Application()
 
 bool Application::AppMessageHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    if (msg == WM_SIZE)
+    switch (msg)
     {
-        if (nullptr != UmCore.get())
+    case WM_SYSKEYDOWN:
+        if (wParam == VK_RETURN)
+            return true;
+        break;
+    case WM_SYSCHAR:
+        if (wParam == VK_RETURN)
+            return true;
+        break;
+    }
+
+    if (nullptr != UmCore.get())
+    {
+        Application& app = UmApplication;
+        switch (msg)
         {
-            Application& app = UmApplication;
-            app._clientSize.cx = LOWORD(lParam); 
+        case WM_SIZE:
+            app._clientSize.cx = LOWORD(lParam);
             app._clientSize.cy = HIWORD(lParam);
             if (app._clientSize.cx > 0.f && app._clientSize.cy > 0.f)
             {
                 UmCore->Graphics.OnResize(app._clientSize.cx, app._clientSize.cy);
-            }      
+            }
             return true;
-        }        
+        case WM_SETFOCUS:
+            if (true == app._hideMouseCursor)
+            {
+                Application::ShowMouseCursor(false);
+            }         
+            break;
+        case WM_KILLFOCUS:
+            [[fallthrough]];
+        case WM_DESTROY:
+            if (true == app._hideMouseCursor)
+            {
+                Application::ShowMouseCursor(true);
+            }
+            break;
+        }
     }
     return false;
 }
@@ -125,63 +153,72 @@ void Application::UnInitialize()
 
 void Application::Run()
 {
-    while (!_isQuit)
+#ifndef _UMEDITOR
+    try
+#endif
     {
-        if (PeekMessage(&_msg, NULL, 0, 0, PM_REMOVE))
+        while (!_isQuit)
         {
-            if (_msg.message == WM_QUIT)
+            if (PeekMessage(&_msg, NULL, 0, 0, PM_REMOVE))
             {
-                Quit();
-                break;
+                if (_msg.message == WM_QUIT)
+                {
+                    Quit();
+                    break;
+                }
+                TranslateMessage(&_msg);
+                DispatchMessage(&_msg);
             }
-            TranslateMessage(&_msg); 
-            DispatchMessage(&_msg);
-        }
-        else
-        {
-            // Time System Update
-            ETimeSystem::Engine::TimeSystemUpdate();
-            float deltaTime = engineCore->Time.DeltaTime();
-
-            // Imgui begin
-            _imguiDX12Module->ImguiBegin();
-
-            // Debugger Window
-            Global::engineCore->DebuggerWindow.Update();
-
-            // Editor Update
-            if constexpr (true == Application::IsEditor())
+            else
             {
-                _filesystemModule->Update();
-                Global::editorModule->Update();
-                Global::engineCore->UpdateIsPlay(); //에디터 업데이트 이후 플레이 여부 갱신 해야함
+                // Time System Update
+                ETimeSystem::Engine::TimeSystemUpdate();
+                float deltaTime = engineCore->Time.DeltaTime();
+
+                // Imgui begin
+                _imguiDX12Module->ImguiBegin();
+
+                // Debugger Window
+                Global::engineCore->DebuggerWindow.Update();
+
+                // Editor Update
+                if constexpr (true == Application::IsEditor())
+                {
+                    _filesystemModule->Update();
+                    Global::editorModule->Update();
+                    Global::engineCore->UpdateIsPlay(); // 에디터 업데이트 이후 플레이 여부 갱신 해야함
+                }
+
+                // AnimationUpdate
+                Global::engineCore->Graphics.UpdateAnimation(deltaTime);
+
+                // Scene Logic Update
+                ESceneManager::Engine::SceneUpdate();
+
+                // User Interface Update
+                // TODO: Erase Magic Number Resolution
+                Global::engineCore->UserInterface.Update({1920, 1080});
+
+                // CameraUpdate, RenderQueueUpdate, Render
+                Global::engineCore->Graphics.Update(deltaTime);
+                Global::engineCore->Graphics.Render();
+
+                // Scene Final Update
+                ESceneManager::Engine::SceneFinalUpdate();
+
+                _imguiDX12Module->ImguiEnd();
+
+                Global::engineCore->Graphics.Flip();
             }
-
-            // AnimationUpdate
-            Global::engineCore->Graphics.UpdateAnimation(deltaTime);
-
-            // Scene Logic Update
-            ESceneManager::Engine::SceneUpdate();
-
-            // User Interface Update
-            // TODO: Erase Magic Number Resolution
-            Global::engineCore->UserInterface.Update({1920, 1080});
-
-            // CameraUpdate, RenderQueueUpdate, Render
-            Global::engineCore->Graphics.Update(deltaTime);
-            Global::engineCore->Graphics.Render();
-
-            // Scene Final Update
-            ESceneManager::Engine::SceneFinalUpdate();
-
-
-            _imguiDX12Module->ImguiEnd();
-
-            Global::engineCore->Graphics.Flip();
-
-
         }
     }
+#ifndef _UMEDITOR
+    catch (const std::exception& ex)
+    {
+        UmLogger.Log(LogLevel::LEVEL_FATAL, ex.what());
+        CreateMiniDump(nullptr, MiniDumpWithFullMemory | MiniDumpWithThreadInfo);
+    }
+#endif
 }
 
 void Application::SetStyleToWindowed()
@@ -197,6 +234,18 @@ void Application::SetStyleToBorderlessWindowed()
 void Application::SetOptimalScreenSize()
 {
     _clientSize = { 0, 0 };
+}
+
+void Application::ShowMouseCursor(bool show) 
+{
+    if (show)
+    {
+        while (ShowCursor(TRUE) < 0);
+    }
+    else
+    {
+        while (ShowCursor(FALSE) >= 0);
+    }
 }
 
 void Application::CreateWindowClient()

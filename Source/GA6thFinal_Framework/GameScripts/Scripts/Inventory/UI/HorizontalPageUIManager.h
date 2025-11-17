@@ -38,7 +38,7 @@ public:
     // type : size_t
     PROPERTY(CurrentFocus)
 
-    REFLECT_PROPERTY(CurrentFocus)
+    REFLECT_PROPERTY()
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)

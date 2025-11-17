@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "TokenSystem.h"
 #include "ExcelDataSystem/ExcelDataSystem.h"
+#include "Utility/HexToColor.h"
 #include "Utility/StringHelper.h"
 
 UMREAL_COMPONENT(TokenSystem)
@@ -35,6 +36,19 @@ void TokenSystem::Awake()
     }
 }
 
+void TokenSystem::Update() 
+{
+    Debugger dbg;
+    dbg([this]() 
+    { 
+        float delayTime = ReflectFields->TokenDamageDelayTime;
+        if (ImGui::DragFloat("Token Damage Delay Time", &delayTime, 0.1f))
+        {
+            ReflectFields->TokenDamageDelayTime = delayTime;
+        }
+    });
+}
+
 void TokenSystem::OnDestroy() 
 {
     Clear();
@@ -42,6 +56,30 @@ void TokenSystem::OnDestroy()
 
 void TokenSystem::ImGuiDrawPropertysEvent() 
 {
+    ImGui::PushID("Token Instance");
+    if (ImGui::TreeNodeEx("Sorted Token Instance##token system"))
+    {
+        ImGui::BeginChild("##token instances list", ImVec2(0, 300), ImGuiChildFlags_Border);
+        for (const auto& instance : _tokenInstances)
+        {
+            if (instance)
+            {
+                ImGuiHelper::StyleBuilder style;
+                ImVec4 color = ImColor(100, 255, 100);
+                style.PushStyleColor(ImGuiCol_Text, color);
+                const std::string label = std::format("{} : {}({})", 
+                    instance->GetTokenID(),
+                    instance->GetTokenName(),
+                    instance->GetTokenOrder()
+                );
+                ImGui::Selectable(label.c_str());
+            }
+        }
+        ImGui::EndChild();
+        ImGui::TreePop();
+    }
+    ImGui::PopID();
+
     if (ImGui::TreeNodeEx("Token Data##token system"))
     {
         ImGui::Text("Total Token Data Count: %zu", _tokenDataTable.size());
@@ -169,6 +207,27 @@ void TokenSystem::LoadTokenDataFromExcelData(ExcelDataSystem* dataSystem)
                 if (excelData != ExcelDataBase::FIND_STR_FAIL)
                 {
                     StringHelper::StringToInt(excelData, tokenData.ID);
+                }
+                excelData = dataBase->FindData(rowIndex, TokenExcelData::Key::ICON_ID);
+                if (excelData != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    StringHelper::StringToInt(excelData, tokenData.IconID);
+                }
+                excelData = dataBase->FindData(rowIndex, TokenExcelData::Key::INFO_ID);
+                if (excelData != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    StringHelper::StringToInt(excelData, tokenData.InfoID);
+                }
+                excelData = dataBase->FindData(rowIndex, TokenExcelData::Key::IMAGE_ID);
+                if (excelData != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    StringHelper::StringToInt(excelData, tokenData.ImageID);
+                }
+                excelData = dataBase->FindData(rowIndex, TokenExcelData::Key::NAME_COLOR);
+                if (excelData != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    std::string colorString = "#" + std::string(excelData);
+                    tokenData.NameColor = HexToColor()(colorString);
                 }
                 excelData = dataBase->FindData(rowIndex, TokenExcelData::Key::NAME);
                 if (excelData != ExcelDataBase::FIND_STR_FAIL)
