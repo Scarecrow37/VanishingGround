@@ -28,6 +28,8 @@ void DXRComputeSkeletalMeshPass::Draw(ID3D12GraphicsCommandList* commandList)
     std::vector<D3D12_RESOURCE_BARRIER> uavBarriers;
     std::vector<D3D12_RESOURCE_BARRIER> srvBarriers;
     std::vector<ID3D12Resource*>        skinnedBuffers;
+    auto                                computeCommandList = Global::device->GetComputeCommandList();
+
 
     uavBarriers.reserve(_ownerScene->_activeMeshes[SKELETAL_MESH].size());
     srvBarriers.reserve(_ownerScene->_activeMeshes[SKELETAL_MESH].size());
@@ -37,21 +39,21 @@ void DXRComputeSkeletalMeshPass::Draw(ID3D12GraphicsCommandList* commandList)
     {
         if (nullptr == meshInfo.SkinnedInstance)
             continue;
+
         ID3D12Resource* skinnedVertexBuffer = meshInfo.SkinnedInstance->GetUpdateVertexBuffer();
         skinnedBuffers.push_back(skinnedVertexBuffer);
-        auto br = CD3DX12_RESOURCE_BARRIER::Transition(
-            skinnedVertexBuffer, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+        auto br = CD3DX12_RESOURCE_BARRIER::Transition(skinnedVertexBuffer, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
         
         uavBarriers.push_back(br);
     }
     // barrier 한번에 처리
     if (!uavBarriers.empty())
-        commandList->ResourceBarrier(static_cast<UINT>(uavBarriers.size()), uavBarriers.data());
+        computeCommandList->ResourceBarrier(static_cast<UINT>(uavBarriers.size()), uavBarriers.data());
 
     // dispatch 처리
     for (auto& meshInfo : _ownerScene->_activeMeshes[SKELETAL_MESH])
     {
-        Dispatch(commandList, meshInfo);
+        Dispatch(computeCommandList, meshInfo);
     }
 
     for (auto* buffer : skinnedBuffers)
@@ -60,8 +62,9 @@ void DXRComputeSkeletalMeshPass::Draw(ID3D12GraphicsCommandList* commandList)
             buffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
         srvBarriers.push_back(br);
     }
+
     if (!srvBarriers.empty())
-        commandList->ResourceBarrier(static_cast<UINT>(srvBarriers.size()), srvBarriers.data());
+        computeCommandList->ResourceBarrier(static_cast<UINT>(srvBarriers.size()), srvBarriers.data());
 }
 
 void DXRComputeSkeletalMeshPass::End(ID3D12GraphicsCommandList* commandList) {}
