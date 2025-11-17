@@ -519,7 +519,7 @@ void EditorAnimationTrackTool::AddEvent(std::string_view label, std::string_view
         {
             notifyTime = timeline->GetCurrentFrame();
         }
-        timeline->AddEventEx(strName, typeNameID, notifyTime);
+        timeline->AddEventFromTypeName(strName, typeNameID, notifyTime);
     });
 }
 

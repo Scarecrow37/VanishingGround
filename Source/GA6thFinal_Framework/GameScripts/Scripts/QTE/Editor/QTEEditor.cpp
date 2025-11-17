@@ -805,7 +805,7 @@ void QTEEditor::ProcessInputEvent()
                 {
                     UINT nextId = context->ID;
                     _sequencerEditor.SetSelectedContextID(nextId);
-                    _sequencerEditor.SetViewPositionFromID(nextId, Timeline::SequencerEditor::ALIGN_CENTER);
+                    _sequencerEditor.SetViewPositionDelayFromID(nextId, Timeline::SequencerEditor::ALIGN_CENTER);
                 }
             }
             if (ImGui::IsKeyPressed(ImGuiKey_LeftArrow) || ImGui::IsKeyPressed(ImGuiKey_DownArrow))
@@ -814,7 +814,7 @@ void QTEEditor::ProcessInputEvent()
                 {
                     UINT prevId = context->ID;
                     _sequencerEditor.SetSelectedContextID(prevId);
-                    _sequencerEditor.SetViewPositionFromID(prevId, Timeline::SequencerEditor::ALIGN_CENTER);
+                    _sequencerEditor.SetViewPositionDelayFromID(prevId, Timeline::SequencerEditor::ALIGN_CENTER);
                 }
             }
         }

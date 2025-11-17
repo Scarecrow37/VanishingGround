@@ -106,7 +106,7 @@ namespace Timeline
     {
         _isPlaying = false;
     }
-    EventContext* EventTrack::AddEventEx(std::string_view label, std::string_view typenameID, float time, UINT id)
+    EventContext* EventTrack::AddEventFromTypeName(std::string_view label, std::string_view typenameID, float time, UINT id)
     {
         UINT uniqueID = (id == UINT_MAX) ? GetUniqueID() : id;
         auto it       = _contextTable.find(uniqueID);
@@ -135,7 +135,7 @@ namespace Timeline
 
         return context;
     }
-    EventContext* EventTrack::AddEventExFromCopyBuffer(std::string_view serialData, std::string_view typenameID, float time, UINT id)
+    EventContext* EventTrack::AddEventFromCopyBuffer(std::string_view serialData, std::string_view typenameID, float time, UINT id)
     {
         UINT uniqueID = (id == UINT_MAX) ? GetUniqueID() : id;
         auto it       = _contextTable.find(uniqueID);
@@ -283,7 +283,7 @@ namespace Timeline
         {
             std::string   typeName    = std::string(data.substr(0, pos));
             std::string   serialData  = std::string(data.substr(pos + 1));
-            EventContext* context     = AddEventExFromCopyBuffer(serialData, typeName, time);
+            EventContext* context     = AddEventFromCopyBuffer(serialData, typeName, time);
             if (context)
             {
                 return true;

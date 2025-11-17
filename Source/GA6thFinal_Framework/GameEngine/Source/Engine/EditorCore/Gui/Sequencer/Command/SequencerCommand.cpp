@@ -86,7 +86,7 @@ namespace Command
                 return false;
             }
                
-            _context = track->AddEventEx(_contextData.Label, _contextData.TypeNameID, _contextData.Time, _contextData.ID);
+            _context = track->AddEventFromTypeName(_contextData.Label, _contextData.TypeNameID, _contextData.Time, _contextData.ID);
             if (UINT_MAX == _contextData.ID)
             {
                 _contextData.ID = _context->ID;
@@ -128,7 +128,7 @@ namespace Command
             {
                 return;
             }
-            _context = track->AddEventEx(_contextData.Label, _contextData.TypeNameID, _contextData.Time, _contextData.ID);
+            _context = track->AddEventFromTypeName(_contextData.Label, _contextData.TypeNameID, _contextData.Time, _contextData.ID);
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////

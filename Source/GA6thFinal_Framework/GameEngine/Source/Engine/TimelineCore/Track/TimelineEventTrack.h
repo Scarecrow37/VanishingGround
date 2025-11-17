@@ -43,8 +43,8 @@ namespace Timeline
         /// <returns>추가된 이벤트의 EventContext 포인터를 반환합니다.</returns>
         template <typename T> requires std::is_base_of_v<EventContext, T>
         EventContext*   AddEvent(std::string_view label, float time = FLT_MIN);
-        EventContext*   AddEventEx(std::string_view label, std::string_view typenameID, float time, UINT id = UINT_MAX);
-        EventContext*   AddEventExFromCopyBuffer(std::string_view serialData, std::string_view typenameID, float time, UINT id = UINT_MAX);
+        EventContext*   AddEventFromTypeName(std::string_view label, std::string_view typenameID, float time, UINT id = UINT_MAX);
+        EventContext*   AddEventFromCopyBuffer(std::string_view serialData, std::string_view typenameID, float time, UINT id = UINT_MAX);
 
         /// <summary>
         /// ID에서 컨텍스트를 제거합니다.
@@ -70,15 +70,15 @@ namespace Timeline
         bool ChangeContextEvent(UINT id, std::string_view typeNameID);
 
         /// <summary>ID 값을 사용하여 EventContext 포인터를 반환합니다.</summary>
-        /// <returns>id에 해당하는 EventContext 객체의 포인터입니다. 해당 id가 없으면 nullptr을 반환할 수 있습니다.</returns>
+        /// <returns>id에 해당하는 EventContext 객체의 포인터입니다. 해당하는 컨텍스트가 없으면 nullptr을 반환할 수 있습니다.</returns>
         EventContext* GetContextFromID(UINT id) const;
 
         /// <summary>주어진 라벨에 해당하는 EventContext 포인터를 반환합니다.</summary>
-        /// <returns>라벨에 해당하는 EventContext 객체의 포인터를 반환합니다. 해당 라벨이 없으면 nullptr을 반환할 수 있습니다.</returns>
+        /// <returns>라벨에 해당하는 EventContext 객체의 포인터를 반환합니다. 해당하는 컨텍스트가 없으면 nullptr을 반환할 수 있습니다.</returns>
         EventContext* GetContextFromLabel(std::string_view label) const;
 
         /// <summary>ID에 해당하는 다음 순서의 이벤트 컨텍스트를 반환합니다.</summary>
-        /// <returns>다음 순서의 이벤트 컨텍스트 객체에 대한 포인터입니다. 해당 ID가 없으면 nullptr을 반환할 수 있습니다.</returns>
+        /// <returns>다음 순서의 이벤트 컨텍스트 객체에 대한 포인터입니다. 해당하는 컨텍스트가 없으면 nullptr을 반환할 수 있습니다.</returns>
         EventContext* GetNextContextFromID(UINT id) const;
 
         /// <summary>ID 값을 사용하여 이전 순서의 이벤트 컨텍스트를 반환합니다.</summary>
@@ -170,6 +170,6 @@ namespace Timeline
     inline EventContext* EventTrack::AddEvent(std::string_view label, float time)
     {
         const char* key = typeid(T).name();
-        return AddEventEx(label, key, time);
+        return AddEventFromTypeName(label, key, time);
     }
 } // namespace Timeline
