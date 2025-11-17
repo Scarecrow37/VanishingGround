@@ -14,7 +14,7 @@ namespace Timeline
     {
     }
 
-    SequencerEditor::~SequencerEditor() {}
+    SequencerEditor::~SequencerEditor() = default;
 
     void SequencerEditor::Show()
     {
@@ -146,31 +146,6 @@ namespace Timeline
                 event();
             }
             _eventQueue.pop();
-        }
-    }
-
-    void SequencerEditor::DrawToolBar()
-    {
-        if (false == _track.expired())
-        {
-            auto system = _track.lock();
-            ImGui::PushStyleColor(ImGuiCol_Button, 0);
-            ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f); // 모서리 라운딩 정도
-            if (ImGui::Button(EditorIcon::ICON_FILE_SAVE))
-            {
-                ReflectFields->SerializedData = system->SerializedReflectFields();
-            }
-            if (ImGui::Button(EditorIcon::ICON_PLAY))
-            {
-                system->Play();
-            }
-            ImGui::SameLine();
-            if (ImGui::Button(EditorIcon::ICON_PAUSE))
-            {
-                system->Pause();
-            }
-            ImGui::PopStyleVar();
-            ImGui::PopStyleColor();
         }
     }
 
@@ -313,7 +288,7 @@ namespace Timeline
         bool     isMouseRBUp    = ImGui::IsMouseReleased(ImGuiMouseButton_Right);
         bool     isLowerContain = _canvasRectLower.Contains(io.MousePos);
         bool     isUpperContain = _canvasRectUpper.Contains(io.MousePos);
-        bool     isNoneDragging = !_dragHandler.IsDragging();
+        bool     isNoneDragging = false == _dragHandler.IsDragging();
 
         const char* lowerPopupID = "popup##lower popup";
         const char* upperPopupID = "popup##upper popup";
@@ -495,7 +470,7 @@ namespace Timeline
         {
             auto system = _track.lock();
             auto context = system->GetContextFromID(id);
-            if (nullptr != context)
+            if (context)
             {
                 float time = context->Time;
                 result.x   = -(time * ReflectFields->UnitSize);

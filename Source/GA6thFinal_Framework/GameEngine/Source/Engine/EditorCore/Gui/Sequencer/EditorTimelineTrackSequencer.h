@@ -117,11 +117,16 @@ namespace Timeline
         /// <summary>Sequencer의 콜백을 가져옵니다.</summary>
         inline Callback& GetCallback() { return _callback; }
 
-        inline void   AddViewPositionDelay(const ImVec2& pos) { _targetViewPos += pos; }
+        /// <summary>
+        /// 뷰의 위치를 설정합니다. 
+        /// Delay를 사용하면 Lerf를 통해 부드럽게 이동되며, 일반적인 함수는 바로 이동됩니다.
+        /// </summary>
+        /// <param name="pos"></param>
         inline void   AddViewPosition(const ImVec2& pos) { _viewPos += pos; _targetViewPos += pos; }
-        inline void   SetViewPositionDelay(const ImVec2& pos) { _targetViewPos = pos; }
         inline void   SetViewPosition(const ImVec2& pos) { _viewPos = pos; _targetViewPos = pos; }
-        inline void   SetViewPositionFromID(UINT id, Align align = ALIGN_LEFT) { SetViewPositionDelay(GetContextPosition(id) + GetAlginOffsetFromRect(_canvasRectLower, align)); }
+        inline void   AddViewPositionDelay(const ImVec2& pos) { _targetViewPos += pos; }
+        inline void   SetViewPositionDelay(const ImVec2& pos) { _targetViewPos = pos; }
+        inline void   SetViewPositionDelayFromID(UINT id, Align align = ALIGN_LEFT) { SetViewPositionDelay(GetContextPosition(id) + GetAlginOffsetFromRect(_canvasRectLower, align)); }
 
         inline void   SetViewScaleDelay(float scale) { _targetViewScale = scale; }
         inline void   SetViewScale(float scale) { _viewScale = scale; _targetViewScale = scale; }
@@ -140,7 +145,6 @@ namespace Timeline
     private:
         bool    Begin();
         void    End();
-        void    DrawToolBar();
         void    DrawCanvas();
 
         void    RefreshTransform();

@@ -134,7 +134,7 @@ void EditorAnimationTrackTool::OnFrameFocusStay()
                 {
                     UINT nextId = context->ID;
                     _sequencer->SetSelectedContextID(nextId);
-                    _sequencer->SetViewPositionFromID(nextId, Timeline::SequencerEditor::ALIGN_CENTER);
+                    _sequencer->SetViewPositionDelayFromID(nextId, Timeline::SequencerEditor::ALIGN_CENTER);
                 }
             }
             if (ImGui::IsKeyPressed(ImGuiKey_LeftArrow) || ImGui::IsKeyPressed(ImGuiKey_DownArrow))
@@ -143,7 +143,7 @@ void EditorAnimationTrackTool::OnFrameFocusStay()
                 {
                     UINT prevId = context->ID;
                     _sequencer->SetSelectedContextID(prevId);
-                    _sequencer->SetViewPositionFromID(prevId, Timeline::SequencerEditor::ALIGN_CENTER);
+                    _sequencer->SetViewPositionDelayFromID(prevId, Timeline::SequencerEditor::ALIGN_CENTER);
                 }
             }
         }
@@ -554,7 +554,7 @@ bool EditorAnimationTrackTool::ShowEventTrackList(std::shared_ptr<Timeline::Even
         if (ImGui::Selectable(text.c_str(), isSelected))
         {
             _sequencer->SetSelectedContextID(ID);
-            _sequencer->SetViewPositionFromID(ID, Timeline::SequencerEditor::ALIGN_CENTER);
+            _sequencer->SetViewPositionDelayFromID(ID, Timeline::SequencerEditor::ALIGN_CENTER);
             track->SetCurrentFrame(time);
         }
         if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
