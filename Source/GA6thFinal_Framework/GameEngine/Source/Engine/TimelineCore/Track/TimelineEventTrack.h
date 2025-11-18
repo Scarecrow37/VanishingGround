@@ -98,8 +98,8 @@ namespace Timeline
         /// </summary>
         /// <param name="context">복사할 EventContext 객체에 대한 포인터입니다.</param>
         /// <returns>복사된 컨텍스트 정보를 포함하는 std::string 객체입니다.</returns>
-        std::string CopyContext(EventContext* context);
-        std::string CopyContextFromID(UINT id);
+        std::string CopyContext(EventContext* context) const;
+        std::string CopyContextFromID(UINT id) const;
 
         /// <summary>
         /// 지정된 데이터와 시간으로 컨텍스트를 붙여넣습니다.
@@ -156,7 +156,7 @@ namespace Timeline
         REFLECT_FIELDS_BEGIN(ReflectSerializer)
         float                    MinFrame = 0.0f;
         float                    MaxFrame = 0.0f;
-        EventTrackFlags          Flags    = 0;
+        EventTrackFlags          Flags    = EVENT_TRACK_FLAGS_NONE;
         UINT                     UniqueID = 0;
         std::vector<std::pair<EventTypeName, std::string>> SerializedDataList;
         REFLECT_FIELDS_END(EventTrack)

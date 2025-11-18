@@ -261,7 +261,7 @@ namespace Timeline
         }
         return nullptr;
     }
-    std::string EventTrack::CopyContext(EventContext* context)
+    std::string EventTrack::CopyContext(EventContext* context) const
     {
         if (nullptr != context)
         {
@@ -272,7 +272,7 @@ namespace Timeline
         }
         return "";
     }
-    std::string EventTrack::CopyContextFromID(UINT id)
+    std::string EventTrack::CopyContextFromID(UINT id) const
     {
         EventContext* context = GetContextFromID(id);
         return CopyContext(context);
