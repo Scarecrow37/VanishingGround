@@ -94,10 +94,10 @@ namespace Timeline
         inline void SetSequencerSize(const ImVec2& size) { _sequencerSize = size; }
 
         /// <summary>마우스 위치의 프레임을 반환합니다.</returns>
-        inline float GetFrameFromMousePos() { return _mouseFrame; }
+        inline float GetFrameFromMousePos() const { return _mouseFrame; }
 
         /// <summary>Sequencer가 가리키는 실제 프레임을 반환합니다.</summary>
-        inline float GetFrameFromIndicate() { return _indicateFrame; }
+        inline float GetFrameFromIndicate() const { return _indicateFrame; }
 
         /// <summary>Sequencer의 Gui영역을 반환합니다.</summary>
         inline ImRect GetFrameRect() const { return _frameRect; }

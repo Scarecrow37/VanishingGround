@@ -128,7 +128,7 @@ namespace Timeline
         inline bool     IsActive() const { return _isActive; }
         inline bool     IsPlaying() const { return _isPlaying; }
         inline bool     IsValidFrame(float frame) const { return frame >= GetMinFrame() && frame <= GetMaxFrame(); }
-        inline bool     IsDirty() { return _currFrame != _prevFrame; }
+        inline bool     IsDirty() const { return _currFrame != _prevFrame; }
         inline size_t   GetEventContextCount() const { return _contextQueue.size(); }
         inline const std::vector<EventContext*>& GetEventContextQueue() const { return _contextQueue; }
 
