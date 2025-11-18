@@ -5,13 +5,12 @@ namespace Timeline
 {
     REFLECT_FUNCTION(EventTrack)
 
-    EventTrack::EventTrack()
+    EventTrack::EventTrack() 
+        : _currFrame(0.0f)
+        , _prevFrame(0.0f)
+        , _isActive(true)
+        , _isPlaying(false)
     {
-        _currFrame = 0.0f;
-        _prevFrame = 0.0f;
-        _isActive  = true;
-        _isPlaying = false;
-        ClearContext();
     }
     EventTrack::~EventTrack()
     {
@@ -109,11 +108,13 @@ namespace Timeline
     EventContext* EventTrack::AddEventFromTypeName(std::string_view label, std::string_view typenameID, float time, UINT id)
     {
         UINT uniqueID = (id == UINT_MAX) ? GetUniqueID() : id;
-        auto it       = _contextTable.find(uniqueID);
+
+        auto it = _contextTable.find(uniqueID);
         if (it != _contextTable.end())
         {
             return it->second;
         }
+
         EventContext* context = NewInstanceWithKey(typenameID);
         if (nullptr == context)
         {
@@ -138,22 +139,26 @@ namespace Timeline
     EventContext* EventTrack::AddEventFromCopyBuffer(std::string_view serialData, std::string_view typenameID, float time, UINT id)
     {
         UINT uniqueID = (id == UINT_MAX) ? GetUniqueID() : id;
-        auto it       = _contextTable.find(uniqueID);
+
+        auto it = _contextTable.find(uniqueID);
         if (it != _contextTable.end())
         {
             return it->second;
         }
+
         EventContext* context = NewInstanceWithKey(typenameID);
         if (nullptr == context)
         {
             context = new EventContext();
         }
+
         context->DeserializedReflectFields(serialData);
         context->ReflectFields->ContextID = uniqueID;
         context->ReflectFields->Time      = time;
         _contextQueue.push_back(context);
         _contextTable[uniqueID] = context;
         Sort();
+
         return context;
     }
     bool EventTrack::RemoveContextFromID(UINT id)
@@ -309,10 +314,10 @@ namespace Timeline
         ReflectFields->MaxFrame = maxFrame;
         _currFrame = ImClamp(_currFrame, ReflectFields->MinFrame, ReflectFields->MaxFrame);
     }
-    void EventTrack::SetCurrentFrame(float frame, bool pass) 
+    void EventTrack::SetCurrentFrame(float frame, bool donNotify) 
     {
         _currFrame = frame < GetMinFrame() ? GetMinFrame() : frame;
-        if (true == pass || false == IsActive())
+        if (true == donNotify || false == IsActive())
         {
             _prevFrame = _currFrame;
         }
@@ -350,6 +355,7 @@ namespace Timeline
                 else
                 {
                     bool canNotify = true;
+                    // Notify 이전에 미리 콜백을 날려준다. (여기서 return 값이 false로 판별될 경우 이벤트를 발생시키지 않는다.)
                     if (_preNotifyCallback)
                     {
                         canNotify = _preNotifyCallback(context);

@@ -112,7 +112,7 @@ namespace Timeline
         void            Sort();
         void            SetMinFrame(float minFrame);
         void            SetMaxFrame(float maxFrame);
-        void            SetCurrentFrame(float frame, bool pass = false);
+        void            SetCurrentFrame(float frame, bool donNotify = false);
         void            SetOwnerGameObject(std::weak_ptr<GameObject> weakObj);
 
         inline void     SetFlags(EventTrackFlags flags) { ReflectFields->Flags = flags; }
@@ -158,13 +158,12 @@ namespace Timeline
         float                    MaxFrame = 0.0f;
         EventTrackFlags          Flags    = 0;
         UINT                     UniqueID = 0;
-        std::vector <std::pair<EventTypeName, std::string>> SerializedDataList;
+        std::vector<std::pair<EventTypeName, std::string>> SerializedDataList;
         REFLECT_FIELDS_END(EventTrack)
 
         void SerializedReflectEvent() override;
         void DeserializedReflectEvent() override;
     };
-
 
     template <typename T> requires std::is_base_of_v<EventContext, T>
     inline EventContext* EventTrack::AddEvent(std::string_view label, float time)
