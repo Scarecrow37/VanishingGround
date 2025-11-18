@@ -111,8 +111,8 @@ namespace Timeline
 
         auto it = _contextTable.find(uniqueID);
         if (it != _contextTable.end())
-        {
-            return it->second;
+        {   // 이미 있으면 nullptr을 반환
+            return nullptr;
         }
 
         EventContext* context = NewInstanceWithKey(typenameID);
@@ -142,8 +142,8 @@ namespace Timeline
 
         auto it = _contextTable.find(uniqueID);
         if (it != _contextTable.end())
-        {
-            return it->second;
+        {   // 이미 있으면 nullptr을 반환
+            return nullptr;
         }
 
         EventContext* context = NewInstanceWithKey(typenameID);
@@ -283,13 +283,13 @@ namespace Timeline
         {
             return false;
         }
+        // 개행을 기준으로 1줄은 클래스 이름, 2줄은 직렬화 데이터
         size_t pos = data.find('\n');
         if (pos != std::string::npos)
         {
             std::string   typeName    = std::string(data.substr(0, pos));
             std::string   serialData  = std::string(data.substr(pos + 1));
-            EventContext* context     = AddEventFromCopyBuffer(serialData, typeName, time);
-            if (context)
+            if (EventContext* context = AddEventFromCopyBuffer(serialData, typeName, time))
             {
                 return true;
             }
@@ -307,12 +307,12 @@ namespace Timeline
     void EventTrack::SetMinFrame(float minFrame) 
     {
          ReflectFields->MinFrame = minFrame;
-        _currFrame = ImClamp(_currFrame, ReflectFields->MinFrame, ReflectFields->MaxFrame);
+        _currFrame = std::clamp(_currFrame, ReflectFields->MinFrame, ReflectFields->MaxFrame);
     }
     void EventTrack::SetMaxFrame(float maxFrame)
     {
         ReflectFields->MaxFrame = maxFrame;
-        _currFrame = ImClamp(_currFrame, ReflectFields->MinFrame, ReflectFields->MaxFrame);
+        _currFrame = std::clamp(_currFrame, ReflectFields->MinFrame, ReflectFields->MaxFrame);
     }
     void EventTrack::SetCurrentFrame(float frame, bool donNotify) 
     {

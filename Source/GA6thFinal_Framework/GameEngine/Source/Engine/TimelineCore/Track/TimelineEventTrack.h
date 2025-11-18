@@ -18,6 +18,7 @@ namespace Timeline
         using ContextQueue  = std::vector<EventContext*>;
         using ContextTable  = std::unordered_map<UINT, EventContext*>;
         using EventTypeName = std::string;
+
     public:
         EventTrack();
         virtual ~EventTrack();
