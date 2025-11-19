@@ -542,13 +542,7 @@ void ItemDropSystem::PlayItemDropUISequence()
                 ++i;
             }
 
-            // 포커스 되야할 버튼
-            ArtifactButtonNavi::LastFocusIndex = 0;
             itemDropUIRootManager->UpdateStory();
-            UmTime.Invoke(itemDropUIRootManager, fadeTime, [itemDropUIRootManager]() 
-            { 
-                itemDropUIRootManager->AutoFocus();
-            });
            
             if (BGMManager* bgmManager = SingletonComponent<BGMManager>::GetInstance())
             {
@@ -566,6 +560,10 @@ void ItemDropSystem::PlayItemDropUISequence()
 
             // UI 갱신
             _dropItemsModel.Notify();
+
+            // 포커스 되야할 버튼
+            ArtifactButtonNavi::LastFocusIndex = 0;
+            itemDropUIRootManager->AutoFocus();
         }
     }
 
