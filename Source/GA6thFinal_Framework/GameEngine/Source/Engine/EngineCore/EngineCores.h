@@ -99,6 +99,7 @@ namespace Global
 #define UmGizmoManager UmCore->GizmoManager
 #define UmUI UmCore->UserInterface
 #define UmPreferences UmCore->PreferencesSystem
+#define UmPacker Packer::System
 // Graphics
 #define UmParticleSerializer UmCore->ParticleSerializer
 #define UmGraphics UmCore->Graphics

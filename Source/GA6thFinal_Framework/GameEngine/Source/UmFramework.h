@@ -26,6 +26,8 @@ constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSettings";
 constexpr const wchar_t* BUILD_SETTING_PATH = L"BuildSettings"; 
 // 에셋 파일들 모아두는 폴더
 constexpr const wchar_t* ASSET_FOLDER_NAME = L"Assets";
+// 패킹 파일 이름
+constexpr const wchar_t* PACKER_FILE_NAME = L"Assets.UmPack";
 // 문자열 null을 명시적으로 표시하기 위한 값
 constexpr const char* STR_NULL = "null";
 
@@ -123,6 +125,9 @@ using namespace Microsoft::WRL;
 
 //Audio Module
 #include "../AudioModule/AudioModule.h"
+
+//Packer Module
+#include "../PackerModule/PackerModule.h"
 
 //Application Core
 #include "Engine/AppModule/Interface/IAppModule.h"

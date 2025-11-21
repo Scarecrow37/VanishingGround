@@ -12,15 +12,15 @@ EFileSystem::EFileSystem()
 }
 
 
-bool EFileSystem::LoadGameDirectory()
+bool EFileSystem::LoadGameDirectory(const std::filesystem::path& resourcePath)
 {
-    std::filesystem::path path = fs::current_path().generic_wstring();
-    _projectName        = path.stem().string();
-    _originPath         = fs::current_path().generic_wstring();
-    _rootPath           = fs::absolute(path).generic_wstring();
-    _assetPath          = fs::absolute(_rootPath / ASSET_FOLDER_NAME).generic_wstring();
-    _projectSettingPath = fs::absolute(_rootPath / PROJECT_SETTING_PATH).generic_wstring();
-    _buildSettingPath   = fs::absolute(_rootPath / BUILD_SETTING_PATH).generic_wstring(); 
+    const std::filesystem::path path = fs::current_path().generic_wstring();
+    _projectName                     = path.stem().string();
+    _originPath                      = fs::current_path().generic_wstring();
+    _rootPath                        = fs::absolute(path).generic_wstring();
+    _assetPath                       = fs::absolute(resourcePath).generic_wstring();
+    _projectSettingPath              = fs::absolute(_rootPath / PROJECT_SETTING_PATH).generic_wstring();
+    _buildSettingPath                = fs::absolute(_rootPath / BUILD_SETTING_PATH).generic_wstring(); 
 
     for (auto& subscriber : _subscriberSet)
         subscriber->OnRequestedLoad();

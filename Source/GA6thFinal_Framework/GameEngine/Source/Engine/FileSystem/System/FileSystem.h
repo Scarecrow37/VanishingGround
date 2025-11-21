@@ -67,7 +67,7 @@ public:
     /// <para>[PlayMode Only]</para>
     /// <para>플레이 모드에서 기본적으로 로드하는 작업을 수행합니다.</para>
     /// </summary>
-    bool LoadGameDirectory();
+    bool LoadGameDirectory(const std::filesystem::path& resourcePath);
     /// <summary>
     /// 지정된 경로에 새 프로젝트를 생성합니다. 기본적인 디렉토리 생성도 포함합니다.
     /// </summary>

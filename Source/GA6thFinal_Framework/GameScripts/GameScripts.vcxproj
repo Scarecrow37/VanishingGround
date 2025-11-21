@@ -228,7 +228,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(SolutionDir)GameEngine\bin\$(Configuration)\;$(SolutionDir)GameEngine\ThirdParty\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>GraphicsEngine.lib;GameEngine.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;XAtlasThirdParty.lib;UserInterfaceModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>GraphicsEngine.lib;GameEngine.lib;PackerModule.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;XAtlasThirdParty.lib;UserInterfaceModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">
@@ -250,7 +250,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(SolutionDir)GameEngine\bin\$(Configuration)\;$(SolutionDir)GameEngine\ThirdParty\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>GraphicsEngine.lib;GameEngine.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;XAtlasThirdParty.lib;UserInterfaceModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>GraphicsEngine.lib;GameEngine.lib;PackerModule.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;XAtlasThirdParty.lib;UserInterfaceModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -276,7 +276,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(SolutionDir)GameEngine\bin\$(Configuration)\;$(SolutionDir)GameEngine\ThirdParty\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>GraphicsEngine.lib;GameEngine.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;XAtlasThirdParty.lib;UserInterfaceModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>GraphicsEngine.lib;GameEngine.lib;PackerModule.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;XAtlasThirdParty.lib;UserInterfaceModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">
@@ -302,7 +302,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(SolutionDir)GameEngine\bin\$(Configuration)\;$(SolutionDir)GameEngine\ThirdParty\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>GraphicsEngine.lib;GameEngine.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;XAtlasThirdParty.lib;UserInterfaceModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>GraphicsEngine.lib;GameEngine.lib;PackerModule.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;XAtlasThirdParty.lib;UserInterfaceModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

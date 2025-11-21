@@ -654,6 +654,9 @@
     <ProjectReference Include="..\InstallerCusomAction\InstallerCusomAction.vcxproj">
       <Project>{7e4d57e2-be52-4b84-aa2b-5754349231a1}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\PackerModule\PackerModule.vcxproj">
+      <Project>{ebf304b9-1108-4611-9d8a-001d66bafb6f}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\UserInterfaceModule\UserInterfaceModule.vcxproj">
       <Project>{133fd9da-4bdb-4da1-be06-d61d62371f74}</Project>
     </ProjectReference>

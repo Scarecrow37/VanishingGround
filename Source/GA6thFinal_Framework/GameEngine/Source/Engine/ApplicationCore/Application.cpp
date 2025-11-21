@@ -101,6 +101,21 @@ bool Application::AppMessageHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
     return false;
 }
 
+struct GetAppDataResourcePath
+{
+    std::filesystem::path operator()() const
+    {
+        PWSTR p = nullptr;
+        if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_DEFAULT, nullptr, &p)))
+        {
+            const std::filesystem::path result = p;
+            CoTaskMemFree(p);
+            return result / std::filesystem::current_path().stem() / ASSET_FOLDER_NAME;
+        }
+        throw std::runtime_error("AppData경로 획득 실패");
+    }
+};
+
 void Application::Initialize(HINSTANCE hInstance)
 {
     //로케일 설정
@@ -129,7 +144,10 @@ void Application::Initialize(HINSTANCE hInstance)
     //게임 모드 체크
     if constexpr (false == Application::IsEditor())
     {
-        UmFileSystem.LoadGameDirectory();
+        std::filesystem::path packFilePath = std::filesystem::current_path() / PACKER_FILE_NAME;
+        std::filesystem::path resourcePath = GetAppDataResourcePath()();
+        UmPacker::Unpack(packFilePath, resourcePath);
+        UmFileSystem.LoadGameDirectory(resourcePath);
     }
 
     //Factory 초기화
