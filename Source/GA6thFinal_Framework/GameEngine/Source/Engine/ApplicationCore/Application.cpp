@@ -159,6 +159,14 @@ void Application::Initialize(HINSTANCE hInstance)
 
 void Application::UnInitialize()
 {
+    //게임 모드 체크
+    // 게임 모드 체크
+    if constexpr (false == Application::IsEditor())
+    {
+        std::filesystem::path resourcePath = GetAppDataResourcePath()();
+        std::filesystem::remove_all(resourcePath);
+    }
+
     //모듈 해제
     UnInitModules();
 
