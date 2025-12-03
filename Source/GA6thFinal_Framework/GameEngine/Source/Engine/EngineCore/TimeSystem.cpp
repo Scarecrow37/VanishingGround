@@ -25,7 +25,7 @@ void ETimeSystem::TimeSystemUpdate()
 
 	if (FixedTimeStep > std::numeric_limits<double>::epsilon())
 	{
-		_elapsedFixedTime += _deltaTime;
+        _elapsedFixedTime += _unscaledDeltaTime;
 	}
 
     UpdateInvokeFunctions();
